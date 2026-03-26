@@ -39,8 +39,6 @@ Every developer working on this boilerplate must have the following installed be
 
 After installing, run `gh auth login` and `stripe login` to authenticate before first use. Claude Code requires an Anthropic API key set as `ANTHROPIC_API_KEY` in the shell environment.
 
-> [!NOTE] Tool Agnosticism
-> While Claude Code is referenced throughout this document as the primary AI-assisted development interface, the workflow is tool-agnostic. **Qwen Code** or similar LLM-powered development tools can be used interchangeably. When using Qwen Code, configure the appropriate API key (e.g., `DASHSCOPE_API_KEY` for Alibaba Cloud's DashScope) and use `.qwen/` as the skills directory instead of `.claude/`.
 
 ### 1.4 Out of Scope for v1.0
 
@@ -807,9 +805,7 @@ Skills are `SKILL.md` files that Claude Code reads automatically when context is
 
 **Quality bar for any skill before committing to the repo:** does it contain project-specific procedural instructions that Claude Code can follow? If it reads like a persona prompt or a topic description, it is a subagent, not a skill — do not install it.
 
-All skills are committed to `.qwen/skills/` and versioned in git. Every developer and CI environment has identical behaviour.
-
-> [!NOTE] For Claude Code users: skills are stored in `.claude/skills/`. This document uses `.qwen/skills/` as the reference path for Qwen Code users. Adjust accordingly based on your chosen AI development tool.
+All skills are committed to `.claude/skills/` and versioned in git. Every developer and CI environment has identical behaviour.
 
 ---
 
@@ -1025,9 +1021,7 @@ Side effect containment in the e2e environment:
 
 - **IDE:** Claude Code — the primary development interface. All feature lifecycle phases (interview, PRD, breakdown, implementation) are driven through Claude Code using installed skills.
 - **TDD constraint:** The `tdd` skill enforces red-green-refactor strictly — Claude Code cannot shortcut to implementation without failing tests first. This is the primary mechanism for preventing sloppy AI-generated code.
-- **Skills are version-controlled:** The `.qwen/` directory containing all installed skills is committed to the repo. Every developer and CI environment has identical skill behaviour.
-
-> [!NOTE] For Claude Code users: the skills directory is `.claude/`. This document uses `.qwen/` as the reference path for Qwen Code users. Adjust accordingly based on your chosen AI development tool.
+- **Skills are version-controlled:** The `.claude/` directory containing all installed skills is committed to the repo. Every developer and CI environment has identical skill behaviour.
 
 ### 10.4 Architecture Decision Records (ADRs)
 
@@ -1121,7 +1115,7 @@ Search in this boilerplate context means **content search within the SaaS applic
 
 ## 12. Repository Structure (Proposed)
 
-**Convention:** every directory whose purpose is not self-evident from its name must contain a `README.md` explaining what belongs there, what doesn't, and why it exists. Mandatory at minimum for: `.qwen/`, `docs/adr/`, `migrations/`, `worker/`, and `scripts/`.
+**Convention:** every directory whose purpose is not self-evident from its name must contain a `README.md` explaining what belongs there, what doesn't, and why it exists. Mandatory at minimum for: `.claude/`, `docs/adr/`, `migrations/`, `worker/`, and `scripts/`.
 
 ```
 /
@@ -1152,7 +1146,7 @@ Search in this boilerplate context means **content search within the SaaS applic
 │   ├── cleanup-backups.sh
 │   ├── archive-audit-logs.sh
 │   └── cleanup-queue.sh
-├── .qwen/                  # Qwen Code installed skills (committed to repo)
+├── .claude/                # Claude Code installed skills (committed to repo)
 │   ├── README.md
 │   └── skills/             # mattpocock/skills + any custom skills
 ├── docs/

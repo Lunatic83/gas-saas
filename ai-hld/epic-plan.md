@@ -1,6 +1,6 @@
 # Implementation Strategy — Epic Plan
 
-> **Status**: Approved — ready to begin with Epic 1
+> **Status**: 🚧 Epic 1 In Progress
 > **Source**: Derived from [saas-blueprint-high-level-design.md](./saas-blueprint-high-level-design.md)
 
 ## Approach
@@ -15,38 +15,38 @@ Your HLD is already at medium-level detail (data models, service patterns, API c
 
 ### Phase A — Tooling & Scaffold
 
-| # | Epic | LLM? | Manual? |
-|---|------|------|---------|
-| **E1** | **SDLC Tooling** | ✅ | None |
-| | Skills install, `UBIQUITOUS_LANGUAGE.md`, label script, PR template, ADR template | | |
-| **E2** | **Project Scaffold & Dev Environment** | ✅ | None |
-| | Next.js, pnpm, Docker Compose (3 profiles), `.env.example`, linting/formatting, repo structure | | |
-| **E3** | **CI/CD Pipeline (Scaffold)** | ✅ | Branch protection — manual |
-| | GH Actions (lint, type-check, test, build), Dockerfile, `.github/` structure. Deploy stages added in E20. | | |
+| # | Status | Epic | LLM? | Manual? |
+|---|--------|------|------|---------|
+| **E1** | 🚧 In Progress | **SDLC Tooling** | ✅ | None |
+| | | Skills install, `UBIQUITOUS_LANGUAGE.md`, label script, PR template, ADR template | | |
+| **E2** | ⏳ Not Started | **Project Scaffold & Dev Environment** | ✅ | None |
+| | | Next.js, pnpm, Docker Compose (3 profiles), `.env.example`, linting/formatting, repo structure | | |
+| **E3** | ⏳ Not Started | **CI/CD Pipeline (Scaffold)** | ✅ | Branch protection — manual |
+| | | GH Actions (lint, type-check, test, build), Dockerfile, `.github/` structure. Deploy stages added in E20. | | |
 
 > [!IMPORTANT]
 > Every PR from E4 onward is validated by CI.
 
 ### Phase B — Data & Backend Core _(+ E20 infra in parallel)_
 
-| # | Epic | LLM? | Manual? |
-|---|------|------|---------|
-| **E4** | **Database & ORM** | ✅ | None |
+| # | Status | Epic | LLM? | Manual? |
+|---|--------|------|------|---------|
+| **E4** | ⏳ Not Started | **Database & ORM** | ✅ | None |
 | | Postgres in Docker, Drizzle, initial schema (users, accounts, account_memberships), migrations, seed skeleton | | |
-| **E5** | **Redis & Caching** | ✅ | None |
+| **E5** | ⏳ Not Started | **Redis & Caching** | ✅ | None |
 | | Redis in Docker, client, namespaces, rate limiting middleware | | |
-| **E6** | **Auth System (Backend)** | ✅ | OAuth apps (Google, GitHub) — manual |
+| **E6** | ⏳ Not Started | **Auth System (Backend)** | ✅ | OAuth apps (Google, GitHub) — manual |
 | | Better-Auth, email+password, magic link, OAuth, sessions (DB + Redis), middleware | | |
-| **E7** | **Multi-tenancy & RLS** | ✅ | None |
+| **E7** | ⏳ Not Started | **Multi-tenancy & RLS** | ✅ | None |
 | | `tenant_id` everywhere, RLS policies, middleware tenant resolution | | |
-| **E8** | **RBAC & Authorization** | ✅ | None |
+| **E8** | ⏳ Not Started | **RBAC & Authorization** | ✅ | None |
 | | Roles, `requirePermission` guards, ESLint rule | | |
 
 **Running in parallel (manual):**
 
-| # | Epic | LLM? | Manual? |
-|---|------|------|---------|
-| **E20** | **Production Infrastructure** | ❌ | Hetzner, Dokploy, DNS/Cloudflare, R2, SSL — all manual |
+| # | Status | Epic | LLM? | Manual? |
+|---|--------|------|------|---------|
+| **E20** | ⏳ Not Started | **Production Infrastructure** | ❌ | Hetzner, Dokploy, DNS/Cloudflare, R2, SSL — all manual |
 | | Server provisioning, Dokploy install, domain config, R2 buckets, backup scripts | | |
 
 > [!TIP]
@@ -54,9 +54,9 @@ Your HLD is already at medium-level detail (data models, service patterns, API c
 
 ### Phase C — Design System Gate
 
-| # | Epic | LLM? | Manual? |
-|---|------|------|---------|
-| **E9** | **Design System & Layout Shell** | ✅ | None |
+| # | Status | Epic | LLM? | Manual? |
+|---|--------|------|------|---------|
+| **E9** | ⏳ Not Started | **Design System & Layout Shell** | ✅ | None |
 | | shadcn/ui, Tailwind, design tokens, light/dark mode, app shell, responsive (375px+) | | |
 
 > [!IMPORTANT]
@@ -64,37 +64,37 @@ Your HLD is already at medium-level detail (data models, service patterns, API c
 
 ### Phase D — UI Layer
 
-| # | Epic | LLM? | Manual? |
-|---|------|------|---------|
-| **E10** | **Auth UI** | ✅ | None |
+| # | Status | Epic | LLM? | Manual? |
+|---|--------|------|------|---------|
+| **E10** | ⏳ Not Started | **Auth UI** | ✅ | None |
 | | Login, signup, magic link, OAuth buttons, password reset — all using design system | | |
-| **E11** | **Dashboard & Account UI** | ✅ | None |
+| **E11** | ⏳ Not Started | **Dashboard & Account UI** | ✅ | None |
 | | Dashboard shell, account settings, subscription UI, TanStack Query, Zustand, `nuqs` | | |
-| **E12** | **Super Admin Panel** | ✅ | None |
+| **E12** | ⏳ Not Started | **Super Admin Panel** | ✅ | None |
 | | `/admin/accounts` list, 3-tab detail (overview, members, subscription), impersonation, audit log | | |
 
 ### Phase E — Business Logic & Services
 
-| # | Epic | LLM? | Manual? |
-|---|------|------|---------|
-| **E13** | **Billing (Stripe)** | ✅ | Stripe account/products — manual |
+| # | Status | Epic | LLM? | Manual? |
+|---|--------|------|------|---------|
+| **E13** | ⏳ Not Started | **Billing (Stripe)** | ✅ | Stripe account/products — manual |
 | | Stripe integration, webhook handler (BullMQ), subscription tiers, Customer Portal, manual override | | |
-| **E14** | **Background Jobs (BullMQ)** | ✅ | None |
+| **E14** | ⏳ Not Started | **Background Jobs (BullMQ)** | ✅ | None |
 | | BullMQ setup, worker container, queue definitions, dead letter queue, graceful shutdown | | |
-| **E15** | **Email System** | ✅ | Resend account — manual |
+| **E15** | ⏳ Not Started | **Email System** | ✅ | Resend account — manual |
 | | React Email templates, BullMQ queue, Mailhog in dev/e2e, transactional flows | | |
-| **E16** | **Notification System** | ✅ | None |
+| **E16** | ⏳ Not Started | **Notification System** | ✅ | None |
 | | `notifications` table, BullMQ dispatch, bell icon UI, polling/SSE, mark-as-read | | |
 
 ### Phase F — Observability & Compliance
 
-| # | Epic | LLM? | Manual? |
-|---|------|------|---------|
-| **E17** | **Observability** | ⚠️ | GlitchTip + Uptime Kuma on Dokploy — manual |
+| # | Status | Epic | LLM? | Manual? |
+|---|--------|------|------|---------|
+| **E17** | ⏳ Not Started | **Observability** | ⚠️ | GlitchTip + Uptime Kuma on Dokploy — manual |
 | | Pino logging, health endpoints, GlitchTip SDK, Docker log rotation | | |
-| **E18** | **Feature Flags (GrowthBook)** | ⚠️ | GrowthBook on Dokploy — manual |
+| **E18** | ⏳ Not Started | **Feature Flags (GrowthBook)** | ⚠️ | GrowthBook on Dokploy — manual |
 | | SDK integration, server-side eval, Redis cache (60s), subscription tier gating | | |
-| **E19** | **GDPR Compliance** | ✅ | None |
+| **E19** | ⏳ Not Started | **GDPR Compliance** | ✅ | None |
 | | Hard delete cascade, data export, cookie consent stub, privacy/ToS pages | | |
 
 ### Phase G — Deploy & Go-Live
