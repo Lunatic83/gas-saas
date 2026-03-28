@@ -105,3 +105,15 @@ After all tests pass, look for [refactor candidates](refactoring.md):
 [ ] Code is minimal for this test
 [ ] No speculative features added
 ```
+
+## After Completing All Cycles
+
+When all behaviors have been implemented and tests pass, invoke `create-pr` to open the Draft PR:
+
+```
+create-pr
+```
+
+The `create-pr` skill reads the current branch name, fetches the task issue, fills the PR template, and opens a Draft PR. See `create-pr/SKILL.md` for full details.
+
+Do NOT close the task issue manually — the `Closes #N` in the PR body will close it automatically when the PR merges.
