@@ -89,7 +89,21 @@ gh pr create \
   --draft
 ```
 
-### 8. Link PR to Issue
+### 8. Assign Milestone
+
+If the task issue has a milestone, assign it to the PR:
+
+```bash
+# Get milestone from task issue
+MILESTONE=$(gh issue view {task-id} --json milestone --jq '.milestone.title')
+
+# Assign to PR if present
+if [ -n "$MILESTONE" ]; then
+  gh pr edit {pr-number} --milestone "$MILESTONE"
+fi
+```
+
+### 9. Link PR to Issue
 
 After creation, explicitly link the PR to the task issue:
 
@@ -99,6 +113,8 @@ gh pr edit {pr-url} --link-issue-url https://github.com/{owner}/{repo}/issues/{t
 
 This creates a bidirectional link visible in both the PR and the issue sidebar.
 
+> **Note**: `--link-issue-url` is a GitHub API feature not yet exposed in `gh pr edit`. Until it is, the `Closes #{task-id}` in the PR body is sufficient for GitHub to link the PR and issue. The issue will auto-close when the PR merges.
+
 ## Error Handling
 
 | Error | Action |
@@ -107,11 +123,13 @@ This creates a bidirectional link visible in both the PR and the issue sidebar.
 | Task issue not found | Stop. Ask user to verify the issue number. |
 | No commits on branch | Stop. Ask user to commit before creating PR. |
 | PR already exists | Report existing PR URL. Skip creation. |
+| `--reviewer @me` fails | Report PR URL without reviewer. User can add manually. |
 
 ## Output
 
-After successful creation and linking, report:
+After successful creation, milestone assignment, and linking, report:
 - PR URL
 - PR title
 - Branch name
+- Milestone assigned (if any)
 - "Convert to ready for review when CI is green and you're satisfied with the diff."
