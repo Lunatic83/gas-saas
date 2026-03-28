@@ -89,6 +89,16 @@ gh pr create \
   --draft
 ```
 
+### 8. Link PR to Issue
+
+After creation, explicitly link the PR to the task issue:
+
+```bash
+gh pr edit {pr-url} --link-issue-url https://github.com/{owner}/{repo}/issues/{task-id}
+```
+
+This creates a bidirectional link visible in both the PR and the issue sidebar.
+
 ## Error Handling
 
 | Error | Action |
@@ -100,7 +110,7 @@ gh pr create \
 
 ## Output
 
-After successful creation, report:
+After successful creation and linking, report:
 - PR URL
 - PR title
 - Branch name
