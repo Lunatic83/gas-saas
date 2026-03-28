@@ -68,3 +68,17 @@
 - name: "priority:normal"
   color: "6b7280"
   description: "Default priority"
+
+# ─── Nature ─────────────────────────────────────────────────────────────────────
+# Classifies the type of work. Determines which workflow to use.
+- name: "nature:code"
+  color: "10b981"
+  description: "Application code with business logic — TDD applicable"
+
+- name: "nature:config"
+  color: "64748b"
+  description: "Configuration, scripts, tooling — direct implement, no TDD"
+
+- name: "nature:manual"
+  color: "f59e0b"
+  description: "Out-of-codebase steps (infra, OAuth setup) — checklist + human execute"

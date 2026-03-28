@@ -799,6 +799,35 @@ GLITCHTIP_DSN=
 
 **GitHub is the single source of truth.** Every feature — its requirements, its structure, its tasks, and its status — lives exclusively in GitHub Issues. The toolchain that drives this is **Claude Code** with Matt Pocock's skills installed, and **`gh` CLI** for all GitHub interactions from the terminal.
 
+#### Workflow Selection
+
+Not all work requires the same workflow. Before starting, classify the task by `nature:` label to determine the correct approach:
+
+```
+Is it a manual/out-of-codebase task?   →  Workflow C: Manual Checklist
+                                          (nature:manual)
+Does it involve business logic to test?
+  YES, with ambiguity or cross-component decisions  →  Workflow A: Full Skill Chain
+                                                      (nature:code)
+  NO, well-scoped config or infrastructure         →  Workflow B: Simplified Chain
+                                                      (nature:config)
+```
+
+**Workflow A — Full Skill Chain** (`grill-me → write-a-prd → prd-to-issues → tdd`)
+- Use for: `nature:code` tasks with ambiguity, new business logic, cross-component decisions
+- Epic-type work or Stories with uncertainty
+- TDD loop applies
+
+**Workflow B — Simplified Chain** (task breakdown → direct implement → PR)
+- Use for: `nature:config` tasks — well-scoped config, scripts, tooling setup, known patterns
+- No grill-me interview, no write-a-prd, no TDD
+- Direct implementation, then PR
+
+**Workflow C — Manual Checklist** (LLM outputs steps → human executes → close)
+- Use for: `nature:manual` tasks — infrastructure setup (Dokploy, DNS, OAuth app creation), external service config
+- LLM produces a step-by-step checklist as the issue body; human executes outside the codebase; issue closed when done
+- No branch, no code, no TDD
+
 #### Installed Skills
 
 Skills are `SKILL.md` files that Claude Code reads automatically when context is relevant. They contain **procedural instructions** — "when you see X, do Y" — and are project-aware (they can read your actual codebase). They are distinct from **subagents**, which are generic AI persona descriptions ("you are an expert in X") and add no value over Claude's existing training knowledge.
@@ -811,18 +840,20 @@ All skills are committed to `.claude/skills/` and versioned in git. Every develo
 
 ##### Matt Pocock Workflow Skills
 
-The SDLC methodology backbone. All procedural, all project-aware.
+The SDLC methodology backbone. All procedural, all project-aware. Skills are installed manually into `.claude/skills/` and tracked in git — not via npm or a lockfile.
 
-```bash
-npx skills@latest add mattpocock/skills/ubiquitous-language
-npx skills@latest add mattpocock/skills/grill-me
-npx skills@latest add mattpocock/skills/write-a-prd
-npx skills@latest add mattpocock/skills/prd-to-issues
-npx skills@latest add mattpocock/skills/tdd
-npx skills@latest add mattpocock/skills/triage-issue
-npx skills@latest add mattpocock/skills/request-refactor-plan
-npx skills@latest add mattpocock/skills/git-guardrails-claude-code
-```
+**Skills to install** (one-time per repo):
+
+| Skill | Purpose |
+|-------|---------|
+| `grill-me` | Relentless scope interview |
+| `ubiquitous-language` | Canonical domain glossary |
+| `write-a-prd` | PRD authoring |
+| `prd-to-issues` | Vertical slice breakdown |
+| `tdd` | Red-green-refactor loop |
+| `triage-issue` | Bug root-cause investigation |
+| `request-refactor-plan` | Technical debt planning |
+| `git-guardrails-claude-code` | Blocks dangerous git commands |
 
 ---
 
@@ -890,23 +921,28 @@ Before any feature work begins, the project maintains a **canonical domain gloss
 
 #### The Feature Lifecycle — Skill by Skill
 
-**Phase 1 — Scope & Interview (`grill-me`)**
-The developer describes the feature idea to Claude Code. Claude Code invokes `grill-me` — a relentless interview that walks down every branch of the decision tree until all dependencies between decisions are resolved. No Issue is created until the interview reaches a shared understanding. This is the scope gate: Epic or Story is determined here, not by a checklist.
+**Workflow A — Full Skill Chain** (for `nature:code` tasks with ambiguity)
 
-**Phase 2 — PRD (`write-a-prd`)**
-Once scope is resolved, Claude Code invokes `write-a-prd`. It explores the codebase to verify the developer's assertions, sketches the major modules to build or modify, and actively looks for deep modules — functionality that can be encapsulated behind a simple, testable interface. The output is a PRD submitted directly as a GitHub Issue via `gh issue create`. The PRD contains: problem statement, solution, exhaustive numbered user stories, implementation decisions, and testing decisions. No file paths or code snippets — they go stale.
+- **Phase 1 — Scope (`grill-me`)**: Developer describes the feature idea. Claude Code walks down every branch of the decision tree until scope is resolved. No Issue created until shared understanding is reached.
+- **Phase 2 — PRD (`write-a-prd`)**: Codebase exploration + PRD authored as a GitHub Issue. Contains: problem statement, solution, exhaustive user stories, implementation decisions, testing decisions. No file paths or code snippets.
+- **Phase 3 — Breakdown (`prd-to-issues`)**: PRD → child GitHub Issues (vertical slices, max 4h each), ordered by dependency. GitHub Milestone created per Story. Each task linked to parent PRD.
+- **Phase 4 — Implement (`tdd`)**: Per task: red-green-refactor loop. One vertical slice at a time. Opens PR referencing the task Issue (`closes #N`). Developer reviews and merges before next task.
 
-**Phase 3 — Issue Breakdown (`prd-to-issues`)**
-Claude Code invokes `prd-to-issues` against the PRD issue. It reads the PRD and generates child GitHub Issues via `gh` — one per implementation task. Tasks are atomic (max 4 hours), ordered by dependency, and written as unambiguous specifications. Each task Issue is linked back to the parent PRD Issue via GitHub Tasklists. A GitHub Milestone is created per Story and all task issues are assigned to it.
+**Workflow B — Simplified Chain** (for `nature:config` tasks)
 
-**Phase 4 — Implementation (`tdd`)**
-Claude Code invokes `tdd` per task. The `tdd` skill implements one vertical slice at a time using a strict red-green-refactor loop. It does not improvise — it implements exactly what the task Issue specifies. When a task is complete, Claude Code opens a PR via `gh pr create` that references the task Issue (`closes #N`). The developer reviews and merges. The agent picks up the next task.
+- Developer breaks work into tasks directly (no grill-me, no write-a-prd)
+- Each task: branch → implement → PR (`closes #N`)
+- No TDD loop — direct implementation
 
-**Phase 5 — Bug path (`triage-issue`)**
-When a bug is found, Claude Code invokes `triage-issue` — it explores the codebase, identifies the root cause, and files a GitHub Issue with a TDD-based fix plan. The fix Issue then enters the standard `tdd` loop.
+**Workflow C — Manual Checklist** (for `nature:manual` tasks)
 
-**Phase 6 — Refactor path (`request-refactor-plan`)**
-For technical debt, Claude Code invokes `request-refactor-plan` — an interview-driven refactor plan filed as a GitHub Issue with a sequence of tiny, safe commits. Enters the standard `tdd` loop.
+- LLM outputs a step-by-step checklist as the issue body
+- Human executes the steps outside the codebase
+- Issue closed when human confirms completion
+
+**Bug path (`triage-issue`)**: For `nature:code` bugs — root-cause investigation → fix plan as GitHub Issue → enters `tdd` loop.
+
+**Refactor path (`request-refactor-plan`)**: For `nature:code` technical debt — refactor plan as GitHub Issue → enters `tdd` loop.
 
 ---
 
@@ -933,14 +969,13 @@ status:in-progress  ← agent currently working
 status:blocked      ← waiting on decision or dependency
 
 priority:critical  /  priority:high  /  priority:normal
+
+nature:code         ← application code — TDD applicable
+nature:config      ← config, scripts, tooling — direct implement
+nature:manual      ← out-of-codebase steps — checklist + human execute
 ```
 
-**Setup:** two complementary mechanisms, both committed to the repo.
-
-- `scripts/setup-github-labels.sh` — a `gh`-based shell script that creates all labels on a fresh repo. Run once after cloning: `bash scripts/setup-github-labels.sh`. Deletes GitHub's default labels first for a clean slate.
-- `.github/labels.yml` + `EndBug/label-sync` GitHub Action — declarative label definition synced automatically on push. Corrects any manual drift in the GitHub UI. Triggers when `.github/labels.yml` changes.
-
-The script handles first-time setup; the Action maintains correctness over time.
+**Setup:** `.github/labels.yml` + `EndBug/label-sync` GitHub Action. On first run, the Action creates all labels defined in the YAML file. On subsequent pushes to `labels.yml`, it syncs any changes and removes drift. Run the Action manually on a fresh repo by pushing any commit that touches `.github/labels.yml`.
 
 #### Milestones
 
@@ -949,6 +984,40 @@ One GitHub Milestone per Story. Created by `prd-to-issues` at breakdown time. Al
 #### Git Safety (`git-guardrails-claude-code`)
 
 Claude Code hooks installed by `git-guardrails-claude-code` block dangerous git commands — force pushes to `main`, direct commits bypassing pre-commit hooks, and other destructive operations. These run as Claude Code pre-tool hooks and cannot be bypassed from within a Claude Code session.
+
+**One-time installation steps:**
+
+1. **Copy the hook script** (from the skill directory to `.claude/hooks/`):
+   ```bash
+   mkdir -p .claude/hooks
+   cp .claude/skills/git-guardrails-claude-code/scripts/block-dangerous-git.sh \
+      .claude/hooks/block-dangerous-git.sh
+   chmod +x .claude/hooks/block-dangerous-git.sh
+   ```
+
+2. **Choose scope** — project-only (`.claude/settings.local.json`) or global (`~/.claude/settings.json`). Project scope is recommended for team repos.
+
+3. **Merge hook into settings** — add the PreToolUse hook block to the settings JSON:
+   ```json
+   {
+     "hooks": {
+       "PreToolUse": [{
+         "matcher": "Bash",
+         "hooks": [{
+           "type": "command",
+           "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-dangerous-git.sh"
+         }]
+       }]
+     }
+   }
+   ```
+
+4. **Verify** — the hook is active when Claude Code starts. To test manually:
+   ```bash
+   echo '{"tool_input":{"command":"git push origin main"}}' | \
+     .claude/hooks/block-dangerous-git.sh
+   # Must exit 2 with BLOCKED message
+   ```
 
 #### `gh` CLI Integration
 
@@ -968,25 +1037,39 @@ All GitHub interactions from Claude Code use `gh`. No browser required during fe
 Phase 0 (once):
   → ubiquitous-language: generate UBIQUITOUS_LANGUAGE.md from architecture doc
 
-Per Epic:
-  Developer describes feature idea
-  → grill-me: relentless interview, scope resolved (Epic or Story)
-  → ubiquitous-language: extend glossary with new domain concepts from interview
-  → write-a-prd: codebase exploration + PRD (using canonical terms) → gh issue create
-  → prd-to-issues: PRD → task issues via gh + Milestone created
+Per Epic — determine workflow type first (see Workflow Selection above):
 
-Claude Code tdd loop (per task, in order):
-  → reads task Issue spec verbatim
-  → writes failing tests (red)
-  → implements minimum to pass (green)
-  → cleans up (refactor)
+Workflow A (nature:code + ambiguity):
+  → grill-me: scope interview → shared understanding
+  → ubiquitous-language: extend glossary with new domain concepts
+  → write-a-prd: PRD as GitHub Issue
+  → prd-to-issues: vertical slices as GitHub Issues + Milestone
+  Per task (tdd loop):
+    → branch: git checkout -b task/{id}-short-description
+    → red: failing test
+    → green: minimal code
+    → refactor
+    → gh pr create (closes #task)
+    → developer reviews + merges
+    → issue closes automatically
+
+Workflow B (nature:config):
+  → task breakdown (manual or via prd-to-issue with no PRD interview)
+  → branch per task
+  → direct implement
   → gh pr create (closes #task)
   → developer reviews + merges
-  → next task
 
-Bug found → triage-issue → gh issue create (fix plan) → tdd loop
-Tech debt → request-refactor-plan → gh issue create → tdd loop
+Workflow C (nature:manual):
+  → LLM outputs checklist as issue body
+  → human executes outside codebase
+  → human closes issue when done
+
+Bug (nature:code) → triage-issue → fix plan issue → tdd loop
+Tech debt (nature:code) → request-refactor-plan → plan issue → tdd loop
 ```
+
+**Issue close rule**: Issues close only after PR merges (via `Closes #N`) or after human confirms completion for `nature:manual`. Never close an issue before a PR referencing it exists.
 
 ### 10.2 Testing Strategy
 

@@ -5,9 +5,19 @@
 
 ## Approach
 
-**1 intermediate step** (this document), then iterate per epic: `grill-me` → `write-a-prd` → `prd-to-issues` → `tdd`.
+**Workflow-first**: Before starting any epic, classify by `nature:` label to determine the correct workflow. See HLD Section 10.1 "Workflow Selection".
 
-Your HLD is already at medium-level detail (data models, service patterns, API contracts). A separate mid-level design would restate what's there. What you need is this **epic breakdown with dependency ordering**, then the SDLC flow per epic produces just-in-time PRDs that stay accurate.
+This document is the epic breakdown with dependency ordering. SDLC flow is applied per epic based on workflow type.
+
+**Workflow key:**
+- **A** = Full Skill Chain (`grill-me → write-a-prd → prd-to-issues → tdd`)
+- **B** = Simplified Chain (task breakdown → implement → PR)
+- **C** = Manual Checklist (LLM outputs steps → human executes → close)
+
+**Nature key:**
+- **code** = application code, TDD applicable
+- **config** = configuration, scripts, tooling
+- **manual** = out-of-codebase steps
 
 ---
 
@@ -15,13 +25,13 @@ Your HLD is already at medium-level detail (data models, service patterns, API c
 
 ### Phase A — Tooling & Scaffold
 
-| # | Status | Epic | LLM? | Manual? |
-|---|--------|------|------|---------|
-| **E1** | 🚧 In Progress | **SDLC Tooling** | ✅ | None |
+| # | Status | Epic | Nature | Workflow |
+|---|--------|------|--------|----------|
+| **E1** | ✅ Done | **SDLC Tooling** | `config` | B |
 | | | Skills install, `UBIQUITOUS_LANGUAGE.md`, label script, PR template, ADR template | | |
-| **E2** | ⏳ Not Started | **Project Scaffold & Dev Environment** | ✅ | None |
+| **E2** | ⏳ Not Started | **Project Scaffold & Dev Environment** | `config` | B |
 | | | Next.js, pnpm, Docker Compose (3 profiles), `.env.example`, linting/formatting, repo structure | | |
-| **E3** | ⏳ Not Started | **CI/CD Pipeline (Scaffold)** | ✅ | Branch protection — manual |
+| **E3** | ⏳ Not Started | **CI/CD Pipeline (Scaffold)** | `config` | B |
 | | | GH Actions (lint, type-check, test, build), Dockerfile, `.github/` structure. Deploy stages added in E20. | | |
 
 > [!IMPORTANT]
@@ -29,34 +39,34 @@ Your HLD is already at medium-level detail (data models, service patterns, API c
 
 ### Phase B — Data & Backend Core _(+ E20 infra in parallel)_
 
-| # | Status | Epic | LLM? | Manual? |
-|---|--------|------|------|---------|
-| **E4** | ⏳ Not Started | **Database & ORM** | ✅ | None |
+| # | Status | Epic | Nature | Workflow |
+|---|--------|------|--------|----------|
+| **E4** | ⏳ Not Started | **Database & ORM** | `code` | A |
 | | Postgres in Docker, Drizzle, initial schema (users, accounts, account_memberships), migrations, seed skeleton | | |
-| **E5** | ⏳ Not Started | **Redis & Caching** | ✅ | None |
+| **E5** | ⏳ Not Started | **Redis & Caching** | `code` | B |
 | | Redis in Docker, client, namespaces, rate limiting middleware | | |
-| **E6** | ⏳ Not Started | **Auth System (Backend)** | ✅ | OAuth apps (Google, GitHub) — manual |
+| **E6** | ⏳ Not Started | **Auth System (Backend)** | `code` | A |
 | | Better-Auth, email+password, magic link, OAuth, sessions (DB + Redis), middleware | | |
-| **E7** | ⏳ Not Started | **Multi-tenancy & RLS** | ✅ | None |
+| **E7** | ⏳ Not Started | **Multi-tenancy & RLS** | `code` | A |
 | | `tenant_id` everywhere, RLS policies, middleware tenant resolution | | |
-| **E8** | ⏳ Not Started | **RBAC & Authorization** | ✅ | None |
+| **E8** | ⏳ Not Started | **RBAC & Authorization** | `code` | B |
 | | Roles, `requirePermission` guards, ESLint rule | | |
 
 **Running in parallel (manual):**
 
-| # | Status | Epic | LLM? | Manual? |
-|---|--------|------|------|---------|
-| **E20** | ⏳ Not Started | **Production Infrastructure** | ❌ | Hetzner, Dokploy, DNS/Cloudflare, R2, SSL — all manual |
+| # | Status | Epic | Nature | Workflow |
+|---|--------|------|--------|----------|
+| **E20** | ⏳ Not Started | **Production Infrastructure** | `manual` | C |
 | | Server provisioning, Dokploy install, domain config, R2 buckets, backup scripts | | |
 
 > [!TIP]
-> E20 is independent manual work. Start it alongside Phase B so production infra is ready by the time features are built. LLM outputs a step-by-step checklist; you execute it.
+> E20 uses Workflow C (Manual Checklist). LLM outputs step-by-step checklist; you execute it. Start alongside Phase B so infra is ready by the time features are built.
 
 ### Phase C — Design System Gate
 
-| # | Status | Epic | LLM? | Manual? |
-|---|--------|------|------|---------|
-| **E9** | ⏳ Not Started | **Design System & Layout Shell** | ✅ | None |
+| # | Status | Epic | Nature | Workflow |
+|---|--------|------|--------|----------|
+| **E9** | ⏳ Not Started | **Design System & Layout Shell** | `code` | A |
 | | shadcn/ui, Tailwind, design tokens, light/dark mode, app shell, responsive (375px+) | | |
 
 > [!IMPORTANT]
@@ -64,37 +74,37 @@ Your HLD is already at medium-level detail (data models, service patterns, API c
 
 ### Phase D — UI Layer
 
-| # | Status | Epic | LLM? | Manual? |
-|---|--------|------|------|---------|
-| **E10** | ⏳ Not Started | **Auth UI** | ✅ | None |
+| # | Status | Epic | Nature | Workflow |
+|---|--------|------|--------|----------|
+| **E10** | ⏳ Not Started | **Auth UI** | `code` | B |
 | | Login, signup, magic link, OAuth buttons, password reset — all using design system | | |
-| **E11** | ⏳ Not Started | **Dashboard & Account UI** | ✅ | None |
+| **E11** | ⏳ Not Started | **Dashboard & Account UI** | `code` | B |
 | | Dashboard shell, account settings, subscription UI, TanStack Query, Zustand, `nuqs` | | |
-| **E12** | ⏳ Not Started | **Super Admin Panel** | ✅ | None |
+| **E12** | ⏳ Not Started | **Super Admin Panel** | `code` | B |
 | | `/admin/accounts` list, 3-tab detail (overview, members, subscription), impersonation, audit log | | |
 
 ### Phase E — Business Logic & Services
 
-| # | Status | Epic | LLM? | Manual? |
-|---|--------|------|------|---------|
-| **E13** | ⏳ Not Started | **Billing (Stripe)** | ✅ | Stripe account/products — manual |
+| # | Status | Epic | Nature | Workflow |
+|---|--------|------|--------|----------|
+| **E13** | ⏳ Not Started | **Billing (Stripe)** | `code` | A |
 | | Stripe integration, webhook handler (BullMQ), subscription tiers, Customer Portal, manual override | | |
-| **E14** | ⏳ Not Started | **Background Jobs (BullMQ)** | ✅ | None |
+| **E14** | ⏳ Not Started | **Background Jobs (BullMQ)** | `config` | B |
 | | BullMQ setup, worker container, queue definitions, dead letter queue, graceful shutdown | | |
-| **E15** | ⏳ Not Started | **Email System** | ✅ | Resend account — manual |
+| **E15** | ⏳ Not Started | **Email System** | `config` | B |
 | | React Email templates, BullMQ queue, Mailhog in dev/e2e, transactional flows | | |
-| **E16** | ⏳ Not Started | **Notification System** | ✅ | None |
+| **E16** | ⏳ Not Started | **Notification System** | `code` | B |
 | | `notifications` table, BullMQ dispatch, bell icon UI, polling/SSE, mark-as-read | | |
 
 ### Phase F — Observability & Compliance
 
-| # | Status | Epic | LLM? | Manual? |
-|---|--------|------|------|---------|
-| **E17** | ⏳ Not Started | **Observability** | ⚠️ | GlitchTip + Uptime Kuma on Dokploy — manual |
+| # | Status | Epic | Nature | Workflow |
+|---|--------|------|--------|----------|
+| **E17** | ⏳ Not Started | **Observability** | `config` | B |
 | | Pino logging, health endpoints, GlitchTip SDK, Docker log rotation | | |
-| **E18** | ⏳ Not Started | **Feature Flags (GrowthBook)** | ⚠️ | GrowthBook on Dokploy — manual |
+| **E18** | ⏳ Not Started | **Feature Flags (GrowthBook)** | `code` | B |
 | | SDK integration, server-side eval, Redis cache (60s), subscription tier gating | | |
-| **E19** | ⏳ Not Started | **GDPR Compliance** | ✅ | None |
+| **E19** | ⏳ Not Started | **GDPR Compliance** | `code` | B |
 | | Hard delete cascade, data export, cookie consent stub, privacy/ToS pages | | |
 
 ### Phase G — Deploy & Go-Live
@@ -140,15 +150,15 @@ graph TD
 
 ---
 
-## LLM vs Manual Summary
+## Workflow & Nature Summary
 
-| | Count | Examples |
-|---|---|---|
-| **Fully LLM** | ~14 | Scaffold, DB, RBAC, design system, all UI, BullMQ, notifications, GDPR |
-| **LLM + manual** | ~4 | Auth (OAuth apps), Billing (Stripe), Email (Resend), CI/CD (GitHub) |
-| **Mostly manual** | ~2 | Production infra, observability tools |
+| Nature | Count | Workflow | TDD? |
+|--------|-------|----------|------|
+| `code` | ~11 | A or B | Yes (A only) |
+| `config` | ~7 | B | No |
+| `manual` | ~1 | C | No |
 
-**Manual step workflow**: LLM builds code → outputs exact checklist → you execute → LLM wires in credentials and verifies.
+See HLD Section 10.1 "Workflow Selection" for full definitions.
 
 ---
 
@@ -157,3 +167,4 @@ graph TD
 1. **Every PR from E4+ runs through CI** (E3 is the gate)
 2. **No UI work before E9** (Design System is the gate)
 3. **E20 runs in parallel** with Phases B–E (manual infra, independent of code)
+4. **Classify by `nature:` before starting** — choose workflow based on task type, not epic number
