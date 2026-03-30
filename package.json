@@ -3,7 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "./scripts/wait-for-it.sh localhost:5432 localhost:6379 -- next dev",
+    "dev:services": "docker compose --profile dev up -d",
+    "dev:services:watch": "docker compose --profile dev up",
+    "dev:stop": "docker compose --profile dev down",
+    "dev:clean": "docker compose --profile dev down -v",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
