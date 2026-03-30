@@ -1,6 +1,6 @@
 # Implementation Strategy — Epic Plan
 
-> **Status**: 🚧 Epic 1 In Progress
+> **Status**: 🚧 Epic 2 In Progress
 > **Source**: Derived from [saas-blueprint-high-level-design.md](./saas-blueprint-high-level-design.md)
 
 ## Approach
@@ -29,10 +29,10 @@ This document is the epic breakdown with dependency ordering. SDLC flow is appli
 |---|--------|------|--------|----------|
 | **E1** | ✅ Done | **SDLC Tooling** | `config` | B |
 | | | Skills install, `UBIQUITOUS_LANGUAGE.md`, label script, PR template, ADR template | | |
-| **E2** | ⏳ Not Started | **Project Scaffold & Dev Environment** | `config` | B |
-| | | Next.js, pnpm, Docker Compose (3 profiles), `.env.example`, linting/formatting, repo structure | | |
+| **E2** | 🚧 In Progress | **Project Scaffold & Dev Environment** | `config` | B |
+| | | Next.js, pnpm, Docker Compose (3 profiles), `.env.example`, ESLint + Prettier, Husky + lint-staged + commitlint, pre-commit validation, repo structure, root README | | |
 | **E3** | ⏳ Not Started | **CI/CD Pipeline (Scaffold)** | `config` | B |
-| | | GH Actions (lint, type-check, test, build), Dockerfile, `.github/` structure. Deploy stages added in E20. | | |
+| | | GH Actions (lint, type-check, test, build), Dockerfile, smoke + full E2E split (nightly cron `0 3 * * *`), `.github/` structure. Deploy stages added in E20. | | |
 
 > [!IMPORTANT]
 > Every PR from E4 onward is validated by CI.
@@ -57,7 +57,7 @@ This document is the epic breakdown with dependency ordering. SDLC flow is appli
 | # | Status | Epic | Nature | Workflow |
 |---|--------|------|--------|----------|
 | **E20** | ⏳ Not Started | **Production Infrastructure** | `manual` | C |
-| | Server provisioning, Dokploy install, domain config, R2 buckets, backup scripts | | |
+| | Server provisioning, Dokploy install, domain config, R2 buckets, Uptime Kuma, `scripts/backup-db.sh`, `scripts/cleanup-backups.sh`, `scripts/archive-audit-logs.sh`, `scripts/cleanup-queue.sh` | | |
 
 > [!TIP]
 > E20 uses Workflow C (Manual Checklist). LLM outputs step-by-step checklist; you execute it. Start alongside Phase B so infra is ready by the time features are built.
@@ -101,7 +101,7 @@ This document is the epic breakdown with dependency ordering. SDLC flow is appli
 | # | Status | Epic | Nature | Workflow |
 |---|--------|------|--------|----------|
 | **E17** | ⏳ Not Started | **Observability** | `config` | B |
-| | Pino logging, health endpoints, GlitchTip SDK, Docker log rotation | | |
+| | Pino logging, health endpoints, GlitchTip SDK, Docker log rotation, Uptime Kuma | | |
 | **E18** | ⏳ Not Started | **Feature Flags (GrowthBook)** | `code` | B |
 | | SDK integration, server-side eval, Redis cache (60s), subscription tier gating | | |
 | **E19** | ⏳ Not Started | **GDPR Compliance** | `code` | B |
