@@ -1244,8 +1244,10 @@ Search in this boilerplate context means **content search within the SaaS applic
 │   ├── workflows/          # GitHub Actions
 │   ├── labels.yml          # Declarative label definitions — synced by EndBug/label-sync action
 │   └── PULL_REQUEST_TEMPLATE.md
+├── data/                   # Docker data volumes (postgres, redis) — gitignored
 ├── docker-compose.yml      # Base service definitions (Postgres, Redis, Mailhog)
-│                           # Profiles: --profile dev | --profile full | --profile e2e
+│                           # Profiles: --profile dev | --profile container | --profile e2e
+│                           # Data volumes: ./data/postgres, ./data/redis (gitignored)
 ├── Dockerfile              # Next.js production image
 ├── .env.example            # All env vars documented with comments — source of truth for local setup
 ├── .env.e2e.example        # E2E-specific env vars (isolated DB, test credentials)
