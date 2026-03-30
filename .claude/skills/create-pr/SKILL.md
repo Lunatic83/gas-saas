@@ -57,6 +57,7 @@ Example: `feat: add user registration endpoint (closes #42)`
 4. Keep the template structure intact
 
 If no template exists, use a minimal body:
+
 ```markdown
 ## Summary
 
@@ -72,6 +73,7 @@ Closes #{task-id}
 ### 6. Extract Labels
 
 From the task issue labels, include:
+
 - `type:task` (always)
 - `nature:code` or `nature:config` (from task)
 - Any `domain:*` labels present on the task
@@ -117,17 +119,18 @@ This creates a bidirectional link visible in both the PR and the issue sidebar.
 
 ## Error Handling
 
-| Error | Action |
-|-------|--------|
+| Error                                | Action                                                   |
+| ------------------------------------ | -------------------------------------------------------- |
 | Branch name doesn't match `task/N-*` | Stop. Ask user to confirm they're on the correct branch. |
-| Task issue not found | Stop. Ask user to verify the issue number. |
-| No commits on branch | Stop. Ask user to commit before creating PR. |
-| PR already exists | Report existing PR URL. Skip creation. |
-| `--reviewer @me` fails | Report PR URL without reviewer. User can add manually. |
+| Task issue not found                 | Stop. Ask user to verify the issue number.               |
+| No commits on branch                 | Stop. Ask user to commit before creating PR.             |
+| PR already exists                    | Report existing PR URL. Skip creation.                   |
+| `--reviewer @me` fails               | Report PR URL without reviewer. User can add manually.   |
 
 ## Output
 
 After successful creation, milestone assignment, and linking, report:
+
 - PR URL
 - PR title
 - Branch name

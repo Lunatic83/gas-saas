@@ -1,10 +1,6 @@
 {
   "permissions": {
-    "allow": [
-      "Bash(npx:*)",
-      "WebSearch",
-      "WebFetch(domain:raw.githubusercontent.com)"
-    ]
+    "allow": ["Bash(npx:*)", "WebSearch", "WebFetch(domain:raw.githubusercontent.com)"]
   },
   "hooks": {
     "PreToolUse": [
