@@ -3,16 +3,10 @@ name: gas-saas
 services:
   postgres:
     image: postgres:16-alpine
-    profiles:
-      - dev
-      - e2e
-      - container
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: saas_dev
-    ports:
-      - '5432:5432'
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
     healthcheck:
@@ -23,12 +17,6 @@ services:
 
   redis:
     image: redis:7-alpine
-    profiles:
-      - dev
-      - e2e
-      - container
-    ports:
-      - '6379:6379'
     volumes:
       - ./data/redis:/data
     command: redis-server --appendonly yes
@@ -40,12 +28,6 @@ services:
 
   mailhog:
     image: mailhog/mailhog:latest
-    profiles:
-      - dev
-      - e2e
-    ports:
-      - '1025:1025'
-      - '8025:8025'
     healthcheck:
       test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:8025']
       interval: 10s
