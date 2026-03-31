@@ -1,0 +1,189 @@
+name: AI Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  ai-review:
+    name: AI Code Review
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gather PR context
+        id: context
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          # PR info
+          pr_data=$(gh pr view $PR_NUMBER --json title,body --jq '{title: .title, body: .body}')
+          echo "pr_title=$(echo "$pr_data" | jq -r '.title' | head -c 2000)" >> $GITHUB_OUTPUT
+          echo "pr_body=$(echo "$pr_data" | jq -r '.body // empty' | head -c 10000)" >> $GITHUB_OUTPUT
+
+          # Issue number from branch name (last numeric segment)
+          branch_name="${{ github.head_ref }}"
+          issue_num=$(echo "$branch_name" | grep -oE '[0-9]+' | tail -1)
+          echo "issue_number=${issue_num:-}" >> $GITHUB_OUTPUT
+
+      - name: Get issue body
+        id: issue
+        if: steps.context.outputs.issue_number != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          issue_body=$(gh issue view "${{ steps.context.outputs.issue_number }}" --json body --jq '.body // empty' 2>/dev/null | head -c 5000)
+          echo "issue_body=$issue_body" >> $GITHUB_OUTPUT
+
+      - name: Get diff
+        id: diff
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          diff_output=$(gh pr diff "$PR_NUMBER" 2>/dev/null)
+          total_lines=$(echo "$diff_output" | wc -l)
+
+          if [ "$total_lines" -gt 2000 ]; then
+            echo "$diff_output" | head -n 2000 > /tmp/pr_diff.txt
+            echo "truncated=true" >> $GITHUB_OUTPUT
+            echo "total_lines=$total_lines" >> $GITHUB_OUTPUT
+          else
+            echo "$diff_output" > /tmp/pr_diff.txt
+            echo "truncated=false" >> $GITHUB_OUTPUT
+            echo "total_lines=$total_lines" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Call MiniMax API
+        id: api
+        env:
+          MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          MINIMAX_ENDPOINT: https://api.minimax.io/anthropic
+        run: |
+          python3 << PYTHON_SCRIPT'
+          import os
+          import json
+          import urllib.request
+          import urllib.error
+
+          api_key = os.environ.get('MINIMAX_API_KEY', '')
+          endpoint = os.environ.get('MINIMAX_ENDPOINT', '')
+          pr_title = os.environ.get('PR_TITLE', '')
+          pr_body = os.environ.get('PR_BODY', '')
+          issue_body = os.environ.get('ISSUE_BODY', '')
+
+          with open('/tmp/pr_diff.txt', 'r') as f:
+            diff_content = f.read()
+
+          system_prompt = """You are a senior code reviewer. Review the following PR for:
+1. Logic bugs and edge cases
+2. Potential runtime errors or exceptions
+3. Code clarity and maintainability
+4. Security concerns (no hardcoded secrets, proper input validation)
+
+Be concise. Flag critical issues clearly with 🔴. Use 🟡 for warnings and 💡 for suggestions. Do not comment on style — ESLint handles that."""
+
+          user_prompt = f"""## PR Title
+{pr_title}
+
+## PR Description
+{pr_body}
+
+## Related Issue
+{issue_body}
+
+## Diff
+{diff_content}"""
+
+          payload = {
+            "model": "MiniMax-M2.7",
+            "messages": [
+              {"role": "system", "content": system_prompt},
+              {"role": "user", "content": user_prompt}
+            ],
+            "max_tokens": 4000,
+            "temperature": 0.3
+          }
+
+          data = json.dumps(payload).encode('utf-8')
+          req = urllib.request.Request(
+            endpoint,
+            data=data,
+            headers={
+              'Authorization': f'Bearer {api_key}',
+              'Content-Type': 'application/json'
+            },
+            method='POST'
+          )
+
+          try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+              result = json.loads(resp.read().decode('utf-8'))
+              review_text = result.get('choices', [{}])[0].get('message', {}).get('content', '')
+              output_path = os.environ.get('GITHUB_OUTPUT')
+              with open(output_path, 'a') as f:
+                if review_text:
+                  # Write review to temp file to handle multiline
+                  with open('/tmp/review_text.txt', 'w') as rf:
+                    rf.write(review_text)
+                  f.write("review_file=/tmp/review_text.txt\n")
+                  f.write("success=true\n")
+                else:
+                  error_msg = result.get('error', {}).get('message', 'Empty response')
+                  f.write(f"error={error_msg}\n")
+                  f.write("success=false\n")
+          except urllib.error.HTTPError as e:
+            error_body = e.read().decode('utf-8')
+            output_path = os.environ.get('GITHUB_OUTPUT')
+            with open(output_path, 'a') as f:
+              f.write(f"error=HTTP {e.code}: {error_body[:500]}\n")
+              f.write("success=false\n")
+          except Exception as e:
+            output_path = os.environ.get('GITHUB_OUTPUT')
+            with open(output_path, 'a') as f:
+              f.write(f"error={str(e)[:500]}\n")
+              f.write("success=false\n")
+          PYTHON_SCRIPT
+        env:
+          PR_TITLE: ${{ steps.context.outputs.pr_title }}
+          PR_BODY: ${{ steps.context.outputs.pr_body }}
+          ISSUE_BODY: ${{ steps.issue.outputs.issue_body || '' }}
+
+      - name: Post review comment
+        if: steps.api.outputs.success == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          pr_num="$PR_NUMBER"
+          truncated="${{ steps.diff.outputs.truncated }}"
+          total_lines="${{ steps.diff.outputs.total_lines }}"
+          review_text=$(cat "${{ steps.api.outputs.review_file }}")
+
+          if [ "$truncated" == "true" ]; then
+            truncation_note="
+
+---
+⚠️ Diff truncated (showing 2000 of $total_lines lines)"
+          else
+            truncation_note=""
+          fi
+
+          comment="🤖 **AI Review (MiniMax)**
+
+${review_text}${truncation_note}"
+
+          gh pr comment "$pr_num" --body "$comment"
+
+      - name: Report failure
+        if: steps.api.outputs.success == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr comment "$PR_NUMBER" --body "🤖 **AI Review (MiniMax)**
+
+⚠️ Failed to generate review: ${{ steps.api.outputs.error }}"
