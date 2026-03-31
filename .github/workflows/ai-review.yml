@@ -4,63 +4,15 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+permissions:
+  pull-requests: write
+
 jobs:
   ai-review:
     name: AI Code Review
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-      contents: read
     steps:
-      - uses: actions/checkout@v4
+      - name: Code Review
+        uses: tarmojussila/minimax-code-review@v0.3.0
         with:
-          fetch-depth: 0
-
-      - name: Gather PR context
-        id: context
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: bash .github/workflows/scripts/gather-context.sh
-
-      - name: Get issue body
-        id: issue
-        if: steps.context.outputs.issue_number != ''
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bash .github/workflows/scripts/get-issue.sh
-
-      - name: Get diff
-        id: diff
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: bash .github/workflows/scripts/get-diff.sh
-
-      - name: Call MiniMax API
-        id: api
-        env:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
-          MINIMAX_ENDPOINT: https://api.minimax.io/anthropic
-          PR_TITLE: ${{ steps.context.outputs.pr_title }}
-          PR_BODY: ${{ steps.context.outputs.pr_body }}
-          ISSUE_BODY: ${{ steps.issue.outputs.issue_body || '' }}
-        run: python3 .github/workflows/scripts/ai-review.py
-
-      - name: Post review comment
-        if: steps.api.outputs.success == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          REVIEW_FILE: ${{ steps.api.outputs.review_file }}
-          TRUNCATED: ${{ steps.diff.outputs.truncated }}
-          TOTAL_LINES: ${{ steps.diff.outputs.total_lines }}
-        run: python3 .github/workflows/scripts/post-comment.py
-
-      - name: Report failure
-        if: steps.api.outputs.success == 'false'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          ERROR: ${{ steps.api.outputs.error }}
-        run: python3 .github/workflows/scripts/post-error.py
