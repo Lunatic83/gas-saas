@@ -20,7 +20,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "type-check": "tsc --noEmit",
-    "prepare": "husky"
+    "prepare": "husky",
+    "test:unit": "echo 'No unit tests yet (E4+)' && exit 0",
+    "test:integration": "echo 'No integration tests yet (E4+)' && exit 0",
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,mjs}": [

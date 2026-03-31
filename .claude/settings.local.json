@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git checkout:*)",
+      "Bash(git pull:*)",
+      "Bash(git add:*)",
+      "Bash(python3 -c \"import sys,json; json.load\\(sys.stdin\\); print\\(''''Valid JSON''''\\)\")",
+      "Bash(ls:*)",
+      "Bash(gh pr:*)",
+      "Bash(tsc --noEmit)",
+      "Bash(pnpm tsc:*)",
+      "Bash(git commit:*)",
+      "Bash(docker compose:*)",
+      "Bash(git push:*)",
+      "Bash(pnpm format:*)",
+      "Bash(git reset:*)"
+    ]
+  }
+}
