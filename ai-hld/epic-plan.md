@@ -32,7 +32,7 @@ This document is the epic breakdown with dependency ordering. SDLC flow is appli
 | **E2** | ✅ Done | **Project Scaffold & Dev Environment** | `config` | B |
 | | | Next.js, pnpm, Docker Compose (3 profiles), `.env.example`, ESLint + Prettier, Husky + lint-staged + commitlint, pre-commit validation, repo structure, root README | | |
 | **E3** | 🚧 In Progress | **CI/CD Pipeline (Scaffold)** | `config` | B |
-| | | GH Actions (lint, type-check, test, build), Dockerfile ✅, smoke + full E2E split (nightly cron `0 3 * * *`), `.github/` structure. Deploy stages added in E20. | | |
+| | | GH Actions (lint, type-check, test, build) ✅, Dockerfile ✅, smoke + full E2E split (nightly cron `0 3 * * *`), `.github/` structure. Deploy stages added in E20. | | |
 
 > [!IMPORTANT]
 > Every PR from E4 onward is validated by CI.
