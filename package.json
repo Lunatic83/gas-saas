@@ -22,7 +22,9 @@
     "type-check": "tsc --noEmit",
     "prepare": "husky",
     "test:unit": "echo 'No unit tests yet (E4+)' && exit 0",
-    "test:integration": "echo 'No integration tests yet (E4+)' && exit 0"
+    "test:integration": "echo 'No integration tests yet (E4+)' && exit 0",
+    "test:e2e": "playwright test",
+    "test:e2e:smoke": "playwright test --project=smoke"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,mjs}": [
@@ -43,7 +45,9 @@
   },
   "devDependencies": {
     "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
     "@eslint/eslintrc": "^3.3.5",
+    "@playwright/test": "^1.50.0",
     "@types/node": "^20.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
