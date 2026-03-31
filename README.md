@@ -31,12 +31,12 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## Developer Prerequisites
 
-| Tool | Purpose | Install |
-|------|---------|---------|
-| **Node.js 20** | Runtime | `nvm install 20 && nvm use 20` |
-| **pnpm** | Package manager | `npm install -g pnpm` |
-| **Docker** | Local services | [docker.com](https://docker.com) |
-| **`gh` CLI** | GitHub interaction | `brew install gh` |
+| Tool           | Purpose              | Install                                 |
+| -------------- | -------------------- | --------------------------------------- |
+| **Node.js 20** | Runtime              | `nvm install 20 && nvm use 20`          |
+| **pnpm**       | Package manager      | `npm install -g pnpm`                   |
+| **Docker**     | Local services       | [docker.com](https://docker.com)        |
+| **`gh` CLI**   | GitHub interaction   | `brew install gh`                       |
 | **Stripe CLI** | Local webhook replay | `brew install stripe/stripe-cli/stripe` |
 
 After installing, run `gh auth login` and `stripe login` to authenticate.
@@ -49,11 +49,11 @@ Copy `.env.example` to `.env.local` and fill in the values. All variables are do
 
 ### Docker services
 
-| Service | Port | Purpose |
-|---------|------|---------|
-| PostgreSQL | 5432 | Primary database |
-| Redis | 6379 | Sessions, caching, queues |
-| Mailhog | 1025 / 8025 | SMTP trap / web UI |
+| Service    | Port        | Purpose                   |
+| ---------- | ----------- | ------------------------- |
+| PostgreSQL | 5432        | Primary database          |
+| Redis      | 6379        | Sessions, caching, queues |
+| Mailhog    | 1025 / 8025 | SMTP trap / web UI        |
 
 ```bash
 pnpm dev:services      # Start services in background
