@@ -37,7 +37,7 @@ jobs:
         run: pnpm type-check
 
       - name: Gitleaks
-        run: docker run --rm -v "${{ github.workspace }}:/workspace" zricethezav/gitleaks:latest detect --source=/workspace --no-color --exit-code
+        run: docker run --rm -v "${{ github.workspace }}:/workspace" zricethezav/gitleaks:latest detect --source=/workspace --no-color
 
   test:
     name: Test
