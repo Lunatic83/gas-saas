@@ -1,6 +1,6 @@
 # Implementation Strategy — Epic Plan
 
-> **Status**: 🚧 Epic 3 In Progress (CI/CD Pipeline)
+> **Status**: 🚧 Epic 4 Next (Database & ORM)
 > **Source**: Derived from [saas-blueprint-high-level-design.md](./saas-blueprint-high-level-design.md)
 
 ## Approach
@@ -31,8 +31,8 @@ This document is the epic breakdown with dependency ordering. SDLC flow is appli
 | | | Skills install, `UBIQUITOUS_LANGUAGE.md`, label script, PR template, ADR template | | |
 | **E2** | ✅ Done | **Project Scaffold & Dev Environment** | `config` | B |
 | | | Next.js, pnpm, Docker Compose (3 profiles), `.env.example`, ESLint + Prettier, Husky + lint-staged + commitlint, pre-commit validation, repo structure, root README | | |
-| **E3** | 🚧 In Progress | **CI/CD Pipeline (Scaffold)** | `config` | B |
-| | | GH Actions (lint, type-check, test, build) ✅, Dockerfile ✅, smoke + full E2E split (nightly cron `0 3 * * *`), `.github/` structure. Deploy stages added in E20. | | |
+| **E3** | ✅ Done | **CI/CD Pipeline (Scaffold)** | `config` | B |
+| | | GH Actions (lint, type-check, test, build) ✅, Dockerfile ✅, smoke + full E2E split (nightly cron `0 21 * * *`) ✅, `.github/` structure ✅, E2E env template ✅, Playwright smoke stubs ✅. E3-06 (branch protection) deferred until post-E4 validation. Deploy stages added in E20. | | |
 
 > [!IMPORTANT]
 > Every PR from E4 onward is validated by CI.
