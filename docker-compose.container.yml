@@ -1,0 +1,39 @@
+# Container profile overrides — full-stack pre-push validation
+# Usage: docker compose --profile container up -d
+# Validates: Dockerfile build + app starts correctly + db/redis connectivity
+name: gas-saas
+
+services:
+  postgres:
+    profiles:
+      - container
+    ports:
+      - '5432:5432'
+
+  redis:
+    profiles:
+      - container
+    ports:
+      - '6379:6379'
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    profiles:
+      - container
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/saas_dev
+      REDIS_URL: redis://redis:6379
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'nc', '-z', 'localhost', '3000']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
