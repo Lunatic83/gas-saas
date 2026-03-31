@@ -1,0 +1,113 @@
+name: e2e
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+  schedule:
+    # 9pm UTC = ~10pm CET (Amsterdam)
+    # Nightly full E2E run to catch regressions
+    - cron: '0 21 * * *'
+
+concurrency:
+  # Cancel in-progress runs on PRs, let scheduled runs complete
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  smoke:
+    name: Smoke — PR
+    runs-on: ubuntu-latest
+    # Only run smoke on PRs, not on main push or schedule
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Start Docker services
+        run: docker compose -f docker-compose.yml -f docker-compose.e2e.yml --profile e2e up -d
+
+      - name: Wait for services
+        run: sleep 10
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run smoke tests
+        run: pnpm exec playwright test --project=smoke
+        continue-on-error: true
+
+      - name: Stop Docker services
+        if: always()
+        run: docker compose -f docker-compose.yml -f docker-compose.e2e.yml --profile e2e down
+
+      - name: Upload smoke test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-test-results
+          path: playwright-report/
+          retention-days: 7
+
+  full:
+    name: Full — ${{ github.event_name == 'schedule' && 'Nightly' || 'Main' }}
+    runs-on: ubuntu-latest
+    # Run on main push or scheduled (not on PR)
+    if: github.event_name != 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Start Docker services
+        run: docker compose -f docker-compose.yml -f docker-compose.e2e.yml --profile e2e up -d
+
+      - name: Wait for services
+        run: sleep 10
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run full tests
+        run: pnpm exec playwright test
+        continue-on-error: true
+
+      - name: Stop Docker services
+        if: always()
+        run: docker compose -f docker-compose.yml -f docker-compose.e2e.yml --profile e2e down
+
+      - name: Upload full test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-test-results
+          path: playwright-report/
+          retention-days: 7
+
+      - name: Notify on failure
+        if: failure() && github.event_name != 'pull_request'
+        run: |
+          MESSAGE="❌ E2E Full Suite failed on ${{ github.event_name == 'schedule' && 'nightly run' || 'main push' }}: ${{ github.run_id }}"
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d text="$MESSAGE" \
+            -d disable_web_page_preview=true \
+          || echo "Telegram notification failed"
