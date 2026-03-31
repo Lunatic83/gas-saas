@@ -66,11 +66,7 @@ Common failure patterns and fixes:
 
 - **Round 1**: Attempt fix based on diagnosis
 - **Round 2**: If still failing, fetch new logs, try alternative fix
-- **Escalate**: If still failing after 2 rounds, report:
-  - What failed
-  - What I tried
-  - The specific error message
-  - Ask for guidance
+- **Escalate**: If still failing after 2 rounds, report the failure details and let the user decide how to proceed (do not ask — just report status).
 
 ### 6. Push Fix
 
@@ -79,15 +75,15 @@ If a fix was applied:
 git push --force-with-lease origin "$BRANCH"
 ```
 
-Wait 30 seconds for CI to re-run, then check again.
+Wait 45 seconds for CI to re-run, then check again. If still in progress, wait 30s more.
 
 ## Error Handling
 
 | Error | Action |
 |-------|--------|
-| No PR found for branch | Stop. Ask user to confirm branch has a PR. |
+| No PR found for branch | Stop and report. |
 | CI not yet run | Wait 30s, re-check. Max 3 retries. |
-| Auto-fix exhausted | Report failure + diagnosis, ask for guidance. |
+| Auto-fix exhausted | Report failure + diagnosis, do not ask — just report status. |
 | Network/API error | Retry once, then report error. |
 
 ## Output
