@@ -55,7 +55,6 @@
       "Bash(xargs -I{} gh api repos/Lunatic83/gas-saas/actions/jobs/{}/logs --paginate)",
       "Bash(xargs -I{} gh api repos/Lunatic83/gas-saas/git/blobs/{} --jq '.content')",
       "WebFetch(domain:github.com)",
-      "Bash(npx:*)",
       "Bash(tree:*)",
       "Bash(npm run build:*)",
       "Bash(npm run typecheck:*)",
