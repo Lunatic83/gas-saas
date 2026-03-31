@@ -52,7 +52,8 @@
       "Bash(gh issue:*)",
       "Bash(git ls-tree:*)",
       "Bash(git fetch:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(gh repo:*)"
     ]
   }
 }
