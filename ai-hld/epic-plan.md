@@ -1,6 +1,6 @@
 # Implementation Strategy — Epic Plan
 
-> **Status**: 🚧 Epic 2 In Progress
+> **Status**: 🚧 Epic 3 In Progress (CI/CD Pipeline)
 > **Source**: Derived from [saas-blueprint-high-level-design.md](./saas-blueprint-high-level-design.md)
 
 ## Approach
@@ -29,7 +29,7 @@ This document is the epic breakdown with dependency ordering. SDLC flow is appli
 |---|--------|------|--------|----------|
 | **E1** | ✅ Done | **SDLC Tooling** | `config` | B |
 | | | Skills install, `UBIQUITOUS_LANGUAGE.md`, label script, PR template, ADR template | | |
-| **E2** | 🚧 In Progress | **Project Scaffold & Dev Environment** | `config` | B |
+| **E2** | ✅ Done | **Project Scaffold & Dev Environment** | `config` | B |
 | | | Next.js, pnpm, Docker Compose (3 profiles), `.env.example`, ESLint + Prettier, Husky + lint-staged + commitlint, pre-commit validation, repo structure, root README | | |
 | **E3** | ⏳ Not Started | **CI/CD Pipeline (Scaffold)** | `config` | B |
 | | | GH Actions (lint, type-check, test, build), Dockerfile, smoke + full E2E split (nightly cron `0 3 * * *`), `.github/` structure. Deploy stages added in E20. | | |
