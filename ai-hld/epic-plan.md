@@ -34,8 +34,20 @@ This document is the epic breakdown with dependency ordering. SDLC flow is appli
 | **E3** | ✅ Done | **CI/CD Pipeline (Scaffold)** | `config` | B |
 | | | GH Actions (lint, type-check, test, build) ✅, Dockerfile ✅, smoke + full E2E split (nightly cron `0 21 * * *`) ✅, `.github/` structure ✅, E2E env template ✅, Playwright smoke stubs ✅. E3-06 (branch protection) blocked — requires GitHub Team org account (paid). E3-07 (MiniMax AI review) ✅ — SHA-pinned action, security audit in `docs/security/AI-REVIEW-AUDIT.md`. Deploy stages added in E20. | | |
 
+**E3 Subtasks:**
+
+| # | Status | Description | Notes |
+|---|--------|-------------|-------|
+| E3-01 | ✅ | Dockerfile (multi-stage Next.js) | Multi-stage, node:20-alpine, non-root |
+| E3-02 | ✅ | Docker Compose (dev, e2e, container) | +100 port offset for e2e |
+| E3-03 | ✅ | ci.yml (lint, type-check, test, build) | gitleaks, vitest stubs |
+| E3-04 | ✅ | e2e.yml (smoke, full, nightly) | Playwright, cron 21:00 UTC |
+| E3-05 | ✅ | env.e2e.example + Playwright stubs | Port offset convention, smoke test structure |
+| E3-06 | ⛔ | Branch protection | Blocked — requires GitHub Team org account |
+| E3-07 | ✅ | AI Review (MiniMax) | `tarmojussila/minimax-code-review`, SHA pinned, security audit in `docs/security/AI-REVIEW-AUDIT.md` |
+
 > [!IMPORTANT]
-> Every PR from E4 onward is validated by CI.
+> Every PR from E4 onward is validated by CI and AI review.
 
 ### Phase B — Data & Backend Core _(+ E20 infra in parallel)_
 
