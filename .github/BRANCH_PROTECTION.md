@@ -1,5 +1,7 @@
 # Branch Protection — `main`
 
+> **Status**: ⚠️ Blocked by GitHub Free plan — branch protection rules require a **GitHub Team** organization account (paid). This document serves as the target configuration checklist. Apply manually when upgrading to Team.
+
 ## Target State
 
 Apply the following rules to the `main` branch via **GitHub → Settings → Branches → Add rule**:
