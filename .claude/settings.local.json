@@ -36,7 +36,11 @@
       "Bash(cut:*)",
       "Bash(sort:*)",
       "Bash(uniq:*)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(xargs -I{} gh api repos/Lunatic83/gas-saas/actions/runs/{}/jobs --jq '.jobs[] | {name: .name, conclusion: .conclusion}')",
+      "Bash(xargs -I{} gh api repos/Lunatic83/gas-saas/actions/runs/{}/jobs --jq '.jobs[0].id')",
+      "Bash(xargs -I{} gh api repos/Lunatic83/gas-saas/actions/jobs/{}/logs --paginate)",
+      "Bash(xargs -I{} gh api repos/Lunatic83/gas-saas/git/blobs/{} --jq '.content')"
     ]
   }
 }
