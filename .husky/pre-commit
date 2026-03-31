@@ -1,0 +1,6 @@
+ staged=$(git diff --cached --name-only)
+if [ -z "$staged" ]; then
+  echo "No staged files. Skipping lint-staged."
+  exit 0
+fi
+npx lint-staged --config ./lint-staged.config.mjs --no-stash --quiet

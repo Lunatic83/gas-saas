@@ -13,7 +13,7 @@ node_modules/
 out/
 build/
 
-# Lock files
+# Package manager lock files — not formatted
 pnpm-lock.yaml
 package-lock.json
 yarn.lock
