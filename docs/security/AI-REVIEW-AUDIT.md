@@ -99,11 +99,44 @@ permissions:
 
 ---
 
+## Workflow Configuration
+
+Our workflow includes:
+
+```yaml
+concurrency:
+  group: ai-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+timeout-minutes: 10
+```
+
+- **Concurrency group** ensures only one review runs per PR — rapid pushes cancel in-progress reviews
+- **Timeout** (10 min) prevents workflow runs from blocking if the API is slow
+
+## Environment Variables
+
+| Variable | Type | Required | Default | Description |
+|----------|------|----------|---------|-------------|
+| `MINIMAX_API_KEY` | Secret | Yes | — | MiniMax API key (Token plan) |
+| `MINIMAX_MODEL` | Variable | No | `MiniMax-M2.5` | Model to use |
+
+Set these in **GitHub → Settings → Secrets and variables → Actions**:
+- `MINIMAX_API_KEY` as a **Repository secret**
+- `MINIMAX_MODEL` as a **Repository variable** (optional)
+
 ## Action Version Policy
 
 - **Do not update the SHA** unless there is a security fix that requires it
 - If updating, re-audit the new commit before updating
 - Monitor the upstream repository for security advisories
+- If the upstream repo is archived or deleted, we must find an alternative or build a custom solution
+
+## MiniMax API Considerations
+
+- PR diffs are sent to MiniMax's servers — this is an inherent privacy trade-off
+- MiniMax API terms apply — review their data handling policy
+- Monitor API usage to avoid unexpected costs
 
 ---
 
