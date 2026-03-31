@@ -48,7 +48,11 @@
       "Bash(xargs -I{} gh api repos/Lunatic83/gas-saas/actions/runs/{}/jobs --jq '.jobs[0].id')",
       "Bash(xargs -I{} gh api repos/Lunatic83/gas-saas/actions/jobs/{}/logs --paginate)",
       "Bash(xargs -I{} gh api repos/Lunatic83/gas-saas/git/blobs/{} --jq '.content')",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(gh issue:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(git fetch:*)",
+      "Bash(git stash:*)"
     ]
   }
 }

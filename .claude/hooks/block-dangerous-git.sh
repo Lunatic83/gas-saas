@@ -11,7 +11,7 @@ CURRENT_BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --ab
 
 # Pattern 1: push from main branch → blocked
 if [ "$CURRENT_BRANCH" = "main" ] && echo "$COMMAND" | grep -qE "^git push"; then
-  echo "BLOCKED: push from 'main' is not allowed. Create a feature branch first: git checkout -b task/N-description" >&2
+  echo "BLOCKED: push from 'main' is not allowed. Create a feature branch first: git checkout -b task/E{epic}-{issue-id}-description" >&2
   exit 2
 fi
 

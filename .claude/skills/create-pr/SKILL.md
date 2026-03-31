@@ -1,6 +1,6 @@
 ---
 name: create-pr
-description: Create a GitHub Pull Request from a completed task branch. Use when a task implementation is done and ready for review. Works for nature:code and nature:config tasks. Requires the branch to follow the task/N-description naming convention.
+description: Create a GitHub Pull Request from a completed task branch. Use when a task implementation is done and ready for review. Works for nature:code and nature:config tasks. Requires the branch to follow the task/E{epic}-{issue-id}-description naming convention.
 ---
 
 # Create Pull Request
@@ -9,7 +9,7 @@ Create a Draft PR from the current feature branch, pre-filled with task context 
 
 ## Prerequisites
 
-1. The current branch follows the naming convention: `task/{issue-number}-{short-description}`
+1. The current branch follows the naming convention: `task/E{epic}-{issue-number}-{short-description}`
 2. The task issue exists on GitHub
 3. All changes for the task are committed on the current branch
 
@@ -23,7 +23,9 @@ Extract the task number from the current branch name.
 BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --abbrev-ref HEAD 2>/dev/null)
 ```
 
-Expected format: `task/123-short-description`
+Expected format: `task/E{epic}-{issue-number}-{short-description}`
+
+Example: `task/E3-33-env-e2e-example`
 
 If the branch doesn't match this pattern, stop and ask the user to confirm they're on a feature branch.
 
@@ -118,7 +120,7 @@ This creates a bidirectional link visible in both the PR and the issue sidebar.
 
 | Error | Action |
 |-------|--------|
-| Branch name doesn't match `task/N-*` | Stop. Ask user to confirm they're on the correct branch. |
+| Branch name doesn't match `task/E{epic}-{issue-id}-*` | Stop. Ask user to confirm they're on the correct branch. |
 | Task issue not found | Stop. Ask user to verify the issue number. |
 | No commits on branch | Stop. Ask user to commit before creating PR. |
 | PR already exists | Report existing PR URL. Skip creation. |
