@@ -2,83 +2,83 @@
 # Managed by EndBug/label-sync Action. Do not edit labels manually.
 
 # ─── Type ───────────────────────────────────────────────────────────────────────
-- name: "type:epic"
-  color: "bf4b8a"
-  description: "Large features tracked as a milestone"
+- name: 'type:epic'
+  color: 'bf4b8a'
+  description: 'Large features tracked as a milestone'
 
-- name: "type:story"
-  color: "8b5cf6"
-  description: "Feature with a PRD, broken into tasks"
+- name: 'type:story'
+  color: '8b5cf6'
+  description: 'Feature with a PRD, broken into tasks'
 
-- name: "type:task"
-  color: "3b82f6"
-  description: "Atomic implementation unit, max 4h"
+- name: 'type:task'
+  color: '3b82f6'
+  description: 'Atomic implementation unit, max 4h'
 
 # ─── Domain ─────────────────────────────────────────────────────────────────────
-- name: "domain:auth"
-  color: "f97316"
-  description: "Authentication and session management"
+- name: 'domain:auth'
+  color: 'f97316'
+  description: 'Authentication and session management'
 
-- name: "domain:billing"
-  color: "22c55e"
-  description: "Stripe, subscriptions, invoices"
+- name: 'domain:billing'
+  color: '22c55e'
+  description: 'Stripe, subscriptions, invoices'
 
-- name: "domain:tenancy"
-  color: "a855f7"
-  description: "Multi-tenancy, RLS, account model"
+- name: 'domain:tenancy'
+  color: 'a855f7'
+  description: 'Multi-tenancy, RLS, account model'
 
-- name: "domain:ui"
-  color: "06b6d4"
-  description: "Frontend, components, design system"
+- name: 'domain:ui'
+  color: '06b6d4'
+  description: 'Frontend, components, design system'
 
-- name: "domain:infra"
-  color: "64748b"
-  description: "Infrastructure, Docker, CI/CD"
+- name: 'domain:infra'
+  color: '64748b'
+  description: 'Infrastructure, Docker, CI/CD'
 
-- name: "domain:observability"
-  color: "eab308"
-  description: "Logging, monitoring, alerting"
+- name: 'domain:observability'
+  color: 'eab308'
+  description: 'Logging, monitoring, alerting'
 
-- name: "domain:dx"
-  color: "ec4899"
-  description: "Developer experience, tooling, scripts"
+- name: 'domain:dx'
+  color: 'ec4899'
+  description: 'Developer experience, tooling, scripts'
 
 # ─── Status ────────────────────────────────────────────────────────────────────
-- name: "status:ready"
-  color: "16a34a"
-  description: "Ready for tdd agent pickup"
+- name: 'status:ready'
+  color: '16a34a'
+  description: 'Ready for tdd agent pickup'
 
-- name: "status:in-progress"
-  color: "ca8a04"
-  description: "Agent currently working"
+- name: 'status:in-progress'
+  color: 'ca8a04'
+  description: 'Agent currently working'
 
-- name: "status:blocked"
-  color: "dc2626"
-  description: "Waiting on decision or dependency"
+- name: 'status:blocked'
+  color: 'dc2626'
+  description: 'Waiting on decision or dependency'
 
 # ─── Priority ──────────────────────────────────────────────────────────────────
-- name: "priority:critical"
-  color: "dc2626"
-  description: "Must be resolved immediately"
+- name: 'priority:critical'
+  color: 'dc2626'
+  description: 'Must be resolved immediately'
 
-- name: "priority:high"
-  color: "f97316"
-  description: "Should be resolved soon"
+- name: 'priority:high'
+  color: 'f97316'
+  description: 'Should be resolved soon'
 
-- name: "priority:normal"
-  color: "6b7280"
-  description: "Default priority"
+- name: 'priority:normal'
+  color: '6b7280'
+  description: 'Default priority'
 
 # ─── Nature ─────────────────────────────────────────────────────────────────────
 # Classifies the type of work. Determines which workflow to use.
-- name: "nature:code"
-  color: "10b981"
-  description: "Application code with business logic — TDD applicable"
+- name: 'nature:code'
+  color: '10b981'
+  description: 'Application code with business logic — TDD applicable'
 
-- name: "nature:config"
-  color: "64748b"
-  description: "Configuration, scripts, tooling — direct implement, no TDD"
+- name: 'nature:config'
+  color: '64748b'
+  description: 'Configuration, scripts, tooling — direct implement, no TDD'
 
-- name: "nature:manual"
-  color: "f59e0b"
-  description: "Out-of-codebase steps (infra, OAuth setup) — checklist + human execute"
+- name: 'nature:manual'
+  color: 'f59e0b'
+  description: 'Out-of-codebase steps (infra, OAuth setup) — checklist + human execute'
