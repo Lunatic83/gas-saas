@@ -85,7 +85,6 @@ gh pr create \
   --label type:task \
   --label {nature} \
   --label {domain} \
-  --reviewer @me \
   --draft
 ```
 
@@ -123,7 +122,6 @@ This creates a bidirectional link visible in both the PR and the issue sidebar.
 | Task issue not found | Stop. Ask user to verify the issue number. |
 | No commits on branch | Stop. Ask user to commit before creating PR. |
 | PR already exists | Report existing PR URL. Skip creation. |
-| `--reviewer @me` fails | Report PR URL without reviewer. User can add manually. |
 
 ## Output
 
