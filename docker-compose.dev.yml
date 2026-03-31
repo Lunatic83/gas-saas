@@ -1,0 +1,23 @@
+# Dev profile overrides
+# Usage: docker compose --profile dev up -d
+name: gas-saas
+
+services:
+  postgres:
+    profiles:
+      - dev
+    ports:
+      - '5432:5432'
+
+  redis:
+    profiles:
+      - dev
+    ports:
+      - '6379:6379'
+
+  mailhog:
+    profiles:
+      - dev
+    ports:
+      - '1025:1025'
+      - '8025:8025'
