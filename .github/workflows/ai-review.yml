@@ -16,3 +16,4 @@ jobs:
         uses: tarmojussila/minimax-code-review@v0.3.0
         with:
           MINIMAX_API_KEY: ${{ secrets.MINIMAX_API_KEY }}
+          MINIMAX_MODEL: ${{ vars.MINIMAX_MODEL || 'MiniMax-M2.5' }}
