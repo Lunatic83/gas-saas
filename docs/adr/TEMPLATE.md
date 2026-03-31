@@ -43,11 +43,9 @@ operationally: effects on deployment, development speed, data model, API surface
 team structure.
 
 ### Positive
-
 - ...
 
 ### Negative / Risks
-
 - ...
 
 ---

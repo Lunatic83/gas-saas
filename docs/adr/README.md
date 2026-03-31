@@ -2,10 +2,9 @@
 
 ## Why ADRs?
 
-Architecture decisions are easy to forget but hard to reverse. An ADR captures the _why_ behind a decision — not just _what_ was decided — so future developers (including future you) can understand the context without hunting through Slack threads or git blame.
+Architecture decisions are easy to forget but hard to reverse. An ADR captures the *why* behind a decision — not just *what* was decided — so future developers (including future you) can understand the context without hunting through Slack threads or git blame.
 
 ADRs are especially valuable when:
-
 - The decision is expensive to reverse (data model, auth, infra)
 - Multiple approaches were considered and trade-offs were weighed
 - The decision affects multiple parts of the codebase
@@ -14,14 +13,13 @@ ADRs are especially valuable when:
 ## When to Write an ADR
 
 Write an ADR when a decision:
-
 - Requires choosing between multiple non-obvious approaches
 - Changes the data model or API surface
 - Introduces a new library or service
 - Affects how other developers write code (patterns, conventions)
 - Can't be easily reversed without a migration
 
-Day-to-day implementation choices (variable names, file structure, component patterns) do not need ADRs. When in doubt: if you'd need more than a paragraph to explain _why_ the decision was made, write an ADR.
+Day-to-day implementation choices (variable names, file structure, component patterns) do not need ADRs. When in doubt: if you'd need more than a paragraph to explain *why* the decision was made, write an ADR.
 
 ## How to Write
 
@@ -43,17 +41,16 @@ docs/adr/
 
 ## Status Definitions
 
-| Status         | Meaning                           |
-| -------------- | --------------------------------- |
-| **Proposed**   | Open for review, not yet accepted |
-| **Accepted**   | Approved and implemented          |
-| **Deprecated** | Superseded by a later ADR         |
-| **Superseded** | Replaced by ADR #N                |
+| Status | Meaning |
+|--------|---------|
+| **Proposed** | Open for review, not yet accepted |
+| **Accepted** | Approved and implemented |
+| **Deprecated** | Superseded by a later ADR |
+| **Superseded** | Replaced by ADR #N |
 
 ## Keeping ADRs Alive
 
 ADRs go stale. When a system changes and an ADR no longer reflects reality:
-
 1. Update the status to **Deprecated** or **Superseded**
 2. Link to the replacement ADR in the **References** section
 3. Do not delete the old ADR — future developers may need to understand the historical context

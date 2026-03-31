@@ -28,16 +28,17 @@ This boilerplate is built **by and for a small team or solo developer** launchin
 
 Every developer working on this boilerplate must have the following installed before cloning. These are hard requirements — the workflow cannot function without them.
 
-| Tool                        | Purpose                                                    | Install                                                      |
-| --------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------ |
-| **Claude Code**             | Primary development interface + skills runner              | `npm install -g @anthropic-ai/claude-code`                   |
-| **`gh` CLI**                | GitHub interaction from terminal (Issues, PRs, Milestones) | `brew install gh` / [cli.github.com](https://cli.github.com) |
-| **Docker + Docker Compose** | All local service stacks                                   | [docker.com](https://docker.com)                             |
-| **pnpm**                    | Package manager (npm/yarn not supported)                   | `npm install -g pnpm`                                        |
-| **Stripe CLI**              | Local webhook replay for e2e tests                         | `brew install stripe/stripe-cli/stripe`                      |
-| **Node.js (LTS)**           | Runtime                                                    | Via `nvm` or `fnm` — version pinned in `.nvmrc`              |
+| Tool | Purpose | Install |
+|---|---|---|
+| **Claude Code** | Primary development interface + skills runner | `npm install -g @anthropic-ai/claude-code` |
+| **`gh` CLI** | GitHub interaction from terminal (Issues, PRs, Milestones) | `brew install gh` / [cli.github.com](https://cli.github.com) |
+| **Docker + Docker Compose** | All local service stacks | [docker.com](https://docker.com) |
+| **pnpm** | Package manager (npm/yarn not supported) | `npm install -g pnpm` |
+| **Stripe CLI** | Local webhook replay for e2e tests | `brew install stripe/stripe-cli/stripe` |
+| **Node.js (LTS)** | Runtime | Via `nvm` or `fnm` — version pinned in `.nvmrc` |
 
 After installing, run `gh auth login` and `stripe login` to authenticate before first use. Claude Code requires an Anthropic API key set as `ANTHROPIC_API_KEY` in the shell environment.
+
 
 ### 1.4 Out of Scope for v1.0
 
@@ -80,25 +81,25 @@ After installing, run `gh auth login` and `stripe login` to authenticate before 
 
 ### 2.6 Environments
 
-| Environment       | Purpose                         | Infrastructure                                                              |
-| ----------------- | ------------------------------- | --------------------------------------------------------------------------- |
-| `local-dev`       | Feature development             | `pnpm dev` + Docker Compose dev profile                                     |
-| `local-e2e`       | Full E2E suite, local           | Production build + Docker Compose e2e profile (isolated DB, Redis, Mailhog) |
-| `local-container` | Pre-push integration validation | Full Docker Compose stack including app container                           |
-| `ci`              | Automated checks on every PR    | GitHub Actions + ephemeral Docker service containers                        |
-| `production`      | Live deployment                 | Dokploy on Hetzner, Docker Swarm                                            |
+| Environment | Purpose | Infrastructure |
+|---|---|---|
+| `local-dev` | Feature development | `pnpm dev` + Docker Compose dev profile |
+| `local-e2e` | Full E2E suite, local | Production build + Docker Compose e2e profile (isolated DB, Redis, Mailhog) |
+| `local-container` | Pre-push integration validation | Full Docker Compose stack including app container |
+| `ci` | Automated checks on every PR | GitHub Actions + ephemeral Docker service containers |
+| `production` | Live deployment | Dokploy on Hetzner, Docker Swarm |
 
 **Environment isolation rule:** `local-dev` and `local-e2e` never share a database or Redis instance. E2E tests running against dev data produce false results and corrupt working state. The two Docker Compose profiles are fully independent and can run simultaneously without port conflicts.
 
 **Environment file strategy:**
 
-| File               | Purpose                                        | Committed?      |
-| ------------------ | ---------------------------------------------- | --------------- |
-| `.env.local`       | local-dev secrets and config                   | No — gitignored |
-| `.env.e2e`         | local-e2e isolated config                      | No — gitignored |
-| `.env.e2e.example` | Template with all required e2e vars documented | Yes             |
-| `.env.example`     | Template for local-dev vars                    | Yes             |
-| CI secrets         | Injected via GitHub Actions secrets            | Never a file    |
+| File | Purpose | Committed? |
+|---|---|---|
+| `.env.local` | local-dev secrets and config | No — gitignored |
+| `.env.e2e` | local-e2e isolated config | No — gitignored |
+| `.env.e2e.example` | Template with all required e2e vars documented | Yes |
+| `.env.example` | Template for local-dev vars | Yes |
+| CI secrets | Injected via GitHub Actions secrets | Never a file |
 
 Staging is deferred. When added, it must be an isolated Dokploy environment, not a flag in production.
 
@@ -110,12 +111,12 @@ Dokploy has a **built-in cron job runner** that can execute commands against any
 
 Cron jobs managed by Dokploy at launch:
 
-| Job                      | Schedule    | Command                               | Purpose                                              |
-| ------------------------ | ----------- | ------------------------------------- | ---------------------------------------------------- |
-| DB backup                | `0 2 * * *` | `bash /scripts/backup-db.sh`          | Daily `pg_dump` → R2                                 |
-| Backup retention cleanup | `0 3 * * 0` | `bash /scripts/cleanup-backups.sh`    | Delete R2 backups older than 30 days                 |
-| Audit log archival       | `0 4 1 * *` | `bash /scripts/archive-audit-logs.sh` | Move audit logs > 90 days to R2                      |
-| Dead BullMQ job cleanup  | `0 5 * * *` | `bash /scripts/cleanup-queue.sh`      | Purge completed/failed BullMQ jobs older than 7 days |
+| Job | Schedule | Command | Purpose |
+|---|---|---|---|
+| DB backup | `0 2 * * *` | `bash /scripts/backup-db.sh` | Daily `pg_dump` → R2 |
+| Backup retention cleanup | `0 3 * * 0` | `bash /scripts/cleanup-backups.sh` | Delete R2 backups older than 30 days |
+| Audit log archival | `0 4 1 * *` | `bash /scripts/archive-audit-logs.sh` | Move audit logs > 90 days to R2 |
+| Dead BullMQ job cleanup | `0 5 * * *` | `bash /scripts/cleanup-queue.sh` | Purge completed/failed BullMQ jobs older than 7 days |
 
 All cron scripts live in `/scripts/` in the repository — version controlled, not configured ad-hoc in Dokploy's UI. The Dokploy cron config references the script paths so changes go through the normal PR process and are auditable in git history.
 
@@ -145,11 +146,11 @@ All cron scripts live in `/scripts/` in the repository — version controlled, n
 
 There is a deliberate split between what the product exposes and what the database does:
 
-| Layer        | Term            | Definition                                                                                    |
-| ------------ | --------------- | --------------------------------------------------------------------------------------------- |
-| Product / UI | `Account`       | What a user thinks of as "their space" — their data, their subscription, their settings       |
-| Database     | `tenant_id`     | The isolation key on all product data tables. In v1, maps 1:1 with an Account                 |
-| Future       | `AccountMember` | When teams are added, multiple Users share one Account — the data model already supports this |
+| Layer | Term | Definition |
+|---|---|---|
+| Product / UI | `Account` | What a user thinks of as "their space" — their data, their subscription, their settings |
+| Database | `tenant_id` | The isolation key on all product data tables. In v1, maps 1:1 with an Account |
+| Future | `AccountMember` | When teams are added, multiple Users share one Account — the data model already supports this |
 
 Users never see the word "tenant". PRDs, UI copy, and error messages use "Account" exclusively. `tenant_id` is an internal implementation detail.
 
@@ -205,13 +206,13 @@ Explicitly deferred and not recommended for this product trajectory. Row-level i
 - **Key namespace convention:** `{scope}:{entity}:{id}` — e.g., `session:user:abc123`, `ratelimit:login:ip:1.2.3.4`
 - **Use cases and TTL strategy:**
 
-| Use Case             | Redis Key Prefix  | TTL              | Owner                |
-| -------------------- | ----------------- | ---------------- | -------------------- |
-| User sessions        | `session:`        | 7 days (sliding) | Better-Auth          |
-| Rate limiting (auth) | `ratelimit:auth:` | 1 min window     | Better-Auth built-in |
-| Rate limiting (API)  | `ratelimit:api:`  | 1 min window     | Custom middleware    |
-| SSR page cache       | `cache:page:`     | 5 min            | Next.js custom       |
-| Feature flag cache   | `cache:flags:`    | 60 sec           | GrowthBook SDK       |
+| Use Case | Redis Key Prefix | TTL | Owner |
+|---|---|---|---|
+| User sessions | `session:` | 7 days (sliding) | Better-Auth |
+| Rate limiting (auth) | `ratelimit:auth:` | 1 min window | Better-Auth built-in |
+| Rate limiting (API) | `ratelimit:api:` | 1 min window | Custom middleware |
+| SSR page cache | `cache:page:` | 5 min | Next.js custom |
+| Feature flag cache | `cache:flags:` | 60 sec | GrowthBook SDK |
 
 ### 3.5 Background Jobs
 
@@ -237,10 +238,10 @@ JWT was evaluated and rejected. This boilerplate requires immediate session revo
 
 #### Authentication Surface
 
-| Consumer   | Method                                                                     | Status |
-| ---------- | -------------------------------------------------------------------------- | ------ |
-| Web app    | Database-backed session cookie (HttpOnly, Secure)                          | ✅ v1  |
-| Mobile app | Better-Auth JWT plugin — short-lived access token + rotating refresh token | ⏳ v2  |
+| Consumer | Method | Status |
+|---|---|---|
+| Web app | Database-backed session cookie (HttpOnly, Secure) | ✅ v1 |
+| Mobile app | Better-Auth JWT plugin — short-lived access token + rotating refresh token | ⏳ v2 |
 
 **v2 mobile note:** the JWT plugin operates on the same Better-Auth user accounts — no separate user store. The auth surface expands without changing the identity model. The Route Handler middleware is designed from v1 to accept `Authorization: Bearer` alongside session cookies, so the mobile layer slots in without architectural change.
 
@@ -256,11 +257,11 @@ Third-party and M2M API key authentication is explicitly out of scope and not de
 
 Three role levels across two scopes:
 
-| Role          | Scope    | Permissions                                                                                              |
-| ------------- | -------- | -------------------------------------------------------------------------------------------------------- |
+| Role | Scope | Permissions |
+|---|---|---|
 | `super_admin` | Platform | Full tenant management, user role control, manual subscription override, impersonation, audit log access |
-| `admin`       | Tenant   | Manage users within their own tenant only, view their own tenant billing status                          |
-| `user`        | Tenant   | Access features permitted by their subscription tier, no management capabilities                         |
+| `admin` | Tenant | Manage users within their own tenant only, view their own tenant billing status |
+| `user` | Tenant | Access features permitted by their subscription tier, no management capabilities |
 
 **Role assignments** are stored in the database (`user_roles` table). Permission checks happen exclusively at the server layer (middleware + Server Actions) — client-side role data is never trusted for access control.
 
@@ -303,12 +304,12 @@ Hetzner is EU-hosted. GDPR compliance is non-optional from day one.
 
 ### 5.1 Stack
 
-| Tool            | Role                               | Deploy Phase        |
-| --------------- | ---------------------------------- | ------------------- |
-| **Uptime Kuma** | Uptime monitoring + alerting       | Day 1               |
-| **GlitchTip**   | Error tracking (Sentry-compatible) | Day 1               |
-| **Pino**        | Structured JSON logging (in-app)   | Day 1               |
-| **OpenObserve** | Log aggregation + metrics          | Scale-up phase only |
+| Tool | Role | Deploy Phase |
+|---|---|---|
+| **Uptime Kuma** | Uptime monitoring + alerting | Day 1 |
+| **GlitchTip** | Error tracking (Sentry-compatible) | Day 1 |
+| **Pino** | Structured JSON logging (in-app) | Day 1 |
+| **OpenObserve** | Log aggregation + metrics | Scale-up phase only |
 
 OpenObserve is explicitly deferred. At single-node scale, stdout logs collected by Docker's logging driver (JSON file) are sufficient. OpenObserve is added when multi-node log aggregation becomes necessary.
 
@@ -345,13 +346,13 @@ OpenObserve is explicitly deferred. At single-node scale, stdout logs collected 
 - **Framework:** Next.js (App Router)
 - **Rendering strategy by page type:**
 
-| Page Type                  | Strategy                | Rationale                                  |
-| -------------------------- | ----------------------- | ------------------------------------------ |
-| Marketing / landing        | SSG (static generation) | Maximum performance, CDN-cacheable         |
-| Auth pages (login, signup) | SSR                     | Dynamic, not cacheable                     |
-| Dashboard / app pages      | SSR + streaming         | Server-authorised, real-time data          |
-| Public API routes          | API Route Handlers      | REST endpoints for webhooks, external      |
-| Data mutations             | Server Actions          | Preferred over API routes for form actions |
+| Page Type | Strategy | Rationale |
+|---|---|---|
+| Marketing / landing | SSG (static generation) | Maximum performance, CDN-cacheable |
+| Auth pages (login, signup) | SSR | Dynamic, not cacheable |
+| Dashboard / app pages | SSR + streaming | Server-authorised, real-time data |
+| Public API routes | API Route Handlers | REST endpoints for webhooks, external |
+| Data mutations | Server Actions | Preferred over API routes for form actions |
 
 - **Rule:** Server Actions are the default for form submissions and mutations. API Route Handlers are reserved for: webhook receivers, third-party integrations, and public API endpoints.
 
@@ -388,15 +389,15 @@ Request (Route Handler or Server Action)
 
 Errors are categorised at the service layer and propagated consistently to the client.
 
-| Error Type          | When                                       | HTTP Status | Client receives                     |
-| ------------------- | ------------------------------------------ | ----------- | ----------------------------------- |
-| `ValidationError`   | Zod parse fails                            | 400         | Field-level error map               |
-| `AuthError`         | Unauthenticated request                    | 401         | Generic message                     |
-| `ForbiddenError`    | Insufficient role/permission               | 403         | Generic message                     |
-| `NotFoundError`     | Entity doesn't exist or tenant-scoped miss | 404         | Generic message                     |
-| `ConflictError`     | Duplicate, constraint violation            | 409         | Specific message                    |
-| `AppError`          | Known application error                    | 422         | Specific message                    |
-| Unhandled exception | Unexpected failure                         | 500         | Generic message + GlitchTip capture |
+| Error Type | When | HTTP Status | Client receives |
+|---|---|---|---|
+| `ValidationError` | Zod parse fails | 400 | Field-level error map |
+| `AuthError` | Unauthenticated request | 401 | Generic message |
+| `ForbiddenError` | Insufficient role/permission | 403 | Generic message |
+| `NotFoundError` | Entity doesn't exist or tenant-scoped miss | 404 | Generic message |
+| `ConflictError` | Duplicate, constraint violation | 409 | Specific message |
+| `AppError` | Known application error | 422 | Specific message |
+| Unhandled exception | Unexpected failure | 500 | Generic message + GlitchTip capture |
 
 Service functions throw typed errors. Route Handlers catch them in a shared `withErrorHandler` wrapper that maps error types to HTTP responses. Server Actions return a typed `{ success, error }` discriminated union — never throw to the client.
 
@@ -442,12 +443,12 @@ Unhandled exceptions are caught at the top-level handler, logged via Pino, and r
 
 ### 7.3 State Management
 
-| Concern                               | Tool                  | Rationale                             |
-| ------------------------------------- | --------------------- | ------------------------------------- |
-| Server state (data fetching, caching) | TanStack Query        | Pairs naturally with REST API layer   |
-| Client UI state (modals, sidebar)     | Zustand               | Lightweight, no boilerplate           |
-| Form state                            | React Hook Form + Zod | Industry standard, shadcn integration |
-| URL state (filters, pagination)       | `nuqs`                | Type-safe URL search params           |
+| Concern | Tool | Rationale |
+|---|---|---|
+| Server state (data fetching, caching) | TanStack Query | Pairs naturally with REST API layer |
+| Client UI state (modals, sidebar) | Zustand | Lightweight, no boilerplate |
+| Form state | React Hook Form + Zod | Industry standard, shadcn integration |
+| URL state (filters, pagination) | `nuqs` | Type-safe URL search params |
 
 ### 7.4 Form & Validation
 
@@ -499,12 +500,12 @@ The primary tool is a **unified account management page** at `/admin/accounts/{a
 **Tab 2 — Members**
 In B2C v1, each Account has one member. The tab is designed for the teams expansion — it renders a member list with per-member actions. In v1 it shows one row.
 
-| Action               | UI Pattern               | Constraints                                                               |
-| -------------------- | ------------------------ | ------------------------------------------------------------------------- |
-| Promote to `admin`   | Toggle / dropdown        | Cannot demote the last `admin` of an Account                              |
-| Demote to `user`     | Toggle / dropdown        | Cannot demote the last `admin` of an Account                              |
+| Action | UI Pattern | Constraints |
+|---|---|---|
+| Promote to `admin` | Toggle / dropdown | Cannot demote the last `admin` of an Account |
+| Demote to `user` | Toggle / dropdown | Cannot demote the last `admin` of an Account |
 | Suspend / deactivate | Toggle with confirmation | Suspended users cannot log in; sessions invalidated immediately via Redis |
-| Impersonate          | Button → new session     | See impersonation rules below                                             |
+| Impersonate | Button → new session | See impersonation rules below |
 
 **Tab 3 — Subscription**
 Super admin can manually override the Account's subscription tier independently of Stripe. See Section 8.3 for full details.
@@ -515,7 +516,7 @@ Impersonation allows super admin to log in as any user for support purposes with
 
 - Impersonation creates a **shadow session** flagged as `impersonated: true` in the session record.
 - The impersonating super admin's identity is preserved in the session (`impersonated_by: superAdminUserId`).
-- A **persistent visible banner** is shown in the UI during impersonation: _"You are viewing this account as [user name]. [End impersonation]"_ — this cannot be dismissed.
+- A **persistent visible banner** is shown in the UI during impersonation: *"You are viewing this account as [user name]. [End impersonation]"* — this cannot be dismissed.
 - Impersonated sessions are **limited to 1 hour**, after which they expire automatically.
 - Impersonated sessions **cannot perform billing or destructive actions** (delete account, change password, change email). These are blocked at the Server Action guard level by checking `session.impersonated`.
 - Every impersonation start and end is written to the audit log. This is non-negotiable.
@@ -525,10 +526,10 @@ Impersonation allows super admin to log in as any user for support purposes with
 Three placeholder tiers (names and limits are configurable per product):
 
 | Tier | Placeholder Name | Feature Gate Key |
-| ---- | ---------------- | ---------------- |
-| 0    | Free             | `tier:free`      |
-| 1    | Pro              | `tier:pro`       |
-| 2    | Advanced         | `tier:advanced`  |
+|---|---|---|
+| 0 | Free | `tier:free` |
+| 1 | Pro | `tier:pro` |
+| 2 | Advanced | `tier:advanced` |
 
 Feature gates per tier are defined in GrowthBook, not hardcoded. The application checks `hasFeature('feature-key')` — the mapping of feature to tier lives in GrowthBook.
 
@@ -580,14 +581,14 @@ All significant actions must be logged for compliance and debugging.
 - **Audit log table** in PostgreSQL: `(id, tenant_id, actor_id, action, entity_type, entity_id, metadata jsonb, created_at)`
 - **Logged events at launch:**
 
-| Category        | Events                                                                                   |
-| --------------- | ---------------------------------------------------------------------------------------- |
-| Auth            | login, logout, password change, magic link sent, OAuth connected                         |
-| User management | user suspended/reactivated, role promoted, role demoted                                  |
-| Impersonation   | impersonation started (actor + target), impersonation ended                              |
-| Subscription    | stripe webhook applied, **manual override applied** (with from/to tier + reason + actor) |
-| Account         | account created, account suspended, account deleted                                      |
-| Data            | GDPR deletion requested, data export generated                                           |
+| Category | Events |
+|---|---|
+| Auth | login, logout, password change, magic link sent, OAuth connected |
+| User management | user suspended/reactivated, role promoted, role demoted |
+| Impersonation | impersonation started (actor + target), impersonation ended |
+| Subscription | stripe webhook applied, **manual override applied** (with from/to tier + reason + actor) |
+| Account | account created, account suspended, account deleted |
+| Data | GDPR deletion requested, data export generated |
 
 - **Retention:** Audit logs are never soft-deleted. Archived to R2 after 90 days.
 - **Super admin audit view:** `/admin/audit` — searchable and filterable by account, actor, action type, and date range.
@@ -634,11 +635,11 @@ Pipeline stages (in order, all must pass before proceeding):
 
 **E2E suite split — smoke vs full:**
 
-| Suite   | Scope                                                     | Trigger                      | Target    |
-| ------- | --------------------------------------------------------- | ---------------------------- | --------- |
-| Smoke   | Critical paths only: signup, login, subscription upgrade  | Every PR open/update         | PR branch |
-| Full    | All E2E tests including edge cases and full feature flows | Merge to `main` (post-merge) | `main`    |
-| Nightly | Full suite as a scheduled safety net                      | `cron: 0 3 * * *`            | `main`    |
+| Suite | Scope | Trigger | Target |
+|---|---|---|---|
+| Smoke | Critical paths only: signup, login, subscription upgrade | Every PR open/update | PR branch |
+| Full | All E2E tests including edge cases and full feature flows | Merge to `main` (post-merge) | `main` |
+| Nightly | Full suite as a scheduled safety net | `cron: 0 3 * * *` | `main` |
 
 The smoke suite keeps PR feedback fast (target: under 5 minutes). The full suite runs post-merge to `main` — `main` is always fully verified before a release tag can be cut. If the full suite fails on `main`, the offending commit is identified immediately and a fix PR is prioritised before any new release tag is pushed.
 
@@ -707,22 +708,22 @@ All secrets required by the GitHub Actions pipeline must be configured in the re
 
 **Required GitHub Actions secrets for v1:**
 
-| Secret                  | Used by                    | Description                                                                            |
-| ----------------------- | -------------------------- | -------------------------------------------------------------------------------------- |
-| `GHCR_TOKEN`            | Containerise stage         | GitHub PAT with `write:packages` scope for pushing to GHCR                             |
-| `DOKPLOY_WEBHOOK_URL`   | Deploy stage               | Dokploy deploy webhook URL for the production app service                              |
-| `DOKPLOY_WEBHOOK_TOKEN` | Deploy stage               | Auth token for the Dokploy webhook                                                     |
-| `DATABASE_URL`          | Migration stage            | Production PostgreSQL connection string                                                |
-| `REDIS_URL`             | E2E / integration tests    | Redis connection string for CI test stack                                              |
-| `BETTER_AUTH_SECRET`    | Build + tests              | Session signing secret — must match production value                                   |
-| `STRIPE_SECRET_KEY`     | E2E tests                  | Stripe test mode secret key                                                            |
-| `STRIPE_WEBHOOK_SECRET` | E2E tests                  | Stripe CLI webhook signing secret for test events                                      |
-| `RESEND_API_KEY`        | Production deployment only | Resend API key — not used in CI tests (Mailhog handles all email in test environments) |
-| `R2_ACCESS_KEY_ID`      | Deploy + backup scripts    | Cloudflare R2 access key                                                               |
-| `R2_SECRET_ACCESS_KEY`  | Deploy + backup scripts    | Cloudflare R2 secret key                                                               |
-| `R2_BUCKET_NAME`        | Deploy + backup scripts    | R2 bucket name for backups and file storage                                            |
-| `GROWTHBOOK_API_KEY`    | Build + tests              | GrowthBook SDK key for feature flag evaluation                                         |
-| `GLITCHTIP_DSN`         | Build                      | GlitchTip error tracking DSN                                                           |
+| Secret | Used by | Description |
+|---|---|---|
+| `GHCR_TOKEN` | Containerise stage | GitHub PAT with `write:packages` scope for pushing to GHCR |
+| `DOKPLOY_WEBHOOK_URL` | Deploy stage | Dokploy deploy webhook URL for the production app service |
+| `DOKPLOY_WEBHOOK_TOKEN` | Deploy stage | Auth token for the Dokploy webhook |
+| `DATABASE_URL` | Migration stage | Production PostgreSQL connection string |
+| `REDIS_URL` | E2E / integration tests | Redis connection string for CI test stack |
+| `BETTER_AUTH_SECRET` | Build + tests | Session signing secret — must match production value |
+| `STRIPE_SECRET_KEY` | E2E tests | Stripe test mode secret key |
+| `STRIPE_WEBHOOK_SECRET` | E2E tests | Stripe CLI webhook signing secret for test events |
+| `RESEND_API_KEY` | Production deployment only | Resend API key — not used in CI tests (Mailhog handles all email in test environments) |
+| `R2_ACCESS_KEY_ID` | Deploy + backup scripts | Cloudflare R2 access key |
+| `R2_SECRET_ACCESS_KEY` | Deploy + backup scripts | Cloudflare R2 secret key |
+| `R2_BUCKET_NAME` | Deploy + backup scripts | R2 bucket name for backups and file storage |
+| `GROWTHBOOK_API_KEY` | Build + tests | GrowthBook SDK key for feature flag evaluation |
+| `GLITCHTIP_DSN` | Build | GlitchTip error tracking DSN |
 
 These same values (with production credentials) are set in Dokploy's environment manager for the running containers — never in a committed file.
 
@@ -813,19 +814,16 @@ Does it involve business logic to test?
 ```
 
 **Workflow A — Full Skill Chain** (`grill-me → write-a-prd → prd-to-issues → tdd`)
-
 - Use for: `nature:code` tasks with ambiguity, new business logic, cross-component decisions
 - Epic-type work or Stories with uncertainty
 - TDD loop applies
 
 **Workflow B — Simplified Chain** (task breakdown → direct implement → PR)
-
 - Use for: `nature:config` tasks — well-scoped config, scripts, tooling setup, known patterns
 - No grill-me interview, no write-a-prd, no TDD
 - Direct implementation, then PR
 
 **Workflow C — Manual Checklist** (LLM outputs steps → human executes → close)
-
 - Use for: `nature:manual` tasks — infrastructure setup (Dokploy, DNS, OAuth app creation), external service config
 - LLM produces a step-by-step checklist as the issue body; human executes outside the codebase; issue closed when done
 - No branch, no code, no TDD
@@ -846,15 +844,15 @@ The SDLC methodology backbone. All procedural, all project-aware. Skills are ins
 
 **Skills to install** (one-time per repo):
 
-| Skill                        | Purpose                       |
-| ---------------------------- | ----------------------------- |
-| `grill-me`                   | Relentless scope interview    |
-| `ubiquitous-language`        | Canonical domain glossary     |
-| `write-a-prd`                | PRD authoring                 |
-| `prd-to-issues`              | Vertical slice breakdown      |
-| `tdd`                        | Red-green-refactor loop       |
-| `triage-issue`               | Bug root-cause investigation  |
-| `request-refactor-plan`      | Technical debt planning       |
+| Skill | Purpose |
+|-------|---------|
+| `grill-me` | Relentless scope interview |
+| `ubiquitous-language` | Canonical domain glossary |
+| `write-a-prd` | PRD authoring |
+| `prd-to-issues` | Vertical slice breakdown |
+| `tdd` | Red-green-refactor loop |
+| `triage-issue` | Bug root-cause investigation |
+| `request-refactor-plan` | Technical debt planning |
 | `git-guardrails-claude-code` | Blocks dangerous git commands |
 
 ---
@@ -863,24 +861,24 @@ The SDLC methodology backbone. All procedural, all project-aware. Skills are ins
 
 **Install for v1:**
 
-| Skill                | Tool                 | Source                     | Why it qualifies                                                                                                                                                                                                                                               |
-| -------------------- | -------------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `shadcn-ui`          | shadcn/ui            | `ui.shadcn.com` (official) | Official skill maintained by the shadcn team. Runs `shadcn info --json` to read your actual `components.json` on every interaction — knows your installed components, enforces composition rules, uses correct base-specific APIs. Project-aware, not generic. |
-| `tailwind-v4-shadcn` | Tailwind v4 + shadcn | `secondsky/claude-skills`  | Corrects specific Tailwind v4 breaking changes (`tw-animate-css`, duplicate `@layer base`, CSS variable conflicts). Documented evidence of zero setup errors vs 2–3 without it. Procedural, not descriptive.                                                   |
+| Skill | Tool | Source | Why it qualifies |
+|---|---|---|---|
+| `shadcn-ui` | shadcn/ui | `ui.shadcn.com` (official) | Official skill maintained by the shadcn team. Runs `shadcn info --json` to read your actual `components.json` on every interaction — knows your installed components, enforces composition rules, uses correct base-specific APIs. Project-aware, not generic. |
+| `tailwind-v4-shadcn` | Tailwind v4 + shadcn | `secondsky/claude-skills` | Corrects specific Tailwind v4 breaking changes (`tw-animate-css`, duplicate `@layer base`, CSS variable conflicts). Documented evidence of zero setup errors vs 2–3 without it. Procedural, not descriptive. |
 
 **Install only after reviewing the SKILL.md:**
 
-| Skill     | Tool        | Source    | Condition                                                                                                                                                                                               |
-| --------- | ----------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Skill | Tool | Source | Condition |
+|---|---|---|---|
 | `drizzle` | Drizzle ORM | community | Read the full SKILL.md before committing. Only install if it contains procedural schema and migration patterns specific to your project — not if it reads like a generic Drizzle documentation summary. |
 
 **Not recommended:**
 
-| Source                                | Reason                                                                                                                                                                                                                       |
-| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Source | Reason |
+|---|---|
 | `0xfurai/claude-code-subagents` (all) | These are subagent persona prompts, not skills. They describe what an expert knows, not what Claude Code should do in your project. Claude already has this knowledge from training — installing them adds noise, not value. |
-| `masonjames/Shadcnblocks-Skill`       | Requires a paid API key. The official shadcn/ui skill covers the same ground without cost or external dependency.                                                                                                            |
-| `drizzle-orm-d1`                      | D1/SQLite variant for Cloudflare Workers. This boilerplate uses PostgreSQL — inapplicable.                                                                                                                                   |
+| `masonjames/Shadcnblocks-Skill` | Requires a paid API key. The official shadcn/ui skill covers the same ground without cost or external dependency. |
+| `drizzle-orm-d1` | D1/SQLite variant for Cloudflare Workers. This boilerplate uses PostgreSQL — inapplicable. |
 
 **Security rule:** every community skill must be read in full before committing to the repo. Skills run with Claude Code's full permissions. A low-quality or malicious skill affects every developer on the project.
 
@@ -894,22 +892,22 @@ Before any feature work begins, the project maintains a **canonical domain gloss
 
 **Initial domains with known ambiguity in this boilerplate:**
 
-| Canonical Term         | Definition                                                                                                               | Aliases to avoid                                      |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------- |
-| `Account`              | The product-facing concept for a user's space — their data, subscription, and settings. In B2C v1 maps 1:1 with a User.  | Tenant, organisation, workspace, company (in UI/PRDs) |
-| `tenant_id`            | The internal database isolation key. Implementation detail — never exposed in UI or PRDs. The DB-level term for Account. | account_id (in DB schema)                             |
-| `AccountMembership`    | The link between a User and an Account, carrying their Role. In B2C v1 each Account has one membership.                  | user_tenant, member                                   |
-| `User`                 | An authenticated identity. Belongs to one or more Accounts via AccountMemberships.                                       | Member, account, login                                |
-| `SuperAdmin`           | A platform-level operator with cross-account access. Not a member of any Account.                                        | Admin, owner, operator                                |
-| `Admin`                | A User with management rights within their own Account.                                                                  | Owner, manager                                        |
-| `Role`                 | A named permission level assigned to a User within an Account (`admin` or `user`).                                       | Permission, access level                              |
-| `SubscriptionTier`     | The billing plan level assigned to an Account (Free / Pro / Advanced).                                                   | Plan, tier, package, level                            |
-| `SubscriptionOverride` | A manual tier assignment by SuperAdmin independent of Stripe.                                                            | Manual plan, billing override                         |
-| `Session`              | A database-backed authenticated context for a User.                                                                      | Token, auth state                                     |
-| `AuditLog`             | An immutable record of a significant system action.                                                                      | Activity log, event log, history                      |
-| `FeatureFlag`          | A named toggle controlling feature access or rollout.                                                                    | Feature switch, toggle, gate                          |
-| `Notification`         | An in-app alert delivered to a User.                                                                                     | Alert, message, event                                 |
-| `Job`                  | An async unit of work processed by the BullMQ worker.                                                                    | Task, queue item, background task                     |
+| Canonical Term | Definition | Aliases to avoid |
+|---|---|---|
+| `Account` | The product-facing concept for a user's space — their data, subscription, and settings. In B2C v1 maps 1:1 with a User. | Tenant, organisation, workspace, company (in UI/PRDs) |
+| `tenant_id` | The internal database isolation key. Implementation detail — never exposed in UI or PRDs. The DB-level term for Account. | account_id (in DB schema) |
+| `AccountMembership` | The link between a User and an Account, carrying their Role. In B2C v1 each Account has one membership. | user_tenant, member |
+| `User` | An authenticated identity. Belongs to one or more Accounts via AccountMemberships. | Member, account, login |
+| `SuperAdmin` | A platform-level operator with cross-account access. Not a member of any Account. | Admin, owner, operator |
+| `Admin` | A User with management rights within their own Account. | Owner, manager |
+| `Role` | A named permission level assigned to a User within an Account (`admin` or `user`). | Permission, access level |
+| `SubscriptionTier` | The billing plan level assigned to an Account (Free / Pro / Advanced). | Plan, tier, package, level |
+| `SubscriptionOverride` | A manual tier assignment by SuperAdmin independent of Stripe. | Manual plan, billing override |
+| `Session` | A database-backed authenticated context for a User. | Token, auth state |
+| `AuditLog` | An immutable record of a significant system action. | Activity log, event log, history |
+| `FeatureFlag` | A named toggle controlling feature access or rollout. | Feature switch, toggle, gate |
+| `Notification` | An in-app alert delivered to a User. | Alert, message, event |
+| `Job` | An async unit of work processed by the BullMQ worker. | Task, queue item, background task |
 
 **Two moments when the skill is invoked:**
 
@@ -990,7 +988,6 @@ Claude Code hooks installed by `git-guardrails-claude-code` block dangerous git 
 **One-time installation steps:**
 
 1. **Copy the hook script** (from the skill directory to `.claude/hooks/`):
-
    ```bash
    mkdir -p .claude/hooks
    cp .claude/skills/git-guardrails-claude-code/scripts/block-dangerous-git.sh \
@@ -1001,21 +998,16 @@ Claude Code hooks installed by `git-guardrails-claude-code` block dangerous git 
 2. **Choose scope** — project-only (`.claude/settings.local.json`) or global (`~/.claude/settings.json`). Project scope is recommended for team repos.
 
 3. **Merge hook into settings** — add the PreToolUse hook block to the settings JSON:
-
    ```json
    {
      "hooks": {
-       "PreToolUse": [
-         {
-           "matcher": "Bash",
-           "hooks": [
-             {
-               "type": "command",
-               "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-dangerous-git.sh"
-             }
-           ]
-         }
-       ]
+       "PreToolUse": [{
+         "matcher": "Bash",
+         "hooks": [{
+           "type": "command",
+           "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-dangerous-git.sh"
+         }]
+       }]
      }
    }
    ```
@@ -1092,12 +1084,12 @@ Run exclusively against a production build (`next build && next start`) in the `
 
 Side effect containment in the e2e environment:
 
-| Service    | Strategy                                                                             |
-| ---------- | ------------------------------------------------------------------------------------ |
-| Email      | Mailhog SMTP trap — no real emails sent. Playwright asserts delivery via Mailhog API |
-| Stripe     | Test mode keys + Stripe CLI for local webhook replay                                 |
-| BullMQ     | Real worker runs against isolated e2e Redis — jobs execute but against e2e data only |
-| GrowthBook | Fixed flag seed — no live SDK calls                                                  |
+| Service | Strategy |
+|---|---|
+| Email | Mailhog SMTP trap — no real emails sent. Playwright asserts delivery via Mailhog API |
+| Stripe | Test mode keys + Stripe CLI for local webhook replay |
+| BullMQ | Real worker runs against isolated e2e Redis — jobs execute but against e2e data only |
+| GrowthBook | Fixed flag seed — no live SDK calls |
 
 **Suite split:**
 
@@ -1142,15 +1134,15 @@ PR template enforces:
 
 ## 11. Open Decisions
 
-| #   | Decision                    | Status                                                                |
-| --- | --------------------------- | --------------------------------------------------------------------- |
-| 1   | API internal layer          | ✅ Resolved: REST Route Handlers exclusively                          |
-| 2   | Backup tooling for Postgres | ✅ Resolved: Dokploy built-in cron job                                |
-| 3   | i18n readiness              | ✅ Resolved: stub with `next-intl`, ship English only                 |
-| 4   | PWA                         | ✅ Resolved: deferred — see note below                                |
-| 5   | OpenObserve                 | ✅ Resolved: deferred to scale-up phase                               |
-| 6   | Search                      | ✅ Resolved: deferred — see note below                                |
-| 7   | Notification system         | ✅ Resolved: in-app v1, email channel deferred to v2 — see note below |
+| # | Decision | Status |
+|---|---|---|
+| 1 | API internal layer | ✅ Resolved: REST Route Handlers exclusively |
+| 2 | Backup tooling for Postgres | ✅ Resolved: Dokploy built-in cron job |
+| 3 | i18n readiness | ✅ Resolved: stub with `next-intl`, ship English only |
+| 4 | PWA | ✅ Resolved: deferred — see note below |
+| 5 | OpenObserve | ✅ Resolved: deferred to scale-up phase |
+| 6 | Search | ✅ Resolved: deferred — see note below |
+| 7 | Notification system | ✅ Resolved: in-app v1, email channel deferred to v2 — see note below |
 
 All open decisions resolved. Document is unblocked for v1.0 implementation.
 
@@ -1265,4 +1257,4 @@ Search in this boilerplate context means **content search within the SaaS applic
 
 ---
 
-_Document status: v1.0 — all decisions resolved. Ready for implementation._
+*Document status: v1.0 — all decisions resolved. Ready for implementation.*

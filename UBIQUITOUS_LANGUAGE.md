@@ -2,51 +2,51 @@
 
 ## Account Model
 
-| Term                  | Definition                                                                                                              | Aliases to avoid                                      |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
-| **Account**           | The product-facing concept for a user's space — their data, subscription, and settings. In B2C v1 maps 1:1 with a User. | Tenant, organisation, workspace, company (in UI/PRDs) |
-| **tenant_id**         | The internal database isolation key. Implementation detail — never exposed in UI or PRDs.                               | account_id (in DB schema)                             |
-| **AccountMembership** | The link between a User and an Account, carrying their Role. In B2C v1 each Account has one membership.                 | user_tenant, member                                   |
-| **User**              | An authenticated identity. Belongs to one or more Accounts via AccountMemberships.                                      | Member, account, login                                |
-| **SuperAdmin**        | A platform-level operator with cross-account access. Not a member of any Account.                                       | Admin, owner, operator                                |
-| **Admin**             | A User with management rights within their own Account.                                                                 | Owner, manager                                        |
-| **Role**              | A named permission level assigned to a User within an Account (`admin` or `user`).                                      | Permission, access level                              |
+| Term | Definition | Aliases to avoid |
+|------|------------|-----------------|
+| **Account** | The product-facing concept for a user's space — their data, subscription, and settings. In B2C v1 maps 1:1 with a User. | Tenant, organisation, workspace, company (in UI/PRDs) |
+| **tenant_id** | The internal database isolation key. Implementation detail — never exposed in UI or PRDs. | account_id (in DB schema) |
+| **AccountMembership** | The link between a User and an Account, carrying their Role. In B2C v1 each Account has one membership. | user_tenant, member |
+| **User** | An authenticated identity. Belongs to one or more Accounts via AccountMemberships. | Member, account, login |
+| **SuperAdmin** | A platform-level operator with cross-account access. Not a member of any Account. | Admin, owner, operator |
+| **Admin** | A User with management rights within their own Account. | Owner, manager |
+| **Role** | A named permission level assigned to a User within an Account (`admin` or `user`). | Permission, access level |
 
 ## Billing
 
-| Term                     | Definition                                                             | Aliases to avoid              |
-| ------------------------ | ---------------------------------------------------------------------- | ----------------------------- |
-| **SubscriptionTier**     | The billing plan level assigned to an Account (Free / Pro / Advanced). | Plan, tier, package, level    |
-| **SubscriptionOverride** | A manual tier assignment by SuperAdmin independent of Stripe.          | Manual plan, billing override |
+| Term | Definition | Aliases to avoid |
+|------|------------|-----------------|
+| **SubscriptionTier** | The billing plan level assigned to an Account (Free / Pro / Advanced). | Plan, tier, package, level |
+| **SubscriptionOverride** | A manual tier assignment by SuperAdmin independent of Stripe. | Manual plan, billing override |
 
 ## Session & Auth
 
-| Term        | Definition                                          | Aliases to avoid  |
-| ----------- | --------------------------------------------------- | ----------------- |
+| Term | Definition | Aliases to avoid |
+|------|------------|-----------------|
 | **Session** | A database-backed authenticated context for a User. | Token, auth state |
 
 ## Audit & Compliance
 
-| Term         | Definition                                          | Aliases to avoid                 |
-| ------------ | --------------------------------------------------- | -------------------------------- |
+| Term | Definition | Aliases to avoid |
+|------|------------|-----------------|
 | **AuditLog** | An immutable record of a significant system action. | Activity log, event log, history |
 
 ## Feature Management
 
-| Term            | Definition                                            | Aliases to avoid             |
-| --------------- | ----------------------------------------------------- | ---------------------------- |
+| Term | Definition | Aliases to avoid |
+|------|------------|-----------------|
 | **FeatureFlag** | A named toggle controlling feature access or rollout. | Feature switch, toggle, gate |
 
 ## Notifications
 
-| Term             | Definition                           | Aliases to avoid      |
-| ---------------- | ------------------------------------ | --------------------- |
+| Term | Definition | Aliases to avoid |
+|------|------------|-----------------|
 | **Notification** | An in-app alert delivered to a User. | Alert, message, event |
 
 ## Background Jobs
 
-| Term    | Definition                                            | Aliases to avoid                  |
-| ------- | ----------------------------------------------------- | --------------------------------- |
+| Term | Definition | Aliases to avoid |
+|------|------------|-----------------|
 | **Job** | An async unit of work processed by the BullMQ worker. | Task, queue item, background task |
 
 ## Flagged Ambiguities

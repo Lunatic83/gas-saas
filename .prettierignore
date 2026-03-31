@@ -1,0 +1,22 @@
+# Claude Code skills — third-party managed
+.claude/
+
+# Architecture and documentation — owned and formatted separately
+ai-hld/
+docs/
+
+# Node modules
+node_modules/
+
+# Build artifacts
+.next/
+out/
+build/
+
+# Lock files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Docker
+data/
