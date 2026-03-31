@@ -16,6 +16,10 @@
       "Bash(git rev-parse:*)",
       "Bash(git show:*)",
       "Bash(git branch:*)",
+      "Bash(git stash:*)",
+      "Bash(git fetch:*)",
+      "Bash(git ls-tree:*)",
+      "Bash(git remote:*)",
       "Bash(gh pr create:*)",
       "Bash(gh pr view:*)",
       "Bash(gh pr list:*)",
@@ -25,6 +29,8 @@
       "Bash(gh issue view:*)",
       "Bash(gh issue list:*)",
       "Bash(gh issue create:*)",
+      "Bash(gh issue:*)",
+      "Bash(gh repo:*)",
       "Bash(gh api:*)",
       "Bash(pnpm:*)",
       "Bash(npx:*)",
@@ -49,11 +55,16 @@
       "Bash(xargs -I{} gh api repos/Lunatic83/gas-saas/actions/jobs/{}/logs --paginate)",
       "Bash(xargs -I{} gh api repos/Lunatic83/gas-saas/git/blobs/{} --jq '.content')",
       "WebFetch(domain:github.com)",
-      "Bash(gh issue:*)",
-      "Bash(git ls-tree:*)",
-      "Bash(git fetch:*)",
-      "Bash(git stash:*)",
-      "Bash(gh repo:*)"
+      "Bash(npx:*)",
+      "Bash(tree:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run:*)",
+      "Bash(npm ls:*)",
+      "Bash(npm install:*)",
+      "Bash(npm uninstall:*)",
+      "WebSearch",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ]
   }
 }
