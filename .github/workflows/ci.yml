@@ -184,7 +184,7 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
-  build:image:
+  build-image:
     name: Build & Push Image
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
@@ -224,7 +224,7 @@ jobs:
     name: E2E Full
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
-    needs: [build:image]
+    needs: [build-image]
     steps:
       - uses: actions/checkout@v4
 
@@ -243,13 +243,13 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull Docker image
-        run: docker pull ${{ needs.build:image.outputs.image }}
+        run: docker pull ${{ needs['build-image'].outputs.image }}
 
       - name: Start Docker services
         run: docker compose -f docker-compose.e2e.yml up -d postgres redis
 
       - name: Start app
-        run: docker run --rm -d --name gas-saas-app -p 3000:3000 --network gas-saas_gas-saas ${{ needs.build:image.outputs.image }}
+        run: docker run --rm -d --name gas-saas-app -p 3000:3000 --network gas-saas_gas-saas ${{ needs['build-image'].outputs.image }}
 
       - name: Wait for services
         run: sleep 15
