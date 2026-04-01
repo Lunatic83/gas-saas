@@ -40,8 +40,8 @@ jobs:
       - name: Gitleaks
         run: docker run --rm -v "${{ github.workspace }}:/workspace" zricethezav/gitleaks:latest detect --source=/workspace --no-color
 
-  test:
-    name: Test
+  test:unit:
+    name: Unit Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -59,6 +59,42 @@ jobs:
       - name: Unit tests
         run: pnpm test:unit
         continue-on-error: true
+
+  test:integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: saas_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Set DATABASE_URL_TEST
+        run: echo "DATABASE_URL_TEST=postgres://postgres:postgres@localhost:5432/saas_test" >> $GITHUB_ENV
+
+      - name: Run migrations
+        run: pnpm db:push
 
       - name: Integration tests
         run: pnpm test:integration
