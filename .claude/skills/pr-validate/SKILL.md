@@ -39,6 +39,26 @@ CI Status: All checks passed ✅
 PR: #{number} — {title}
 ```
 
+### 3.5. Fetch PR Comments
+
+After confirming all checks passed, automatically fetch AI review comments:
+
+```bash
+gh api repos/{owner}/{repo}/issues/{number}/comments
+gh api repos/{owner}/{repo}/pulls/{number}/comments
+```
+
+Parse and format them as:
+
+```
+## AI Review Comments
+
+- @author file.ts#line:
+  > comment text
+```
+
+If no comments found, skip this step silently.
+
 #### Failing 🔴
 
 Fetch the failing job log:
