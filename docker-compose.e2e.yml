@@ -1,31 +1,68 @@
-# E2E profile overrides — isolated ports to avoid conflict with dev
-# Usage: docker compose --profile e2e up -d
+# Self-contained E2E environment — isolated ports to avoid conflict with dev
+# Usage: docker compose -f docker-compose.e2e.yml up -d
 name: gas-saas
 
 services:
   postgres:
-    profiles:
-      - e2e
+    image: postgres:16-alpine
     ports:
       - '5532:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: saas_e2e
     volumes:
       - ./data/postgres_e2e:/var/lib/postgresql/data
-    environment:
-      POSTGRES_DB: saas_e2e
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   redis:
-    profiles:
-      - e2e
+    image: redis:7-alpine
     ports:
       - '6479:6379'
     volumes:
       - ./data/redis_e2e:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   mailhog:
-    profiles:
-      - e2e
+    image: mailhog/mailhog:latest
     ports:
       - '1125:1025'
       - '8125:8025'
     volumes:
       - ./data/mailhog_e2e:/mailhog
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:8025']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/saas_e2e
+      REDIS_URL: redis://redis:6379
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'nc', '-z', 'localhost', '3000']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

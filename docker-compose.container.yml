@@ -1,27 +1,44 @@
-# Container profile overrides — full-stack pre-push validation
-# Usage: docker compose --profile container up -d
+# Self-contained container environment — full-stack pre-push validation
+# Usage: docker compose -f docker-compose.container.yml up -d
 # Validates: Dockerfile build + app starts correctly + db/redis connectivity
 name: gas-saas
 
 services:
   postgres:
-    profiles:
-      - container
+    image: postgres:16-alpine
     ports:
       - '5432:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: saas_dev
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   redis:
-    profiles:
-      - container
+    image: redis:7-alpine
     ports:
       - '6379:6379'
+    volumes:
+      - ./data/redis:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    profiles:
-      - container
+    ports:
+      - '3000:3000'
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/saas_dev
       REDIS_URL: redis://redis:6379
