@@ -34,11 +34,27 @@ jobs:
       - name: Prettier
         run: pnpm format:check
 
-      - name: TypeScript
-        run: pnpm type-check
-
       - name: Gitleaks
         run: docker run --rm -v "${{ github.workspace }}:/workspace" zricethezav/gitleaks:latest detect --source=/workspace --no-color
+
+  type-check:
+    name: TypeScript
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: TypeScript
+        run: pnpm type-check
 
   test:unit:
     name: Unit Tests
