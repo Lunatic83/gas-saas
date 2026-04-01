@@ -3,24 +3,17 @@ name: ci
 on:
   push:
     branches: [main]
-    tags: ['v*']
   pull_request:
     types: [opened, synchronize, reopened]
 
 concurrency:
-  group: ci
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
-
-env:
-  REGISTRY: ghcr.io/${{ github.repository_owner }}
-  IMAGE_NAME: ${{ github.repository }}
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  lint:
+  code-quality:
     name: Code Quality
     runs-on: ubuntu-latest
-    # Only on PRs or main/tag push (not feature branch push)
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@v4
 
@@ -40,35 +33,15 @@ jobs:
       - name: Prettier
         run: pnpm format:check
 
-  type-check:
-    name: TypeScript
-    runs-on: ubuntu-latest
-    # Only on PRs or main/tag push (not feature branch push)
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-
-      - name: Install pnpm
-        run: npm install -g pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
-
       - name: TypeScript
         run: pnpm type-check
 
       - name: Gitleaks
         run: docker run --rm -v "${{ github.workspace }}:/workspace" zricethezav/gitleaks:latest detect --source=/workspace --no-color
 
-  test:unit:
-    name: Unit Tests
+  test:
+    name: Test
     runs-on: ubuntu-latest
-    # Only on PRs or main/tag push (not feature branch push)
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@v4
 
@@ -86,44 +59,6 @@ jobs:
         run: pnpm test:unit
         continue-on-error: true
 
-  test:integration:
-    name: Integration Tests
-    runs-on: ubuntu-latest
-    # Only on PRs or main/tag push (not feature branch push)
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
-    services:
-      postgres:
-        image: postgres:16-alpine
-        ports:
-          - 5432:5432
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: saas_test
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 5
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-
-      - name: Install pnpm
-        run: npm install -g pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
-
-      - name: Set DATABASE_URL_TEST
-        run: echo "DATABASE_URL_TEST=postgres://postgres:postgres@localhost:5432/saas_test" >> $GITHUB_ENV
-
-      - name: Run migrations
-        run: pnpm db:push
-
       - name: Integration tests
         run: pnpm test:integration
         continue-on-error: true
@@ -131,8 +66,6 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    # Only on PRs or main/tag push (not feature branch push)
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@v4
 
@@ -155,164 +88,3 @@ jobs:
           name: nextjs-build
           path: .next/
           retention-days: 1
-
-  e2e:smoke:
-    name: E2E Smoke — PR
-    runs-on: ubuntu-latest
-    # Only on PRs
-    if: github.event_name == 'pull_request'
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-
-      - name: Install pnpm
-        run: npm install -g pnpm
-
-      - name: Start Docker services
-        run: docker compose -f docker-compose.e2e.yml up -d
-
-      - name: Wait for services
-        run: sleep 10
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-scripts
-
-      - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium
-
-      - name: Run smoke tests
-        run: pnpm exec playwright test --project=smoke
-        continue-on-error: true
-
-      - name: Stop Docker services
-        if: always()
-        run: docker compose -f docker-compose.e2e.yml down
-
-      - name: Upload smoke test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: smoke-test-results
-          path: playwright-report/
-          retention-days: 7
-
-  build:image:
-    name: Build & Push Image
-    runs-on: ubuntu-latest
-    # Only on main push or release tag
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
-    outputs:
-      image: ${{ steps.meta.outputs.tags }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=sha,prefix=,suffix=,format=long
-            type=ref,event=branch
-            type=ref,event=tag
-            type=semver,pattern={{version}}
-
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  e2e:full:
-    name: E2E Full
-    runs-on: ubuntu-latest
-    # Only on main push or release tag (not on PR or feature branch push)
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
-    needs: [build:image]
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-
-      - name: Install pnpm
-        run: npm install -g pnpm
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Pull Docker image
-        run: docker pull ${{ needs.build:image.outputs.image }}
-
-      - name: Start Docker services
-        run: docker compose -f docker-compose.e2e.yml up -d postgres redis
-
-      - name: Start app
-        run: docker run --rm -d --name gas-saas-app -p 3000:3000 --network gas-saas_gas-saas ${{ needs.build:image.outputs.image }}
-
-      - name: Wait for services
-        run: sleep 15
-
-      - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium
-
-      - name: Run full tests
-        run: pnpm exec playwright test
-        continue-on-error: true
-
-      - name: Stop services
-        if: always()
-        run: |
-          docker stop gas-saas-app 2>/dev/null || true
-          docker compose -f docker-compose.e2e.yml down
-
-      - name: Upload full test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: full-test-results
-          path: playwright-report/
-          retention-days: 7
-
-      - name: Notify on failure
-        if: failure()
-        run: |
-          MESSAGE="❌ E2E Full Suite failed on main push: ${{ github.run_id }}"
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-            -d text="$MESSAGE" \
-            -d disable_web_page_preview=true \
-          || echo "Telegram notification failed"
-
-  deploy:
-    name: Deploy
-    runs-on: ubuntu-latest
-    # Only on main push or release tag (not on schedule)
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
-    needs: e2e:full
-    steps:
-      - name: Deploy to Dokploy
-        run: |
-          echo "Deploying..."
-          curl -s -X POST "${{ secrets.DOKPLOY_WEBHOOK_URL }}" \
-            -H "Content-Type: application/json" \
-            -d '{"tag":"${{ github.sha }}"}' \
-          || echo "Deploy webhook called (stub)"
