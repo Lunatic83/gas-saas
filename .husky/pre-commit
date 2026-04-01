@@ -1,4 +1,6 @@
- staged=$(git diff --cached --name-only)
+bash scripts/check-migrations.sh
+
+staged=$(git diff --cached --name-only)
 if [ -z "$staged" ]; then
   echo "No staged files. Skipping lint-staged."
   exit 0
