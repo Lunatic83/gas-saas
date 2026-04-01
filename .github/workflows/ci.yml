@@ -106,8 +106,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
-      - name: Set DATABASE_URL_TEST
-        run: echo "DATABASE_URL_TEST=postgres://postgres:postgres@localhost:5432/saas_test" >> $GITHUB_ENV
+      - name: Set DATABASE_URL
+        run: |
+          echo "DATABASE_URL=postgres://postgres:postgres@localhost:5432/saas_test" >> $GITHUB_ENV
+          echo "DATABASE_URL_TEST=postgres://postgres:postgres@localhost:5432/saas_test" >> $GITHUB_ENV
 
       - name: Run migrations
         run: pnpm db:push
