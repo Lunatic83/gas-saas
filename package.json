@@ -22,7 +22,7 @@
     "type-check": "tsc --noEmit",
     "prepare": "husky",
     "test:unit": "echo 'No unit tests yet (E4+)' && exit 0",
-    "test:integration": "vitest run --dir tests/integration --passWithNoTests",
+    "test:integration": "vitest run --passWithNoTests",
     "test:e2e": "playwright test",
     "test:e2e:smoke": "playwright test --project=smoke",
     "db:generate": "drizzle-kit generate",
