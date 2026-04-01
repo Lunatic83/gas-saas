@@ -79,7 +79,6 @@ jobs:
   test-integration:
     name: Integration Tests
     runs-on: ubuntu-latest
-    needs: [test-unit]
     services:
       postgres:
         image: postgres:16-alpine
@@ -122,7 +121,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    needs: [test-integration]
+    needs: [test-unit, test-integration]
     steps:
       - uses: actions/checkout@v4
 
@@ -229,8 +228,7 @@ jobs:
   e2e-full:
     name: E2E Full
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
-    needs: [build-image, build]
+    needs: [build]
     steps:
       - uses: actions/checkout@v4
 
@@ -241,24 +239,14 @@ jobs:
       - name: Install pnpm
         run: npm install -g pnpm
 
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Pull Docker image
-        run: docker pull ${{ needs['build-image'].outputs.image }}
-
       - name: Start Docker services
-        run: docker compose -f docker-compose.e2e.yml up -d postgres redis
-
-      - name: Start app
-        run: docker run --rm -d --name gas-saas-app -p 3000:3000 --network gas-saas_gas-saas ${{ needs['build-image'].outputs.image }}
+        run: docker compose -f docker-compose.e2e.yml up -d
 
       - name: Wait for services
-        run: sleep 15
+        run: sleep 10
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
@@ -267,11 +255,9 @@ jobs:
         run: pnpm exec playwright test
         continue-on-error: true
 
-      - name: Stop services
+      - name: Stop Docker services
         if: always()
-        run: |
-          docker stop gas-saas-app 2>/dev/null || true
-          docker compose -f docker-compose.e2e.yml down
+        run: docker compose -f docker-compose.e2e.yml down
 
       - name: Upload full test results
         if: always()
@@ -285,7 +271,7 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: e2e-full
+    needs: [e2e-full]
     steps:
       - name: Deploy to Dokploy
         run: |
