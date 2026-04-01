@@ -19,6 +19,8 @@ jobs:
   lint:
     name: Code Quality
     runs-on: ubuntu-latest
+    # Only on PRs or main/tag push (not feature branch push)
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@v4
 
@@ -41,6 +43,8 @@ jobs:
   type-check:
     name: TypeScript
     runs-on: ubuntu-latest
+    # Only on PRs or main/tag push (not feature branch push)
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@v4
 
@@ -63,6 +67,8 @@ jobs:
   test:unit:
     name: Unit Tests
     runs-on: ubuntu-latest
+    # Only on PRs or main/tag push (not feature branch push)
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@v4
 
@@ -83,6 +89,8 @@ jobs:
   test:integration:
     name: Integration Tests
     runs-on: ubuntu-latest
+    # Only on PRs or main/tag push (not feature branch push)
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     services:
       postgres:
         image: postgres:16-alpine
@@ -123,6 +131,8 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    # Only on PRs or main/tag push (not feature branch push)
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@v4
 
