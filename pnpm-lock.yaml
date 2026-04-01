@@ -8,9 +8,15 @@ importers:
 
   .:
     dependencies:
+      drizzle-orm:
+        specifier: ^0.38.4
+        version: 0.38.4(@types/react@19.2.14)(postgres@3.4.8)(react@19.2.4)
       next:
         specifier: ^15.0.0
         version: 15.5.14(@playwright/test@1.58.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      postgres:
+        specifier: ^3.4.8
+        version: 3.4.8
       react:
         specifier: ^19.0.0
         version: 19.2.4
@@ -45,9 +51,6 @@ importers:
       drizzle-kit:
         specifier: ^0.30.6
         version: 0.30.6
-      drizzle-orm:
-        specifier: ^0.38.4
-        version: 0.38.4(@types/react@19.2.14)(postgres@3.4.8)(react@19.2.4)
       eslint:
         specifier: ^9.0.0
         version: 9.39.4(jiti@1.21.7)
@@ -60,9 +63,6 @@ importers:
       postcss:
         specifier: ^8.4.0
         version: 8.5.8
-      postgres:
-        specifier: ^3.4.8
-        version: 3.4.8
       prettier:
         specifier: ^3.0.0
         version: 3.8.1
