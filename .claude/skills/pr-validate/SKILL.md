@@ -20,23 +20,71 @@ Stop if no PR found.
 
 ### 2. Fetch CI Status
 
+Use the GitHub Actions workflow jobs API (not check-runs) — this gives per-job status reliably.
+
 ```bash
-gh api repos/{owner}/{repo}/commits/{ref}/status --jq '.state, .statuses[] | select(.context | startswith("ci/")) | "\(.context): \(.state)"'
+# Get the PR head branch and number
+gh pr list --head "$BRANCH" --json number,headRefName --jq '.[] | "\(.number)|\(.headRefName)"'
 ```
 
-Or use the Checks API for more detail:
+Then find the latest workflow run for this branch:
+
 ```bash
-gh api repos/{owner}/{repo}/commits/{ref}/check-runs --jq '.check_runs[] | "\(.name): \(.conclusion // .status)"'
+# Find the latest completed or in_progress run for the branch
+gh api "repos/{owner}/{repo}/actions/runs?branch={branch}&per_page=5" --jq '.workflow_runs | map(select(.status == "completed" or .status == "in_progress" or .status == "queued" or .status == "waiting")) | .[0] | {id, status, conclusion, head_sha, run_number, event}'
 ```
+
+Get all jobs for that run:
+
+```bash
+gh api "repos/{owner}/{repo}/actions/runs/{run_id}/jobs" --jq '.jobs[] | "\(.name): \(.conclusion // .status)"'
+```
+
+Report all jobs and their status — do not stop at the first job.
 
 ### 3. Determine Outcome
 
+Check every job's `conclusion` field (not `status`). A job is failed if `conclusion == "failure"`. Jobs still `in_progress`, `queued`, or `waiting` are not yet complete.
+
 #### All Green ✅
+
+All completed jobs have `conclusion: success` (or `skipped`). No job has `conclusion: failure`.
 
 Report:
 ```
 CI Status: All checks passed ✅
 PR: #{number} — {title}
+
+Jobs:
+  - Job Name: success
+  - Job Name: success
+  ...
+```
+
+#### Failing 🔴
+
+One or more jobs have `conclusion: failure`. Report immediately — do not wait for other jobs.
+
+**Danger — PR mergeable while CI failing:**
+
+If any job is failed AND the PR is mergeable:
+```
+⚠️  DANGER: PR is mergeable but CI is failing 🔴
+```
+
+Report per-job status and stop. Do NOT attempt auto-fix before reporting the danger.
+
+#### In Progress ⏳
+
+Jobs are still running. Report current status and wait.
+
+```
+CI Status: In progress ⏳
+PR: #{number}
+Jobs:
+  - Build: in_progress
+  - E2E Smoke: queued
+  ...
 ```
 
 ### 3.5. Fetch PR Comments
@@ -59,15 +107,16 @@ Parse and format them as:
 
 If no comments found, skip this step silently.
 
-#### Failing 🔴
+#### Failing 🔴 — Fetch Job Logs
 
-Fetch the failing job log:
+If a job failed, fetch its logs for diagnosis:
+
 ```bash
-# Get the run ID and job ID of the failing job
-gh api repos/{owner}/{repo}/commits/{ref}/check-runs --jq '.check_runs[] | select(.conclusion == "failure") | {name, id, run_id}'
+# Get the job ID of the failing job
+gh api "repos/{owner}/{repo}/actions/runs/{run_id}/jobs" --jq '.jobs[] | select(.conclusion == "failure") | {name, id}'
 
-# Get the job logs URL
-gh api repos/{owner}/{repo}/actions/jobs/{job_id}/logs --paginate
+# Get the job logs
+gh api "repos/{owner}/{repo}/actions/jobs/{job_id}/logs" --paginate
 ```
 
 ### 4. Diagnose and Auto-Fix
@@ -95,7 +144,7 @@ If a fix was applied:
 git push --force-with-lease origin "$BRANCH"
 ```
 
-Wait 45 seconds for CI to re-run, then check again. If still in progress, wait 30s more.
+Wait 45 seconds for CI to re-run, then check again (Step 2). If still in progress, wait 30s more.
 
 ## Error Handling
 
@@ -113,6 +162,40 @@ Wait 45 seconds for CI to re-run, then check again. If still in progress, wait 3
 CI Status: All checks passed ✅
 PR: https://github.com/{owner}/{repo}/pull/{number}
 Branch: {branch}
+
+Jobs:
+  - Code Quality: success
+  - TypeScript: success
+  - Unit Tests: success
+  - Integration Tests: success
+  - Build: success
+  - E2E Smoke: success
+```
+
+**In Progress:**
+```
+CI Status: In progress ⏳
+PR: https://github.com/{owner}/{repo}/pull/{number}
+
+Jobs:
+  - Code Quality: success
+  - TypeScript: success
+  - Build: in_progress
+  - E2E Smoke: queued
+```
+
+**Danger (mergeable + failing):**
+```
+⚠️  DANGER: PR is mergeable but CI is failing 🔴
+PR: https://github.com/{owner}/{repo}/pull/{number}
+
+Jobs:
+  - Code Quality: success
+  - TypeScript: failure ←
+
+Enable branch protection on main to block merges when CI fails.
+Failed job: TypeScript
+Error: TS[2304] 'something' doesn't exist
 ```
 
 **Auto-fixed:**
