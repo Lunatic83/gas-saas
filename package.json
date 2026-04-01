@@ -24,7 +24,12 @@
     "test:unit": "echo 'No unit tests yet (E4+)' && exit 0",
     "test:integration": "echo 'No integration tests yet (E4+)' && exit 0",
     "test:e2e": "playwright test",
-    "test:e2e:smoke": "playwright test --project=smoke"
+    "test:e2e:smoke": "playwright test --project=smoke",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:rollback": "drizzle-kit rollback",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,mjs}": [
@@ -39,7 +44,9 @@
     ]
   },
   "dependencies": {
+    "drizzle-orm": "^0.38.4",
     "next": "^15.0.0",
+    "postgres": "^3.4.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
@@ -51,6 +58,8 @@
     "@types/node": "^20.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "dotenv": "^16.6.1",
+    "drizzle-kit": "^0.30.6",
     "eslint": "^9.0.0",
     "eslint-config-next": "^15.0.0",
     "eslint-config-prettier": "^9.0.0",
