@@ -22,7 +22,7 @@
     "type-check": "tsc --noEmit",
     "prepare": "husky",
     "test:unit": "echo 'No unit tests yet (E4+)' && exit 0",
-    "test:integration": "echo 'No integration tests yet (E4+)' && exit 0",
+    "test:integration": "vitest run --dir tests/integration --passWithNoTests",
     "test:e2e": "playwright test",
     "test:e2e:smoke": "playwright test --project=smoke",
     "db:generate": "drizzle-kit generate",
@@ -69,6 +69,7 @@
     "prettier": "^3.0.0",
     "tailwindcss": "^3.4.0",
     "tsx": "^4.21.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vitest": "^4.1.2"
   }
 }
