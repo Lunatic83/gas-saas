@@ -2,7 +2,19 @@ import 'dotenv/config';
 import postgres from 'postgres';
 import { spawnSync } from 'node:child_process';
 
-const adminDb = postgres(process.env.DATABASE_URL_ADMIN!, { max: 1 });
+const adminUrl = process.env.DATABASE_URL_ADMIN;
+const testDbUrl = process.env.DATABASE_URL_TEST;
+
+if (!adminUrl) {
+  console.error('[create-test-db] ERROR: DATABASE_URL_ADMIN is not set');
+  process.exit(1);
+}
+if (!testDbUrl) {
+  console.error('[create-test-db] ERROR: DATABASE_URL_TEST is not set');
+  process.exit(1);
+}
+
+const adminDb = postgres(adminUrl, { max: 1 });
 
 async function createTestDb() {
   console.log('[create-test-db] Dropping saas_test if exists...');
@@ -13,7 +25,6 @@ async function createTestDb() {
   await adminDb.end();
 
   // Run db:push against saas_test
-  const testDbUrl = process.env.DATABASE_URL_TEST!;
   console.log('[create-test-db] Running db:push against saas_test...');
 
   const result = spawnSync('pnpm', ['db:push', '--force'], {
