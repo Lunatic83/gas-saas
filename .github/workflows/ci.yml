@@ -122,6 +122,7 @@ jobs:
     name: Version Check
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [e2e-smoke, e2e-full]
     outputs:
       version-changed: ${{ steps.check.outputs.changed }}
     steps:
@@ -214,7 +215,7 @@ jobs:
     name: Build & Push Image
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.version-check.outputs.version-changed == 'true'
-    needs: [e2e-smoke, e2e-full, version-check]
+    needs: [version-check]
     outputs:
       image: ${{ steps.meta.outputs.tags }}
     steps:
@@ -293,7 +294,7 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.version-check.outputs.version-changed == 'true'
-    needs: [build-image, version-check]
+    needs: [build-image]
     steps:
       - name: Deploy to Dokploy
         run: |
