@@ -53,7 +53,7 @@ This document is the epic breakdown with dependency ordering. SDLC flow is appli
 
 | # | Status | Epic | Nature | Workflow |
 |---|--------|------|--------|----------|
-| **E4** | ⏳ Not Started | **Database & ORM** | `code` | A |
+| **E4** | ✅ Done | **Database & ORM** | `code` | A |
 | | Postgres in Docker, Drizzle, initial schema (users, accounts, account_memberships), migrations, seed skeleton | | |
 | **E5** | ⏳ Not Started | **Redis & Caching** | `code` | B |
 | | Redis in Docker, client, namespaces, rate limiting middleware | | |
