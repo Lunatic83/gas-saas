@@ -63,7 +63,15 @@
       "Bash(npm install:*)",
       "Bash(npm uninstall:*)",
       "WebSearch",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(node_modules/.bin/tsc --noEmit)",
+      "Bash(chmod:*)",
+      "Bash(bash scripts/check-migrations.sh)",
+      "Bash(git rm:*)",
+      "Bash(node:*)",
+      "WebFetch(domain:docs.github.com)",
+      "Bash(act -W .github/workflows/ci.yml --list)",
+      "Bash(gh run:*)"
     ]
   }
 }
