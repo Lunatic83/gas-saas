@@ -1,5 +1,5 @@
-import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
 
 const testDb = drizzle(postgres(process.env.DATABASE_URL_TEST!, { max: 20 }));
 

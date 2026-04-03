@@ -1,6 +1,7 @@
 import 'dotenv/config';
-import postgres from 'postgres';
 import { spawnSync } from 'node:child_process';
+
+import postgres from 'postgres';
 
 const adminUrl = process.env.DATABASE_URL_ADMIN;
 const testDbUrl = process.env.DATABASE_URL_TEST;
