@@ -30,8 +30,4 @@ describe('Redis keys', () => {
       expect(keys.session('sess-abc123')).toBe('session:sess-abc123');
     });
   });
-
-  it('should export NAMESPACE constant', () => {
-    expect(keys.NAMESPACE).toBe('gas');
-  });
 });

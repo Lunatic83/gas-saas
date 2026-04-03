@@ -23,4 +23,9 @@ const clientPromise =
     ? createRedisClient()
     : (globalThis.__redisPromise ??= createRedisClient());
 
-export { clientPromise };
+async function disconnect() {
+  const client = await clientPromise;
+  await client.quit();
+}
+
+export { clientPromise, disconnect };

@@ -1,5 +1,3 @@
-const NAMESPACE = 'gas';
-
 const rateLimit = {
   auth: (identifier: string) => `rate-limit:auth:${identifier}`,
   api: (identifier: string, endpoint: string) => `rate-limit:api:${identifier}:${endpoint}`,
@@ -16,7 +14,6 @@ export const keys = {
   rateLimit,
   cache,
   session,
-  NAMESPACE,
 } as const;
 
 export type Keys = typeof keys;
