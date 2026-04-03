@@ -1,20 +1,26 @@
-import { createClient, type RedisClientType } from 'redis';
+import { createClient } from 'redis';
 
 const REDIS_URL = process.env.REDIS_URL ?? 'redis://localhost:6379';
 
 declare global {
-  var __redis: RedisClientType | undefined;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  var __redisPromise: Promise<any> | undefined;
 }
 
-let client: RedisClientType;
+async function createRedisClient() {
+  const client = createClient({ url: REDIS_URL });
 
-if (process.env.NODE_ENV === 'test') {
-  client = createClient({ url: REDIS_URL });
-} else {
-  if (!globalThis.__redis) {
-    globalThis.__redis = createClient({ url: REDIS_URL });
-  }
-  client = globalThis.__redis;
+  client.on('error', (err) => {
+    console.error('Redis Client Error', err);
+  });
+
+  await client.connect();
+  return client;
 }
 
-export { client };
+const clientPromise =
+  process.env.NODE_ENV === 'test'
+    ? createRedisClient()
+    : (globalThis.__redisPromise ??= createRedisClient());
+
+export { clientPromise };
