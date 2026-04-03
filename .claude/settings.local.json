@@ -67,7 +67,6 @@
       "Bash(curl -s http://localhost:3000)",
       "Bash(pkill -f \"next dev\")",
       "Bash(pkill -f \"next-server\")",
-      "Bash(curl -s http://localhost:3000/_next/static/chunks/%5Broot-of-the-server%5D__06.-pfn._.css)",
       "Bash(gh run:*)"
     ]
   }
