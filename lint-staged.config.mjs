@@ -1,5 +1,5 @@
 const lintStagedConfig = {
-  // '*.{ts,tsx,js,jsx,mjs}': ['eslint --fix', 'prettier --check'],
+  '*.{ts,tsx,js,jsx,mjs}': ['eslint --fix', 'prettier --check'],
   '*.{json,css,md}': ['prettier --check'],
 };
 
