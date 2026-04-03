@@ -2,12 +2,13 @@ import { createClient } from 'redis';
 
 const REDIS_URL = process.env.REDIS_URL ?? 'redis://localhost:6379';
 
+type RedisClient = ReturnType<typeof createClient>;
+
 declare global {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  var __redisPromise: Promise<any> | undefined;
+  var __redisPromise: Promise<RedisClient> | undefined;
 }
 
-async function createRedisClient() {
+async function createRedisClient(): Promise<RedisClient> {
   const client = createClient({ url: REDIS_URL });
 
   client.on('error', (err) => {
