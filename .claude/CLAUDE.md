@@ -2,6 +2,8 @@
 
 This file is the memory index for the gas-saas project. All project-specific memories are stored in `./memory/` and version-controlled with the repo.
 
+**Solo project**: All memories must live in `.claude/memory/` (version-controlled). No user-level auto-memory.
+
 ## Memories
 
 - [Branch naming and creation](memory/feedback_branch_naming.md) — task/E{n}-{issue#}-short-desc format, always create branch before editing
