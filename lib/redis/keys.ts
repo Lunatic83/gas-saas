@@ -15,5 +15,3 @@ export const keys = {
   cache,
   session,
 } as const;
-
-export type Keys = typeof keys;

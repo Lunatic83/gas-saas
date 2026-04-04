@@ -55,4 +55,18 @@ describe('Redis health', () => {
       }),
     );
   });
+
+  it('should return ok false when ping times out', async () => {
+    const { clientPromise } = await import('@/lib/redis/client');
+    const client = await clientPromise;
+    // Mock ping to hang longer than the 1500ms timeout
+    vi.mocked(client.ping).mockImplementation(
+      () => new Promise((resolve) => setTimeout(resolve, 3000)),
+    );
+
+    const result = await ping();
+
+    expect(result).toHaveProperty('ok', false);
+    expect(result).toHaveProperty('latencyMs');
+  });
 });

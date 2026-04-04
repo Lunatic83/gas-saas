@@ -27,6 +27,9 @@ const clientPromise =
 async function disconnect() {
   const client = await clientPromise;
   await client.quit();
+  if (process.env.NODE_ENV !== 'test') {
+    globalThis.__redisPromise = undefined;
+  }
 }
 
 export { clientPromise, disconnect };
