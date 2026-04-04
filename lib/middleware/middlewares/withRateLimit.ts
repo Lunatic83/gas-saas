@@ -22,11 +22,14 @@ export const withRateLimit: MiddlewareFactory = async (request, next) => {
   const client = await clientPromise;
   const now = Date.now();
   const windowStart = now - RATE_LIMIT_WINDOW_MS;
+  // Use nanosecond timestamp as unique value to prevent overwrites when requests
+  // arrive in the same millisecond (common in fast test loops)
+  const uniqueValue = `${process.hrtime.bigint()}`;
 
   // Use Redis MULTI for atomic operations
   const multi = client.multi();
   multi.zRemRangeByScore(key, '0', windowStart.toString());
-  multi.zAdd(key, { score: now, value: `${now}` });
+  multi.zAdd(key, { score: now, value: uniqueValue });
   multi.zCard(key);
   multi.expire(key, Math.ceil(RATE_LIMIT_WINDOW_MS / 1000));
 
