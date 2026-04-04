@@ -5,6 +5,7 @@ import {
   getTestRedisClient,
   flushTestRedis,
   disconnectTestRedisClient,
+  isRedisAvailable,
 } from '@/tests/helpers/redis';
 
 vi.mock('@/lib/redis', async () => {
@@ -46,6 +47,11 @@ function createMockNext(status = 200) {
 
 describe('withRateLimit middleware (integration)', () => {
   beforeAll(async () => {
+    // Skip if Redis is not available
+    const available = await isRedisAvailable();
+    if (!available) {
+      throw new Error('Redis is not available - skipping integration tests');
+    }
     // Ensure Redis connection
     await getTestRedisClient();
   });

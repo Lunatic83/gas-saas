@@ -4,6 +4,18 @@ const REDIS_URL = process.env.REDIS_URL ?? 'redis://localhost:6379';
 
 let clientPromise: ReturnType<typeof createClient> | null = null;
 
+export async function isRedisAvailable(): Promise<boolean> {
+  try {
+    const client = createClient({ url: REDIS_URL });
+    await client.connect();
+    await client.ping();
+    await client.quit();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function getTestRedisClient() {
   if (!clientPromise) {
     const client = createClient({ url: REDIS_URL });
