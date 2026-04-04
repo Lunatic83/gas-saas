@@ -87,10 +87,6 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: saas_test
-      redis:
-        image: redis:7-alpine
-        ports:
-          - 6379:6379
         options: >-
           --health-cmd pg_isready
           --health-interval 5s
@@ -113,7 +109,6 @@ jobs:
         run: |
           echo "DATABASE_URL=postgres://postgres:postgres@localhost:5432/saas_test" >> $GITHUB_ENV
           echo "DATABASE_URL_TEST=postgres://postgres:postgres@localhost:5432/saas_test" >> $GITHUB_ENV
-          echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
 
       - name: Run migrations
         run: pnpm db:push
