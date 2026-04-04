@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 import { reduceRight, type MiddlewareFactory } from '@/lib/middleware/chain';
 import { withAuth, withCors, withRateLimit } from '@/lib/middleware/middlewares';
@@ -7,10 +7,8 @@ const chain: MiddlewareFactory[] = [withCors, withRateLimit, withAuth];
 
 export { chain };
 
-export async function proxy(request: Request): Promise<Response> {
-  const nextRequest = new NextRequest(request);
-
-  return reduceRight(chain, nextRequest);
+export function proxy(request: NextRequest): Promise<Response> {
+  return reduceRight(chain, request);
 }
 
 // Match all paths except static files
