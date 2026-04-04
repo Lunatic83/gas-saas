@@ -78,20 +78,6 @@ jobs:
   test-integration:
     name: Integration Tests
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16-alpine
-        ports:
-          - 5432:5432
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: saas_test
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 5
     steps:
       - uses: actions/checkout@v4
 
@@ -102,6 +88,28 @@ jobs:
       - name: Install pnpm
         run: npm install -g pnpm
 
+      - name: Start Docker services
+        run: docker compose -f docker-compose.integration.yml up -d
+
+      - name: Wait for services
+        run: |
+          for i in {1..30}; do
+            if docker exec $(docker ps -q --filter name=postgres) pg_isready -U postgres > /dev/null 2>&1; then
+              echo "PostgreSQL is ready"
+              break
+            fi
+            sleep 2
+          done
+          for i in {1..30}; do
+            if docker exec $(docker ps -q --filter name=redis) redis-cli ping 2>/dev/null | grep -q PONG; then
+              echo "Redis is ready"
+              break
+            fi
+            sleep 2
+          done
+          # Give Redis extra time to be ready for connections
+          sleep 5
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
@@ -109,12 +117,17 @@ jobs:
         run: |
           echo "DATABASE_URL=postgres://postgres:postgres@localhost:5432/saas_test" >> $GITHUB_ENV
           echo "DATABASE_URL_TEST=postgres://postgres:postgres@localhost:5432/saas_test" >> $GITHUB_ENV
+          echo "REDIS_URL=redis://localhost:6379" >> $GITHUB_ENV
 
       - name: Run migrations
         run: pnpm db:push
 
       - name: Integration tests
         run: pnpm test:integration
+
+      - name: Stop Docker services
+        if: always()
+        run: docker compose -f docker-compose.integration.yml down
 
   version-check:
     name: Version Check
