@@ -107,6 +107,8 @@ jobs:
             fi
             sleep 2
           done
+          # Give Redis extra time to be ready for connections
+          sleep 5
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
