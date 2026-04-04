@@ -5,11 +5,19 @@ const REDIS_URL = process.env.REDIS_URL ?? 'redis://localhost:6379';
 let clientPromise: ReturnType<typeof createClient> | null = null;
 
 export async function isRedisAvailable(): Promise<boolean> {
+  const TIMEOUT_MS = 5000;
   try {
     const client = createClient({ url: REDIS_URL });
-    await client.connect();
-    await client.ping();
-    await client.quit();
+    const connectPromise = client.connect();
+    const timeout = new Promise<'timeout'>((resolve) =>
+      setTimeout(() => resolve('timeout'), TIMEOUT_MS),
+    );
+    await Promise.race([connectPromise, timeout]);
+    if ((await Promise.race([client.ping(), timeout])) === 'timeout') {
+      await client.quit().catch(() => {});
+      return false;
+    }
+    await client.quit().catch(() => {});
     return true;
   } catch {
     return false;
@@ -30,7 +38,11 @@ export async function getTestRedisClient() {
 
 export async function disconnectTestRedisClient() {
   if (clientPromise) {
-    await clientPromise.quit();
+    try {
+      await clientPromise.quit();
+    } catch {
+      // Ignore errors when disconnecting
+    }
     clientPromise = null;
   }
 }
