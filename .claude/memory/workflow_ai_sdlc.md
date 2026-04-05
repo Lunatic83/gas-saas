@@ -47,13 +47,16 @@ Before starting ANY task, determine its `nature:` label:
 ### Phase 3 — Breakdown: `prd-to-issues`
 
 1. Invoke the `prd-to-issues` skill
-2. Break PRD into vertical slices (max 4h each)
-3. Create child Issues (label: `type:task`) linked to parent PRD
-4. Create Milestone for the Story
-5. Order tasks by dependency
-6. Output: Issues + Milestone
+2. Break PRD into small, atomic, testable tasks — each is a minimal vertical slice
+3. Number of tasks is defined during `grill-me` — not bounded by time
+4. Create child Issues (label: `type:task`) linked to parent PRD
+5. Create Milestone for the Story
+6. Tasks are parallel-able by default; order by dependency only when known
+7. Output: Issues + Milestone
 
 **Rule:** Vertical slices only — each task delivers a working feature end-to-end, not a layer at a time.
+
+**Cross-cutting concerns** (e.g., adding instrumentation across all endpoints, updating patterns app-wide): classified as `nature:code`, use `write-a-prd` + `request-refactor-plan` in sequence — PRD defines the target pattern, refactor plan defines safe incremental steps.
 
 ### Phase 4 — Implement: `tdd`
 
@@ -72,15 +75,14 @@ Per task (one at a time):
      → Auto-fix CI/lint issues
      → Fetch AI review comment
      → For EACH issue (critical to minor):
-        - Validate against Context7 documentation
+        - Validate against Context7 (primary) → WebSearch (fallback)
+        - Fix legitimate issues autonomously
         - Dismiss non-legitimate concerns with clear reasoning
-        - Fix legitimate issues found
+        - Document EVERY decision in a PR comment: what was found, action taken (fixed/dismissed), reasoning
      → If fixes made: push → CI re-runs → repeat
      → If only dismissals: proceed
    ```
-8. **Document validation:** Leave a PR comment summarizing all decisions:
-   - Each issue: what was found, decision (fixed/dismissed), reasoning
-   - This becomes part of the PR record for developer review
+8. **Final review:** User reviews the full decision log (all dismissals + fixes) before approving the PR. If user disagrees with any AI decision, AI must rollback and redo.
 9. Developer reviews and merges
 10. Issue closes automatically
 
@@ -118,15 +120,14 @@ Per task (one at a time):
      → Auto-fix CI/lint issues
      → Fetch AI review comment
      → For EACH issue (critical to minor):
-        - Validate against Context7 documentation
+        - Validate against Context7 (primary) → WebSearch (fallback)
+        - Fix legitimate issues autonomously
         - Dismiss non-legitimate concerns with clear reasoning
-        - Fix legitimate issues found
+        - Document EVERY decision in a PR comment: what was found, action taken (fixed/dismissed), reasoning
      → If fixes made: push → CI re-runs → repeat
      → If only dismissals: proceed
    ```
-7. **Document validation:** Leave a PR comment summarizing all decisions:
-   - Each issue: what was found, decision (fixed/dismissed), reasoning
-   - This becomes part of the PR record for developer review
+7. **Final review:** User reviews the full decision log (all dismissals + fixes) before approving the PR. If user disagrees with any AI decision, AI must rollback and redo.
 8. Developer reviews and merges
 
 **Rule:** Even though no TDD, always run CI quality gates (ESLint, Prettier, type-check).
@@ -159,13 +160,14 @@ For infrastructure setup, external service configuration, DNS, server provisioni
 1. Human follows the checklist step by step
 2. Each step may involve: web UI actions, CLI commands, API calls, terminal operations
 3. All changes happen OUTSIDE the codebase OR in designated infra repos
-4. If changes ARE needed in the codebase (e.g., .env.example updates), follow Workflow B
+4. Trivial codebase changes (< 5 lines, no test needed) that are direct consequences of manual work can be batched into the manual work's PR — no separate branch or PRD required
 
-### Phase 4 — Confirm and Close
+### Phase 4 — Automated Validation + Close
 
-1. Human confirms all steps completed
-2. Human closes the issue
-3. If the manual work unblocks code tasks, those tasks can now begin
+1. Automated validation runs — Playwright tests, scripts, or API checks that verify the manual work succeeded
+2. Validation results added as a PR comment — this becomes the verification artifact for reviewer
+3. If the manual work had no codebase changes and no PR was needed, leave the validation results as an issue comment
+4. Human closes the issue only after confirming all steps completed (automated validation passed OR human confirmed)
 
 **Rule:** No branch, no PR, no TDD for pure manual tasks. The issue is the artifact.
 
@@ -201,7 +203,7 @@ Epic  (label: type:epic)
 
 **Auto-close chain:** PR `closes #task` → Task closes → Story completes → Epic completes.
 
-**Important:** See [feedback_pr_workflow.md](feedback_pr_workflow.md) — ALWAYS ask before closing issues after merge.
+**Important:** After the user merges, ALWAYS ask before closing the associated issue. The user confirms merges via free-form (e.g., "PR merged", "PR #{number} merged"). Parse the confirmation, then ask "Should I close issue #{issue_number}?" before taking action.
 
 ---
 
@@ -214,6 +216,12 @@ status:ready / status:in-progress / status:blocked
 priority:critical / priority:high / priority:normal
 nature:code / nature:config / nature:manual
 ```
+
+**Label rules:**
+- Every issue MUST have a `nature:` label — the workflow is strictly associated with `nature:`
+- If an issue is submitted without `nature:`, AI assesses it and proposes a label before starting work (user confirms or corrects)
+- A task has exactly one `nature:` — use the dominant nature to determine the workflow entry point
+- `status:blocked` means the task cannot proceed until a dependency is resolved — other unblocked tasks in the same epic can still be started in parallel
 
 ---
 
@@ -230,15 +238,18 @@ When working on any library/framework integration:
 
 **See also:**
 - [feedback_branch_protection.md](feedback_branch_protection.md) — enable branch protection on `main` BEFORE first merge
-- [feedback_branch_naming.md](feedback_branch_naming.md) — additional branch naming preferences and user rules
-- [feedback_pr_workflow.md](feedback_pr_workflow.md) — always ask before closing issues
 - [feedback_no_lift_quality_checks.md](feedback_no_lift_quality_checks.md) — never disable quality gates
 
 - **Branch naming:** `task/{E(epic#)-(task#)-(short-desc)}` — e.g., `task/E9-1-design-system-setup`
-  - The task number is the sequential number within the epic, NOT the GitHub issue number
-- **NEVER merge PRs** — user merges manually after CI green
+  - The task number is the PRD task number (stable identifier), NOT the GitHub issue number
+  - Epic number comes from `ai-hld/epic-plan-v2.md`
+  - Task number is defined during `grill-me` and written into the PRD
+  - Gaps from de-scoped tasks are documented but do NOT cause renumbering — the branch name always references the original PRD task number
+- **Squash merge only** — all PRs use squash merge for clean one-commit-per-feature history
+- **CI must be green** before merge — user will never approve a red CI PR, no override mechanism
 - **NEVER force push** to `main`
 - **NEVER auto-close** issues — after user merges, always ASK before closing the associated issue
 - **ALWAYS run** `/pr-validate` after CI green, before merge — it handles both CI fixes and AI review validation in the loop
 - Never commit secrets or credentials
 - All changes go through PR → review → merge
+- **Database:** use `saas_test` not `test_db` for test database names
