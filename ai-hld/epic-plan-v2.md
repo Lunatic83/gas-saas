@@ -1,6 +1,6 @@
 # Implementation Strategy — Epic Plan v2
 
-> **Status**: 🚧 Epic 5 Redis and Caching
+> **Status**: 🚧 Epic 9 Design System (next)
 > **Source**: Derived from [saas-blueprint-high-level-design.md](./saas-blueprint-high-level-design.md)
 > **Changelog**: v2 reorders phases to gate E6+E10 behind E9 (Design System), and moves E7+E8 to after auth (they require an authenticated session context). See rationale in each phase.
 
@@ -56,7 +56,7 @@ This document is the epic breakdown with dependency ordering. SDLC flow is appli
 |---|--------|------|--------|----------|
 | **E4** | ✅ Done | **Database & ORM** | `code` | A |
 | | | Postgres in Docker, Drizzle, initial schema (users, accounts, account_memberships), migrations, seed skeleton | | |
-| **E5** | 🚧 In progress | **Redis & Caching** | `code` | B |
+| **E5** | ✅ Done | **Redis & Caching** | `code` | B |
 | | | Redis in Docker, client, namespaces, rate limiting middleware | | |
 
 > [!NOTE]
@@ -76,7 +76,7 @@ This document is the epic breakdown with dependency ordering. SDLC flow is appli
 
 | # | Status | Epic | Nature | Workflow |
 |---|--------|------|--------|----------|
-| **E9** | ⏳ Not Started | **Design System & Layout Shell** | `code` | A |
+| **E9** | 🚧 Next | **Design System & Layout Shell** | `code` | A |
 | | | shadcn/ui, Tailwind, design tokens, light/dark mode, app shell, responsive (375px+) | | |
 | **E20** | ⏳ Not Started | **Production Infrastructure** | `manual` | C |
 | | | Server provisioning, Dokploy install, domain config, R2 buckets, Uptime Kuma, `scripts/backup-db.sh`, `scripts/cleanup-backups.sh`, `scripts/archive-audit-logs.sh`, `scripts/cleanup-queue.sh` | | |
@@ -175,7 +175,7 @@ graph TD
     E4 --> E5[E5: Redis & Caching]
     E4 -.-> E9[E9: Design System]
 
-    E5 --> E6E10[[E6 + E10: Auth (parallel)]]
+    E5 --> E6E10[["E6 + E10: Auth (parallel)"]]
     E9 --> E6E10
 
     E6E10 --> E7[E7: Multi-tenancy & RLS]

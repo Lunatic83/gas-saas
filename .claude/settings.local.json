@@ -67,7 +67,9 @@
       "Bash(curl -s http://localhost:3000)",
       "Bash(pkill -f \"next dev\")",
       "Bash(pkill -f \"next-server\")",
-      "Bash(gh run:*)"
+      "Bash(gh run:*)",
+      "Bash(REDIS_URL=redis://localhost:6379 pnpm vitest run)",
+      "Bash(REDIS_URL=redis://localhost:6379 pnpm vitest run --reporter=verbose)"
     ]
   }
 }
