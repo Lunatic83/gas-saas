@@ -175,7 +175,7 @@ graph TD
     E4 --> E5[E5: Redis & Caching]
     E4 -.-> E9[E9: Design System]
 
-    E5 --> E6E10[[E6 + E10: Auth (parallel)]]
+    E5 --> E6E10[["E6 + E10: Auth (parallel)"]]
     E9 --> E6E10
 
     E6E10 --> E7[E7: Multi-tenancy & RLS]
