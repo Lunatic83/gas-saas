@@ -50,7 +50,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - '3000:3000'
+      - '3100:3000'
     environment:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/saas_e2e
       REDIS_URL: redis://redis:6379
