@@ -20,13 +20,13 @@ test.describe('route groups', () => {
     await page.setViewportSize({ width: 1280, height: 800 });
     await page.goto('/dashboard');
     await expect(page.locator('text=Gas SaaS').first()).toBeVisible();
-    await expect(page.locator('main')).toBeVisible();
+    await expect(page.locator('main').first()).toBeVisible();
   });
 
   test('dashboard sidebar is hidden on mobile and trigger is visible', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/dashboard');
-    await expect(page.locator('main')).toBeVisible();
+    await expect(page.locator('main').first()).toBeVisible();
   });
 
   test('auth layout passes through children without extra wrapping', async ({ page }) => {
