@@ -227,6 +227,19 @@ jobs:
             sleep 2
           done
 
+          # Verify all services are actually ready
+          if ! docker exec $(docker ps -q --filter name=postgres) pg_isready -U postgres > /dev/null 2>&1; then
+            echo "ERROR: PostgreSQL failed to start"
+            exit 1
+          fi
+          if ! docker exec $(docker ps -q --filter name=redis) redis-cli ping 2>/dev/null | grep -q PONG; then
+            echo "ERROR: Redis failed to start"
+            exit 1
+          fi
+          if ! nc -z localhost 3100 > /dev/null 2>&1; then
+            echo "ERROR: App failed to start on port 3100"
+            exit 1
+          fi
           echo "Services ready"
 
       - name: Install dependencies
@@ -330,6 +343,19 @@ jobs:
             sleep 2
           done
 
+          # Verify all services are actually ready
+          if ! docker exec $(docker ps -q --filter name=postgres) pg_isready -U postgres > /dev/null 2>&1; then
+            echo "ERROR: PostgreSQL failed to start"
+            exit 1
+          fi
+          if ! docker exec $(docker ps -q --filter name=redis) redis-cli ping 2>/dev/null | grep -q PONG; then
+            echo "ERROR: Redis failed to start"
+            exit 1
+          fi
+          if ! nc -z localhost 3100 > /dev/null 2>&1; then
+            echo "ERROR: App failed to start on port 3100"
+            exit 1
+          fi
           echo "Services ready"
 
       - name: Install dependencies
