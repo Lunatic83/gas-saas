@@ -3,9 +3,9 @@ import { test, expect } from '@playwright/test';
 test.describe('route groups', () => {
   test('marketing page renders at root /', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('text=Marketing').first()).toBeVisible();
-    await expect(page.locator('text=gas-saas application')).toBeVisible();
-    await expect(page.locator('button:has-text("Get Started")')).toBeVisible();
+    await expect(page.locator('h1')).toBeVisible();
+    await expect(page.locator('text=Now in Beta')).toBeVisible();
+    await expect(page.locator('button:has-text("Get started")')).toBeVisible();
   });
 
   test('login page renders at /login', async ({ page }) => {
