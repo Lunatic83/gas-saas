@@ -71,7 +71,8 @@
       "Bash(REDIS_URL=redis://localhost:6379 pnpm vitest run)",
       "Bash(REDIS_URL=redis://localhost:6379 pnpm vitest run --reporter=verbose)",
       "WebFetch(domain:ui.shadcn.com)",
-      "Bash(gh label:*)"
+      "Bash(gh label:*)",
+      "Bash(pnpm prettier:*)"
     ]
   }
 }
