@@ -76,19 +76,24 @@ gh issue view {task-id} --json body --jq '.body' | grep -i "blocked by"
 
 If blocked by an open task, report: "Task #{N} is blocked by #{blocker-id}. Resolve that first."
 
-### 4. Validate Branch Naming
+### 4. Validate / Create Branch
 
 Current branch must follow: `task/E{epic#}-{task#}-{short-desc}`
 
 ```bash
 BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --abbrev-ref HEAD 2>/dev/null)
+EXPECTED="task/E{epic#}-{task#}-{desc}"
 ```
 
-If branch name doesn't match the task being started:
+**If branch name matches task:** proceed to step 5.
+
+**If branch name doesn't match:**
+- If no commits on current branch: delete/recreate with correct name
+- If commits exist: create the correct branch and switch
 ```
-WARNING: Current branch is "{BRANCH}" but task #{task-id} expects "task/E{epic#}-{task#}-{desc}".
-Switch to the correct branch or confirm this is a new task.
+git checkout -b "task/E{epic#}-{task#}-{desc}"
 ```
+Always proceed automatically — never ask the user to confirm branch creation.
 
 ### 5. Verify Previous Task PR Merged (Chain Integrity)
 
@@ -145,8 +150,9 @@ If any test suite fails, do NOT push or create PR. Fix the failures locally firs
 | No `nature:` label | Propose label, get user confirmation. |
 | `nature:code` without PRD | Stop. PRD is required for Workflow A. |
 | Task blocked | Report blocker, stop. |
-| Wrong branch | Warn, ask user to confirm. |
 | Local tests fail | Block push, fix first. |
+
+> **Note:** Wrong branch is handled automatically — the skill creates the correct branch and switches.
 
 ---
 
