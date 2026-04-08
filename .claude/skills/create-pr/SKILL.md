@@ -125,11 +125,49 @@ This creates a bidirectional link visible in both the PR and the issue sidebar.
 | No commits on branch | Stop. Ask user to commit before creating PR. |
 | PR already exists | Report existing PR URL. Skip creation. |
 
+### 10. Block on CI (REQUIRED)
+
+After PR creation, wait for CI to complete:
+
+```bash
+# Get the PR number and commit SHA
+PR_NUMBER=$(gh pr view --json number --jq '.number')
+COMMIT_SHA=$(gh pr view --json headRefOid --jq '.headRefOid')
+
+# Poll CI status every 30 seconds
+while true; do
+  STATUS=$(gh api repos/{owner}/{repo}/commits/$COMMIT_SHA/status --jq '.state')
+  CHECK_RUNS=$(gh api repos/{owner}/{repo}/commits/$COMMIT_SHA/check-runs --jq '.check_runs | length')
+
+  # Count completed vs total
+  COMPLETED=$(gh api repos/{owner}/{repo}/commits/$COMMIT_SHA/check-runs --jq '[.check_runs[] | select(.conclusion != null)] | length')
+
+  echo "CI Status: $STATUS ($COMPLETED/$CHECK_RUNS checks completed)"
+
+  if [ "$STATUS" = "completed" ] || [ "$STATUS" = "success" ] || [ "$STATUS" = "failure" ] || [ "$STATUS" = "error" ]; then
+    break
+  fi
+
+  sleep 30
+done
+
+# Report final status
+if [ "$STATUS" = "success" ]; then
+  echo "✅ All CI checks passed"
+else
+  echo "❌ CI failed with status: $STATUS"
+fi
+```
+
+Report final CI status before returning.
+
 ## Output
 
-After successful creation, milestone assignment, and linking, report:
+After successful creation, milestone assignment, linking, and CI completion:
 - PR URL
 - PR title
 - Branch name
 - Milestone assigned (if any)
-- "Convert to ready for review when CI is green and you're satisfied with the diff."
+- CI Status (pass/fail)
+- "Proceeding to /pr-validate for AI review evaluation..." if CI passed
+- "Run /pr-validate to diagnose failures and auto-fix" if CI failed

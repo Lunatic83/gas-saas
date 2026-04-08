@@ -21,3 +21,5 @@ type: feedback
 5. Click "Create"
 
 **Note:** Cannot be set via API on free tier. Must be done manually in GitHub web UI.
+
+**Workflow enforcement:** The `create-pr` skill now blocks the terminal until CI completes (success or failure). Combined with branch protection, this ensures: (1) you never merge without green CI, and (2) you are present at the terminal when CI fails so you can immediately invoke `/pr-validate` to diagnose and auto-fix.

@@ -39,26 +39,6 @@ CI Status: All checks passed ✅
 PR: #{number} — {title}
 ```
 
-### 3.5. Fetch PR Comments
-
-After confirming all checks passed, automatically fetch AI review comments:
-
-```bash
-gh api repos/{owner}/{repo}/issues/{number}/comments
-gh api repos/{owner}/{repo}/pulls/{number}/comments
-```
-
-Parse and format them as:
-
-```
-## AI Review Comments
-
-- @author file.ts#line:
-  > comment text
-```
-
-If no comments found, skip this step silently.
-
 #### Failing 🔴
 
 Fetch the failing job log:
@@ -96,6 +76,82 @@ git push --force-with-lease origin "$BRANCH"
 ```
 
 Wait 45 seconds for CI to re-run, then check again. If still in progress, wait 30s more.
+
+### 7. AI Review Evaluation Loop
+
+After CI is green (or alongside auto-fix if CI was failing), evaluate AI review comments.
+
+#### 7.1 Fetch AI Review Comments
+
+```bash
+gh api repos/{owner}/{repo}/issues/{number}/comments
+gh api repos/{owner}/{repo}/pulls/{number}/comments
+```
+
+Format each comment:
+```
+## AI Review Comment
+- @author file.ts#line:
+  > comment text
+```
+
+If no comments found, skip to Output.
+
+#### 7.2 Evaluate Each Comment
+
+For EACH comment, use reasoning to determine:
+
+**LEGITIMATE ISSUE** (suggestion is valid and should be fixed):
+- The suggestion addresses a real problem
+- Applying it would improve the code
+- It's not a false positive or out of scope
+
+**FALSE POSITIVE** (should be dismissed):
+- The suggestion is incorrect (would break the code)
+- The suggestion is out of scope for this PR
+- The issue was already fixed in a previous commit
+- The suggestion contradicts project conventions not documented in Context7
+
+#### 7.3 Act on Each Comment
+
+**If LEGITIMATE:**
+1. Apply the fix
+2. Amend commit: `git add -A && git commit --amend --no-edit && git push --force-with-lease origin "$BRANCH"`
+3. Wait 45s for CI, then re-check CI status
+4. Re-fetch AI comments (new commit may have triggered new reviews)
+5. Repeat from step 7.1
+
+**If FALSE POSITIVE:**
+1. Post a PR comment documenting the dismissal:
+   ```
+   **AI Review Evaluation:**
+   - Comment: {original comment text}
+   - Decision: Dismissed
+   - Reason: {clear explanation}
+   ```
+2. Continue to next comment
+
+#### 7.4 Loop Until No Legitimate Issues Remain
+
+Repeat the full loop (fetch → evaluate → act → push → wait → re-fetch) until:
+- CI is green AND
+- All AI comments are either fixed or dismissed with documented reasons
+
+### 8. Final Report
+
+When loop completes (no legitimate issues remain):
+
+```
+## Validation Complete ✅
+
+CI Status: {pass/fail}
+AI Review: {N} comments evaluated
+  - {N} fixed
+  - {M} dismissed (false positives)
+PR: {url}
+
+All legitimate issues resolved. Ready for final review.
+```
 
 ## Error Handling
 
