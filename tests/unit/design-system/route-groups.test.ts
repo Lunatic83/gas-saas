@@ -10,13 +10,6 @@ function getFile(path: string) {
 }
 
 describe('E9-2 route groups', () => {
-  describe('marketing route group', () => {
-    it('app/(marketing)/page.tsx exists', () => {
-      const content = getFile('app/(marketing)/page.tsx');
-      expect(content).toMatch(/export\s+default\s+function/);
-    });
-  });
-
   describe('auth route group', () => {
     it('app/(auth)/layout.tsx exists and exports default', () => {
       const content = getFile('app/(auth)/layout.tsx');

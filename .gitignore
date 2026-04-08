@@ -43,3 +43,5 @@ next-env.d.ts
 # Ide
 .idea
 .vscode
+
+.omc
