@@ -1,4 +1,5 @@
 import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
 export type MiddlewareFactory = (
   request: NextRequest,
@@ -8,12 +9,13 @@ export type MiddlewareFactory = (
 export async function reduceRight(
   middlewares: MiddlewareFactory[],
   request: NextRequest,
+  routeHandler: () => Response | Promise<Response> = () => NextResponse.next(),
 ): Promise<Response> {
   if (middlewares.length === 0) {
-    return new Response('Not Found', { status: 404 });
+    return routeHandler();
   }
 
   const [middleware, ...rest] = middlewares;
 
-  return middleware(request, async () => reduceRight(rest, request));
+  return middleware(request, async () => reduceRight(rest, request, routeHandler));
 }
