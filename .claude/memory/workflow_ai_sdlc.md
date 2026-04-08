@@ -66,9 +66,10 @@ Per task (one at a time):
 2. **Red:** Write failing test
 3. **Green:** Write minimal code to pass
 4. **Refactor:** Improve code quality
-5. Open PR: `closes #{task_number}`
-6. CI runs + AI review
-7. **Validation loop:**
+5. **Local Test Gate (REQUIRED):** Run `pnpm test:unit && pnpm test:integration && pnpm test:e2e`. ALL three must pass before proceeding. If any fail, fix locally and re-run. Do NOT push until all three are green.
+6. Open PR: `closes #{task_number}`
+7. **Block on CI:** Terminal waits — poll CI every 30s until all checks pass or fail. If CI fails, proceed to validation loop.
+8. **Validation loop:**
    ```
    WHILE issues remain:
      Run /pr-validate
@@ -82,9 +83,9 @@ Per task (one at a time):
      → If fixes made: push → CI re-runs → repeat
      → If only dismissals: proceed
    ```
-8. **Final review:** User reviews the full decision log (all dismissals + fixes) before approving the PR. If user disagrees with any AI decision, AI must rollback and redo.
-9. Developer reviews and merges
-10. Issue closes automatically
+9. **Final review:** User reviews the full decision log (all dismissals + fixes) before approving the PR. If user disagrees with any AI decision, AI must rollback and redo.
+10. Developer reviews and merges
+11. Issue closes automatically
 
 **Rule:** TDD is strict — no implementation without failing test first.
 
