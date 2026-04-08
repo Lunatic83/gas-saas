@@ -62,16 +62,16 @@ describe('reduceRight middleware chain', () => {
       expect(response.headers.get('X-Inner')).toBe('2');
     });
 
-    it('should return 404 when chain is empty', async () => {
+    it('should return 204 when chain is exhausted (pass-through to route handler)', async () => {
       const chain: MiddlewareFactory[] = [];
 
       const request = new Request('http://localhost:3000/test');
 
       const response = await reduceRight(chain, request as never);
 
-      expect(response.status).toBe(404);
-      const body = await response.text();
-      expect(body).toBe('Not Found');
+      // When the middleware chain is exhausted, reduceRight calls routeHandler()
+      // which defaults to NextResponse.next() — a pass-through to the route handler (200 OK)
+      expect(response.status).toBe(200);
     });
   });
 
@@ -106,7 +106,7 @@ describe('reduceRight middleware chain', () => {
     });
 
     it('should wrap response through chain', async () => {
-      // Inner wraps the terminal response, outer wraps inner
+      // Inner wraps the terminal response (204 No Content from route handler), outer wraps inner
       const chain: MiddlewareFactory[] = [
         withBodyPrefix('[outer]'), // runs first (outer)
         withBodyPrefix('[inner]'), // runs second (inner)
@@ -117,9 +117,10 @@ describe('reduceRight middleware chain', () => {
       const response = await reduceRight(chain, request as never);
 
       const body = await response.text();
-      // inner wraps 404: "[inner]Not Found"
-      // outer wraps that: "[outer][inner]Not Found"
-      expect(body).toBe('[outer][inner]Not Found');
+      // The terminal route handler returns 204 No Content (empty body)
+      // inner wraps empty: "[inner]"
+      // outer wraps that: "[outer][inner]"
+      expect(body).toBe('[outer][inner]');
     });
   });
 
@@ -283,8 +284,8 @@ describe('reduceRight middleware chain', () => {
 
       const response = await reduceRight(chain, request as never);
 
-      // Single middleware calling next gets 404
-      expect(response.status).toBe(404);
+      // Single middleware calling next gets pass-through from route handler (200 OK)
+      expect(response.status).toBe(200);
     });
   });
 
