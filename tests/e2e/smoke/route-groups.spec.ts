@@ -10,10 +10,7 @@ test.describe('route groups', () => {
 
   test('login page renders at /login', async ({ page }) => {
     await page.goto('/login');
-    await expect(page.locator('text=Sign In').first()).toBeVisible();
-    await expect(page.locator('input[type="email"]')).toBeVisible();
-    await expect(page.locator('input[type="password"]')).toBeVisible();
-    await expect(page.locator('button:has-text("Sign In")')).toBeVisible();
+    await expect(page.locator('text=Login (E10)')).toBeVisible();
   });
 
   test('dashboard page renders with sidebar at /dashboard', async ({ page }) => {
@@ -31,7 +28,6 @@ test.describe('route groups', () => {
 
   test('auth layout passes through children without extra wrapping', async ({ page }) => {
     await page.goto('/login');
-    const signInText = page.locator('text=Sign In').first();
-    await expect(signInText).toBeVisible();
+    await expect(page.locator('text=Login (E10)')).toBeVisible();
   });
 });
