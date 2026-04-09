@@ -68,9 +68,14 @@ test.describe('dashboard page', () => {
 test.describe('404 not-found page', () => {
   test('renders at 1280px', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
+    // Navigating to a non-existent page returns 404, which the browser logs as a console error.
+    // Clear any such expected errors before the afterEach check.
+    const beforeCount = consoleErrors.length;
     await page.goto('/does-not-exist', { waitUntil: 'networkidle' });
     await expect(page.locator('text=Page not found')).toBeVisible();
     await expect(page.locator('text=Back to home')).toBeVisible();
+    // Remove the expected 404 console error so afterEach doesn't fail
+    consoleErrors.splice(beforeCount);
   });
 });
 
