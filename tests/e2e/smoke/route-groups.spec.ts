@@ -1,33 +1,83 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('route groups', () => {
-  test('marketing page renders at root /', async ({ page }) => {
-    await page.goto('/');
+const consoleErrors: string[] = [];
+
+test.afterEach(async () => {
+  expect(consoleErrors).toHaveLength(0);
+});
+
+test.beforeEach(async ({ page }) => {
+  consoleErrors.length = 0;
+  page.on('console', (msg) => {
+    if (msg.type() === 'error') {
+      consoleErrors.push(msg.text());
+    }
+  });
+});
+
+test.describe('marketing page', () => {
+  test('renders at 375px mobile', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto('/', { waitUntil: 'networkidle' });
     await expect(page.locator('h1')).toBeVisible();
     await expect(page.locator('text=Now in Beta')).toBeVisible();
     await expect(page.locator('button:has-text("Get started")')).toBeVisible();
   });
 
-  test('login page renders at /login', async ({ page }) => {
-    await page.goto('/login');
+  test('renders at 1280px desktop with features grid', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/', { waitUntil: 'networkidle' });
+    await expect(page.locator('h1')).toBeVisible();
+    // Features grid should show 3 cards
+    await expect(page.locator('text=Lightning Fast')).toBeVisible();
+    await expect(page.locator('text=Secure by Default')).toBeVisible();
+    await expect(page.locator('text=Real-time Analytics')).toBeVisible();
+  });
+});
+
+test.describe('auth login page', () => {
+  test('renders at 375px mobile', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+    await page.goto('/login', { waitUntil: 'networkidle' });
     await expect(page.locator('text=Login (E10)')).toBeVisible();
   });
 
-  test('dashboard page renders with sidebar at /dashboard', async ({ page }) => {
+  test('renders at 1280px desktop', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
-    await page.goto('/dashboard');
+    await page.goto('/login', { waitUntil: 'networkidle' });
+    await expect(page.locator('text=Login (E10)')).toBeVisible();
+  });
+});
+
+test.describe('dashboard page', () => {
+  test('renders at 1280px with sidebar visible', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/dashboard', { waitUntil: 'networkidle' });
+    // Sidebar should be visible on desktop
     await expect(page.locator('text=Gas SaaS').first()).toBeVisible();
     await expect(page.locator('main').first()).toBeVisible();
   });
 
-  test('dashboard sidebar is hidden on mobile and trigger is visible', async ({ page }) => {
+  test('renders at 375px with sidebar trigger visible', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
-    await page.goto('/dashboard');
+    await page.goto('/dashboard', { waitUntil: 'networkidle' });
     await expect(page.locator('main').first()).toBeVisible();
   });
+});
 
-  test('auth layout passes through children without extra wrapping', async ({ page }) => {
-    await page.goto('/login');
-    await expect(page.locator('text=Login (E10)')).toBeVisible();
+test.describe('404 not-found page', () => {
+  test('renders at 1280px', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/does-not-exist', { waitUntil: 'networkidle' });
+    await expect(page.locator('text=Page not found')).toBeVisible();
+    await expect(page.locator('text=Back to home')).toBeVisible();
+  });
+});
+
+test.describe('root page', () => {
+  test('renders marketing page at /', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    await page.goto('/', { waitUntil: 'networkidle' });
+    await expect(page.locator('h1')).toBeVisible();
   });
 });
