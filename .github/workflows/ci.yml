@@ -202,11 +202,11 @@ jobs:
         run: |
           docker compose -f docker-compose.e2e.yml up -d
           # Give containers time to fully start before polling for readiness
-          sleep 15
+          sleep 30
 
       - name: Wait for services
         run: |
-          for i in {1..30}; do
+          for i in {1..60}; do
             if docker exec $(docker ps -q --filter name=postgres) pg_isready -U postgres > /dev/null 2>&1; then
               echo "PostgreSQL is ready"
               break
@@ -214,7 +214,7 @@ jobs:
             sleep 3
           done
 
-          for i in {1..30}; do
+          for i in {1..60}; do
             if docker exec $(docker ps -q --filter name=redis) redis-cli ping 2>/dev/null | grep -q PONG; then
               echo "Redis is ready"
               break
@@ -222,7 +222,7 @@ jobs:
             sleep 3
           done
 
-          for i in {1..30}; do
+          for i in {1..60}; do
             if nc -z localhost 3100 > /dev/null 2>&1; then
               echo "App is ready on port 3100"
               break
@@ -321,11 +321,11 @@ jobs:
         run: |
           docker compose -f docker-compose.e2e.yml up -d
           # Give containers time to fully start before polling for readiness
-          sleep 15
+          sleep 30
 
       - name: Wait for services
         run: |
-          for i in {1..30}; do
+          for i in {1..60}; do
             if docker exec $(docker ps -q --filter name=postgres) pg_isready -U postgres > /dev/null 2>&1; then
               echo "PostgreSQL is ready"
               break
@@ -333,7 +333,7 @@ jobs:
             sleep 3
           done
 
-          for i in {1..30}; do
+          for i in {1..60}; do
             if docker exec $(docker ps -q --filter name=redis) redis-cli ping 2>/dev/null | grep -q PONG; then
               echo "Redis is ready"
               break
@@ -341,7 +341,7 @@ jobs:
             sleep 3
           done
 
-          for i in {1..30}; do
+          for i in {1..60}; do
             if nc -z localhost 3100 > /dev/null 2>&1; then
               echo "App is ready on port 3100"
               break
