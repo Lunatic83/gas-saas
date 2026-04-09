@@ -199,7 +199,10 @@ jobs:
         run: npm install -g pnpm
 
       - name: Start Docker services
-        run: docker compose -f docker-compose.e2e.yml up -d
+        run: |
+          docker compose -f docker-compose.e2e.yml up -d
+          # Give containers time to fully start before polling for readiness
+          sleep 15
 
       - name: Wait for services
         run: |
@@ -208,7 +211,7 @@ jobs:
               echo "PostgreSQL is ready"
               break
             fi
-            sleep 2
+            sleep 3
           done
 
           for i in {1..30}; do
@@ -216,7 +219,7 @@ jobs:
               echo "Redis is ready"
               break
             fi
-            sleep 2
+            sleep 3
           done
 
           for i in {1..30}; do
@@ -224,7 +227,7 @@ jobs:
               echo "App is ready on port 3100"
               break
             fi
-            sleep 2
+            sleep 3
           done
 
           # Verify all services are actually ready
@@ -315,7 +318,10 @@ jobs:
         run: npm install -g pnpm
 
       - name: Start Docker services
-        run: docker compose -f docker-compose.e2e.yml up -d
+        run: |
+          docker compose -f docker-compose.e2e.yml up -d
+          # Give containers time to fully start before polling for readiness
+          sleep 15
 
       - name: Wait for services
         run: |
@@ -324,7 +330,7 @@ jobs:
               echo "PostgreSQL is ready"
               break
             fi
-            sleep 2
+            sleep 3
           done
 
           for i in {1..30}; do
@@ -332,7 +338,7 @@ jobs:
               echo "Redis is ready"
               break
             fi
-            sleep 2
+            sleep 3
           done
 
           for i in {1..30}; do
@@ -340,7 +346,7 @@ jobs:
               echo "App is ready on port 3100"
               break
             fi
-            sleep 2
+            sleep 3
           done
 
           # Verify all services are actually ready

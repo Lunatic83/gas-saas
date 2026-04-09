@@ -18,7 +18,7 @@ test.beforeEach(async ({ page }) => {
 test.describe('marketing page', () => {
   test('renders at 375px mobile', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
-    await page.goto('/', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'load' });
     await expect(page.locator('h1')).toBeVisible();
     await expect(page.locator('text=Now in Beta')).toBeVisible();
     await expect(page.locator('button:has-text("Get started")')).toBeVisible();
@@ -26,7 +26,7 @@ test.describe('marketing page', () => {
 
   test('renders at 1280px desktop with features grid', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
-    await page.goto('/', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'load' });
     await expect(page.locator('h1')).toBeVisible();
     // Features grid should show 3 cards
     await expect(page.locator('text=Lightning Fast')).toBeVisible();
@@ -38,13 +38,13 @@ test.describe('marketing page', () => {
 test.describe('auth login page', () => {
   test('renders at 375px mobile', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
-    await page.goto('/login', { waitUntil: 'networkidle' });
+    await page.goto('/login', { waitUntil: 'load' });
     await expect(page.locator('text=Login (E10)')).toBeVisible();
   });
 
   test('renders at 1280px desktop', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
-    await page.goto('/login', { waitUntil: 'networkidle' });
+    await page.goto('/login', { waitUntil: 'load' });
     await expect(page.locator('text=Login (E10)')).toBeVisible();
   });
 });
@@ -52,7 +52,7 @@ test.describe('auth login page', () => {
 test.describe('dashboard page', () => {
   test('renders at 1280px with sidebar visible', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
-    await page.goto('/dashboard', { waitUntil: 'networkidle' });
+    await page.goto('/dashboard', { waitUntil: 'load' });
     // Sidebar should be visible on desktop
     await expect(page.locator('text=Gas SaaS').first()).toBeVisible();
     await expect(page.locator('main').first()).toBeVisible();
@@ -60,7 +60,7 @@ test.describe('dashboard page', () => {
 
   test('renders at 375px with sidebar trigger visible', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
-    await page.goto('/dashboard', { waitUntil: 'networkidle' });
+    await page.goto('/dashboard', { waitUntil: 'load' });
     await expect(page.locator('main').first()).toBeVisible();
   });
 });
@@ -71,7 +71,7 @@ test.describe('404 not-found page', () => {
     // Navigating to a non-existent page returns 404, which the browser logs as a console error.
     // Clear any such expected errors before the afterEach check.
     const beforeCount = consoleErrors.length;
-    await page.goto('/does-not-exist', { waitUntil: 'networkidle' });
+    await page.goto('/does-not-exist', { waitUntil: 'load' });
     await expect(page.locator('text=Page not found')).toBeVisible();
     await expect(page.locator('text=Back to home')).toBeVisible();
     // Remove the expected 404 console error so afterEach doesn't fail
@@ -82,7 +82,7 @@ test.describe('404 not-found page', () => {
 test.describe('root page', () => {
   test('renders marketing page at /', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 800 });
-    await page.goto('/', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'load' });
     await expect(page.locator('h1')).toBeVisible();
   });
 });
