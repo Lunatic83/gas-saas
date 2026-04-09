@@ -199,32 +199,35 @@ jobs:
         run: npm install -g pnpm
 
       - name: Start Docker services
-        run: docker compose -f docker-compose.e2e.yml up -d
+        run: |
+          docker compose -f docker-compose.e2e.yml up -d
+          # Give containers time to fully start before polling for readiness
+          sleep 30
 
       - name: Wait for services
         run: |
-          for i in {1..30}; do
+          for i in {1..60}; do
             if docker exec $(docker ps -q --filter name=postgres) pg_isready -U postgres > /dev/null 2>&1; then
               echo "PostgreSQL is ready"
               break
             fi
-            sleep 2
+            sleep 3
           done
 
-          for i in {1..30}; do
+          for i in {1..60}; do
             if docker exec $(docker ps -q --filter name=redis) redis-cli ping 2>/dev/null | grep -q PONG; then
               echo "Redis is ready"
               break
             fi
-            sleep 2
+            sleep 3
           done
 
-          for i in {1..30}; do
+          for i in {1..60}; do
             if nc -z localhost 3100 > /dev/null 2>&1; then
               echo "App is ready on port 3100"
               break
             fi
-            sleep 2
+            sleep 3
           done
 
           # Verify all services are actually ready
@@ -249,6 +252,9 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Run smoke tests
+        env:
+          CI: 'true'
+          BASE_URL: 'http://localhost:3100'
         run: pnpm exec playwright test --project=smoke
 
       - name: Stop Docker services
@@ -315,32 +321,35 @@ jobs:
         run: npm install -g pnpm
 
       - name: Start Docker services
-        run: docker compose -f docker-compose.e2e.yml up -d
+        run: |
+          docker compose -f docker-compose.e2e.yml up -d
+          # Give containers time to fully start before polling for readiness
+          sleep 30
 
       - name: Wait for services
         run: |
-          for i in {1..30}; do
+          for i in {1..60}; do
             if docker exec $(docker ps -q --filter name=postgres) pg_isready -U postgres > /dev/null 2>&1; then
               echo "PostgreSQL is ready"
               break
             fi
-            sleep 2
+            sleep 3
           done
 
-          for i in {1..30}; do
+          for i in {1..60}; do
             if docker exec $(docker ps -q --filter name=redis) redis-cli ping 2>/dev/null | grep -q PONG; then
               echo "Redis is ready"
               break
             fi
-            sleep 2
+            sleep 3
           done
 
-          for i in {1..30}; do
+          for i in {1..60}; do
             if nc -z localhost 3100 > /dev/null 2>&1; then
               echo "App is ready on port 3100"
               break
             fi
-            sleep 2
+            sleep 3
           done
 
           # Verify all services are actually ready
@@ -365,6 +374,9 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
 
       - name: Run full tests
+        env:
+          CI: 'true'
+          BASE_URL: 'http://localhost:3100'
         run: pnpm exec playwright test
 
       - name: Stop Docker services
