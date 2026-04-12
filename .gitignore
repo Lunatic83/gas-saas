@@ -46,3 +46,6 @@ next-env.d.ts
 
 .omc
 test-results
+
+smoke-test-results
+playwright-report
