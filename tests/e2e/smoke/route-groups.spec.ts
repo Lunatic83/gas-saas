@@ -10,12 +10,7 @@ test.beforeEach(async ({ page }) => {
   consoleErrors.length = 0;
   page.on('console', (msg) => {
     if (msg.type() === 'error') {
-      const text = msg.text();
-      // Ignore browser resource-loading errors (404s for static assets, etc.)
-      // Only fail on actual JavaScript/application errors.
-      if (!text.startsWith('Failed to load resource')) {
-        consoleErrors.push(text);
-      }
+      consoleErrors.push(msg.text());
     }
   });
 });

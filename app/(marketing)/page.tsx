@@ -43,7 +43,7 @@ export default function MarketingPage() {
           production-ready integrations. Start building today.
         </p>
         <div className="flex flex-col gap-4 sm:flex-row">
-          <Link href="/auth/login">
+          <Link href="/login">
             <Button size="lg">Get started</Button>
           </Link>
           <Link href="#features">
@@ -85,7 +85,7 @@ export default function MarketingPage() {
         <p className="max-w-xl text-muted-foreground">
           Join thousands of teams already building on our platform. No credit card required.
         </p>
-        <Link href="/auth/login">
+        <Link href="/login">
           <Button size="lg">Start free</Button>
         </Link>
       </section>
