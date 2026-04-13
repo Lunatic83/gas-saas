@@ -7,9 +7,24 @@ Check the current feature branch PR CI status, auto-fix common failures, and rep
 1. Current branch has an open PR
 2. CI has run at least once
 
+## Step 0 — Load Project Memory
+
+Before starting, load memory files to ensure feedback rules and conventions are available:
+```bash
+cat .claude/memory/workflow_ai_sdlc.md
+cat .claude/memory/feedback_*.md
+```
+
+## Step 1 — Detect Repo Owner
+
+```bash
+REPO_OWNER=$(gh repo view --json owner --jq '.owner.login')
+REPO_NAME=$(gh repo view --json name --jq '.name')
+```
+
 ## Process
 
-### 1. Detect PR
+### 2. Detect PR
 
 ```bash
 BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --abbrev-ref HEAD 2>/dev/null)
@@ -18,18 +33,18 @@ gh pr list --head "$BRANCH" --json number,title,state --jq '.[] | "\(.number)|\(
 
 Stop if no PR found.
 
-### 2. Fetch CI Status
+### 3. Fetch CI Status
 
 ```bash
-gh api repos/{owner}/{repo}/commits/{ref}/status --jq '.state, .statuses[] | select(.context | startswith("ci/")) | "\(.context): \(.state)"'
+gh api repos/$REPO_OWNER/$REPO_NAME/commits/{ref}/status --jq '.state, .statuses[] | select(.context | startswith("ci/")) | "\(.context): \(.state)"'
 ```
 
 Or use the Checks API for more detail:
 ```bash
-gh api repos/{owner}/{repo}/commits/{ref}/check-runs --jq '.check_runs[] | "\(.name): \(.conclusion // .status)"'
+gh api repos/$REPO_OWNER/$REPO_NAME/commits/{ref}/check-runs --jq '.check_runs[] | "\(.name): \(.conclusion // .status)"'
 ```
 
-### 3. Determine Outcome
+### 4. Determine Outcome
 
 #### All Green ✅
 
@@ -44,13 +59,13 @@ PR: #{number} — {title}
 Fetch the failing job log:
 ```bash
 # Get the run ID and job ID of the failing job
-gh api repos/{owner}/{repo}/commits/{ref}/check-runs --jq '.check_runs[] | select(.conclusion == "failure") | {name, id, run_id}'
+gh api repos/$REPO_OWNER/$REPO_NAME/commits/{ref}/check-runs --jq '.check_runs[] | select(.conclusion == "failure") | {name, id, run_id}'
 
 # Get the job logs URL
-gh api repos/{owner}/{repo}/actions/jobs/{job_id}/logs --paginate
+gh api repos/$REPO_OWNER/$REPO_NAME/actions/jobs/{job_id}/logs --paginate
 ```
 
-### 4. Diagnose and Auto-Fix
+### 5. Diagnose and Auto-Fix
 
 Common failure patterns and fixes:
 
@@ -62,42 +77,37 @@ Common failure patterns and fixes:
 | Missing dependencies | `pnpm install` error | `pnpm install && git add -A && git commit -m "chore: install missing deps" && git push` |
 | Build failure | `next build` fails | Read the build error, fix the specific issue |
 
-### 5. Auto-Fix Loop
+### 6. Auto-Fix Loop
 
 - **Round 1**: Attempt fix based on diagnosis
 - **Round 2**: If still failing, fetch new logs, try alternative fix
 - **Escalate**: If still failing after 2 rounds, report the failure details and let the user decide how to proceed (do not ask — just report status).
 
-### 6. Push Fix
+### 7. Push Fix
 
 If a fix was applied:
 ```bash
 git push --force-with-lease origin "$BRANCH"
 ```
 
-Wait 45 seconds for CI to re-run, then check again. If still in progress, wait 30s more.
+Wait 20 seconds for CI to re-run, then check again.
 
-### 7. AI Review Evaluation Loop
+### 8. AI Review Evaluation Loop
 
 After CI is green (or alongside auto-fix if CI was failing), evaluate AI review comments.
 
-#### 7.1 Fetch AI Review Comments
+#### 8.1 Fetch Latest AI Review Comments
+
+Always fetch fresh from GitHub — do not use cached or previously-seen comments:
 
 ```bash
-gh api repos/{owner}/{repo}/issues/{number}/comments
-gh api repos/{owner}/{repo}/pulls/{number}/comments
+gh api repos/$REPO_OWNER/$REPO_NAME/issues/{number}/comments --jq '.[] | select(.user.type == "Bot") | {id, body, created_at}'
+gh api repos/$REPO_OWNER/$REPO_NAME/pulls/{number}/comments --jq '.[] | select(.user.type == "Bot") | {id, body, created_at}'
 ```
 
-Format each comment:
-```
-## AI Review Comment
-- @author file.ts#line:
-  > comment text
-```
+Filter to only comments from bots (the AI review action). If no new bot comments found, skip to Output.
 
-If no comments found, skip to Output.
-
-#### 7.2 Evaluate Each Comment
+#### 8.2 Evaluate Each Comment
 
 For EACH comment, use reasoning to determine:
 
@@ -112,14 +122,13 @@ For EACH comment, use reasoning to determine:
 - The issue was already fixed in a previous commit
 - The suggestion contradicts project conventions not documented in Context7
 
-#### 7.3 Act on Each Comment
+#### 8.3 Act on Each Comment
 
 **If LEGITIMATE:**
 1. Apply the fix
 2. Amend commit: `git add -A && git commit --amend --no-edit && git push --force-with-lease origin "$BRANCH"`
-3. Wait 45s for CI, then re-check CI status
-4. Re-fetch AI comments (new commit may have triggered new reviews)
-5. Repeat from step 7.1
+3. Wait 20s for CI, then re-check CI status
+4. Repeat from step 8.1 (fetch fresh comments — do not re-evaluate previous)
 
 **If FALSE POSITIVE:**
 1. Post a PR comment documenting the dismissal:
@@ -131,13 +140,13 @@ For EACH comment, use reasoning to determine:
    ```
 2. Continue to next comment
 
-#### 7.4 Loop Until No Legitimate Issues Remain
+#### 8.4 Loop Until No Legitimate Issues Remain
 
 Repeat the full loop (fetch → evaluate → act → push → wait → re-fetch) until:
 - CI is green AND
 - All AI comments are either fixed or dismissed with documented reasons
 
-### 8. Final Report
+### 9. Final Report
 
 When loop completes (no legitimate issues remain):
 
@@ -158,7 +167,7 @@ All legitimate issues resolved. Ready for final review.
 | Error | Action |
 |-------|--------|
 | No PR found for branch | Stop and report. |
-| CI not yet run | Wait 30s, re-check. Max 3 retries. |
+| CI not yet run | Wait 20s, re-check. Max 3 retries. |
 | Auto-fix exhausted | Report failure + diagnosis, do not ask — just report status. |
 | Network/API error | Retry once, then report error. |
 
@@ -167,7 +176,7 @@ All legitimate issues resolved. Ready for final review.
 **Success:**
 ```
 CI Status: All checks passed ✅
-PR: https://github.com/{owner}/{repo}/pull/{number}
+PR: https://github.com/$REPO_OWNER/$REPO_NAME/pull/{number}
 Branch: {branch}
 ```
 
@@ -175,14 +184,14 @@ Branch: {branch}
 ```
 CI Status: Auto-fixed and re-running 🔧
 Attempted fix: {description}
-PR: https://github.com/{owner}/{repo}/pull/{number}
+PR: https://github.com/$REPO_OWNER/$REPO_NAME/pull/{number}
 Waiting for CI re-run...
 ```
 
 **Escalated:**
 ```
 CI Status: Failed after 2 auto-fix attempts 🔴
-PR: https://github.com/{owner}/{repo}/pull/{number}
+PR: https://github.com/$REPO_OWNER/$REPO_NAME/pull/{number}
 
 Failed: {job_name}
 Error: {error_summary}
