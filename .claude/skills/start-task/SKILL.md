@@ -16,6 +16,14 @@ Begin implementation on a task with workflow enforcement — validates chain int
 - **With task-id**: Start the specified task (e.g., `/start-task 42` or `/start-task E9-3`)
 - **Without task-id**: Automatically select the next available task by epic order
 
+## Step 0 — Load Project Memory
+
+Before starting, load memory files to ensure feedback rules and conventions are available:
+```bash
+cat .claude/memory/workflow_ai_sdlc.md
+cat .claude/memory/feedback_*.md
+```
+
 ## Process
 
 ### 1. Resolve Task
@@ -78,11 +86,19 @@ If blocked by an open task, report: "Task #{N} is blocked by #{blocker-id}. Reso
 
 ### 4. Validate / Create Branch
 
-Current branch must follow: `task/E{epic#}-{task#}-{short-desc}`
+**IMPORTANT — Branch naming uses PRD task number, NOT GitHub issue number:**
+
+Extract the **PRD task number** from the issue title. The title format is `E{epic#}-{task#}: {description}`:
+- Issue title: "E6-1: Auth Schema + Better-Auth Config" → Task number: **E6-1** (not 109)
+- Issue title: "E9-3: Add shadcn Button" → Task number: **E9-3** (not 75)
+
+Branch format: `task/{E{epic#}-{task#}}-{short-desc}`
 
 ```bash
 BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --abbrev-ref HEAD 2>/dev/null)
-EXPECTED="task/E{epic#}-{task#}-{desc}"
+# Extract epic and task numbers from issue title (e.g., "E6-1" from "E6-1: Auth Schema...")
+# Extract short description from title (slugify, max 30 chars)
+EXPECTED="task/E{epic#}-{task#}-{short-desc}"
 ```
 
 **If branch name matches task:** proceed to step 5.
@@ -91,7 +107,7 @@ EXPECTED="task/E{epic#}-{task#}-{desc}"
 - If no commits on current branch: delete/recreate with correct name
 - If commits exist: create the correct branch and switch
 ```
-git checkout -b "task/E{epic#}-{task#}-{desc}"
+git checkout -b "task/E{epic#}-{task#}-{short-desc}"
 ```
 Always proceed automatically — never ask the user to confirm branch creation.
 
@@ -126,11 +142,18 @@ If previous task is not merged, warn but allow proceeding (some tasks are parall
 **Acceptance Criteria:**
 - [ ] criterion 1
 - [ ] criterion 2
-
-**Ready to implement.** Invoke /tdd (Workflow A) or proceed with implementation (Workflow B/C).
 ```
 
-### 7. Verify Local Tests Pass (Post-Implementation Gate)
+### 7. Auto-Invoke Next Step (REQUIRED)
+
+For **nature:code (Workflow A)**:
+- **Automatically invoke `/tdd`** — do not prompt the user, proceed directly to TDD execution
+- The TDD skill handles test writing, implementation, and refactoring autonomously
+
+For **nature:config (Workflow B)** and **nature:manual (Workflow C)**:
+- Report the task context and wait for user confirmation to proceed with implementation
+
+### 8. Verify Local Tests Pass (Post-Implementation Gate)
 
 After implementation is complete, before invoking `create-pr`:
 

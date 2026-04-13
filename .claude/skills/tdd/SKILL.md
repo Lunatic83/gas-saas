@@ -40,6 +40,14 @@ RIGHT (vertical):
   ...
 ```
 
+## Step 0 — Load Project Memory
+
+Before starting, load memory files to ensure feedback rules and conventions are available:
+```bash
+cat .claude/memory/workflow_ai_sdlc.md
+cat .claude/memory/feedback_*.md
+```
+
 ## Workflow
 
 ### 1. Planning
@@ -51,11 +59,12 @@ Before writing any code:
 - [ ] Identify opportunities for [deep modules](deep-modules.md) (small interface, deep implementation)
 - [ ] Design interfaces for [testability](interface-design.md)
 - [ ] List the behaviors to test (not implementation steps)
-- [ ] Get user approval on the plan
 
-Ask: "What should the public interface look like? Which behaviors are most important to test?"
+> **Yolo-mode (autonomous):** If running autonomously (no user waiting), skip "Get user approval on the plan" and proceed directly. If user is present, get confirmation before proceeding.
 
-**You can't test everything.** Confirm with the user exactly which behaviors matter most. Focus testing effort on critical paths and complex logic, not every possible edge case.
+Ask (when user is present): "What should the public interface look like? Which behaviors are most important to test?"
+
+**You can't test everything.** Focus testing effort on critical paths and complex logic, not every possible edge case.
 
 ### 2. Tracer Bullet
 
@@ -108,12 +117,24 @@ After all tests pass, look for [refactor candidates](refactoring.md):
 
 ## After Completing All Cycles
 
-When all behaviors have been implemented and tests pass, invoke `create-pr` to open the Draft PR:
+When all behaviors have been implemented and tests pass:
+
+### 1. Run Local Test Gate (REQUIRED)
+
+```bash
+pnpm test:unit && pnpm test:integration && pnpm test:e2e
+```
+
+If any test suite fails, do NOT proceed. Fix the failures locally first.
+
+### 2. Auto-Invoke /create-pr (REQUIRED)
+
+When all tests pass, **automatically invoke the `create-pr` skill** — do NOT just print a message or wait for user prompting:
 
 ```
 create-pr
 ```
 
-The `create-pr` skill reads the current branch name, fetches the task issue, fills the PR template, and opens a Draft PR. See `create-pr/SKILL.md` for full details.
+The `create-pr` skill handles PR creation, CI polling, and `/pr-validate` invocation autonomously. See `create-pr/SKILL.md` for full details.
 
 Do NOT close the task issue manually — the `Closes #N` in the PR body will close it automatically when the PR merges.
