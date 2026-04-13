@@ -15,6 +15,13 @@
       "when": 1776104872207,
       "tag": "0001_breezy_tyrannus",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1776112517838,
+      "tag": "0002_cute_mockingbird",
+      "breakpoints": true
     }
   ]
 }

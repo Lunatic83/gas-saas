@@ -1,0 +1,1 @@
+ALTER TABLE "bauth_verification_tokens" ADD CONSTRAINT "bauth_verification_tokens_identifier_token_pk" PRIMARY KEY("identifier","token");

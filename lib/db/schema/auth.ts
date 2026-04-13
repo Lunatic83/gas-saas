@@ -1,4 +1,4 @@
-import { pgTable, varchar, timestamp, text, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, varchar, timestamp, text, boolean, primaryKey } from 'drizzle-orm/pg-core';
 
 // auth.ts schema — mirrors Better-Auth's expected schema for bauth_* tables
 export const bauthUsers = pgTable('bauth_users', {
@@ -40,9 +40,15 @@ export const bauthAccounts = pgTable('bauth_accounts', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
-export const bauthVerificationTokens = pgTable('bauth_verification_tokens', {
-  identifier: varchar('identifier', { length: 255 }).notNull(),
-  token: varchar('token', { length: 255 }).notNull(),
-  expiresAt: timestamp('expires_at').notNull(),
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-});
+export const bauthVerificationTokens = pgTable(
+  'bauth_verification_tokens',
+  {
+    identifier: varchar('identifier', { length: 255 }).notNull(),
+    token: varchar('token', { length: 255 }).notNull(),
+    expiresAt: timestamp('expires_at').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.identifier, table.token] }),
+  }),
+);
