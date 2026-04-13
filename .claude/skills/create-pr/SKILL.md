@@ -1,6 +1,6 @@
 ---
 name: create-pr
-description: Create a GitHub Pull Request from a completed task branch. Use when a task implementation is done and ready for review. Works for nature:code and nature:config tasks. Requires the branch to follow the task/E{epic}-{issue-id}-description naming convention.
+description: Create a GitHub Pull Request from a completed task branch. Use when a task implementation is done and ready for review. Works for nature:code and nature:config tasks. Requires the branch to follow the task/E{epic}-{task-number}-description naming convention.
 ---
 
 # Create Pull Request
@@ -9,13 +9,28 @@ Create a Draft PR from the current feature branch, pre-filled with task context 
 
 ## Prerequisites
 
-1. The current branch follows the naming convention: `task/E{epic}-{issue-number}-{short-description}`
+1. The current branch follows the naming convention: `task/E{epic}-{task-number}-{short-description}`
 2. The task issue exists on GitHub
 3. All changes for the task are committed on the current branch
 
+## Step 0 — Load Project Memory
+
+Before starting, load memory files:
+```bash
+cat .claude/memory/workflow_ai_sdlc.md
+cat .claude/memory/feedback_*.md
+```
+
+## Step 1 — Detect Repo Owner
+
+```bash
+REPO_OWNER=$(gh repo view --json owner --jq '.owner.login')
+REPO_NAME=$(gh repo view --json name --jq '.name')
+```
+
 ## Process
 
-### 1. Detect Branch
+### 2. Detect Branch
 
 Extract the task number from the current branch name.
 
@@ -23,7 +38,7 @@ Extract the task number from the current branch name.
 BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --abbrev-ref HEAD 2>/dev/null)
 ```
 
-Expected format: `task/E{epic}-{issue-number}-{short-description}`
+Expected format: `task/E{epic}-{task-number}-{short-description}`
 
 Example: `task/E3-33-env-e2e-example`
 
@@ -78,7 +93,20 @@ From the task issue labels, include:
 - `nature:code` or `nature:config` (from task)
 - Any `domain:*` labels present on the task
 
-### 7. Create PR
+### 7. Run Local Test Gate (REQUIRED)
+
+Before creating the PR, verify all tests pass locally:
+
+```bash
+pnpm test:unit && pnpm test:integration && pnpm test:e2e
+```
+
+If any test suite fails:
+- Do NOT create the PR
+- Report: "❌ Local tests failed. Fix failures before creating PR."
+- Stop and block PR creation until tests pass
+
+### 8. Create PR
 
 ```bash
 gh pr create \
@@ -90,7 +118,7 @@ gh pr create \
   --draft
 ```
 
-### 8. Assign Milestone
+### 9. Assign Milestone
 
 If the task issue has a milestone, assign it to the PR:
 
@@ -104,12 +132,12 @@ if [ -n "$MILESTONE" ]; then
 fi
 ```
 
-### 9. Link PR to Issue
+### 10. Link PR to Issue
 
 After creation, explicitly link the PR to the task issue:
 
 ```bash
-gh pr edit {pr-url} --link-issue-url https://github.com/{owner}/{repo}/issues/{task-id}
+gh pr edit {pr-url} --link-issue-url https://github.com/$REPO_OWNER/$REPO_NAME/issues/{task-id}
 ```
 
 This creates a bidirectional link visible in both the PR and the issue sidebar.
@@ -120,12 +148,13 @@ This creates a bidirectional link visible in both the PR and the issue sidebar.
 
 | Error | Action |
 |-------|--------|
-| Branch name doesn't match `task/E{epic}-{issue-id}-*` | Stop. Ask user to confirm they're on the correct branch. |
+| Branch name doesn't match `task/E{epic}-{task-number}-*` | Stop. Ask user to confirm they're on the correct branch. |
 | Task issue not found | Stop. Ask user to verify the issue number. |
 | No commits on branch | Stop. Ask user to commit before creating PR. |
 | PR already exists | Report existing PR URL. Skip creation. |
+| Local tests fail | Block PR creation. Fix tests first. |
 
-### 10. Block on CI (REQUIRED)
+### 11. Block on CI (REQUIRED)
 
 After PR creation, wait for CI to complete:
 
@@ -134,13 +163,13 @@ After PR creation, wait for CI to complete:
 PR_NUMBER=$(gh pr view --json number --jq '.number')
 COMMIT_SHA=$(gh pr view --json headRefOid --jq '.headRefOid')
 
-# Poll CI status every 30 seconds
+# Poll CI status every 20 seconds
 while true; do
-  STATUS=$(gh api repos/{owner}/{repo}/commits/$COMMIT_SHA/status --jq '.state')
-  CHECK_RUNS=$(gh api repos/{owner}/{repo}/commits/$COMMIT_SHA/check-runs --jq '.check_runs | length')
+  STATUS=$(gh api repos/$REPO_OWNER/$REPO_NAME/commits/$COMMIT_SHA/status --jq '.state')
+  CHECK_RUNS=$(gh api repos/$REPO_OWNER/$REPO_NAME/commits/$COMMIT_SHA/check-runs --jq '.check_runs | length')
 
   # Count completed vs total
-  COMPLETED=$(gh api repos/{owner}/{repo}/commits/$COMMIT_SHA/check-runs --jq '[.check_runs[] | select(.conclusion != null)] | length')
+  COMPLETED=$(gh api repos/$REPO_OWNER/$REPO_NAME/commits/$COMMIT_SHA/check-runs --jq '[.check_runs[] | select(.conclusion != null)] | length')
 
   echo "CI Status: $STATUS ($COMPLETED/$CHECK_RUNS checks completed)"
 
@@ -148,7 +177,7 @@ while true; do
     break
   fi
 
-  sleep 30
+  sleep 20
 done
 
 # Report final status
@@ -161,13 +190,21 @@ fi
 
 Report final CI status before returning.
 
+### 12. Auto-Invoke /pr-validate (REQUIRED)
+
+After CI completes (both success and failure cases), **automatically invoke the pr-validate skill** without prompting the user:
+
+- If CI passed: immediately invoke `/pr-validate` to run the AI review evaluation loop
+- If CI failed: immediately invoke `/pr-validate` to diagnose and auto-fix failures
+
+Do NOT just print a message — actually invoke the skill so the validation loop runs autonomously.
+
 ## Output
 
-After successful creation, milestone assignment, linking, and CI completion:
+After successful creation, milestone assignment, linking, CI completion, and pr-validate loop:
 - PR URL
 - PR title
 - Branch name
 - Milestone assigned (if any)
 - CI Status (pass/fail)
-- "Proceeding to /pr-validate for AI review evaluation..." if CI passed
-- "Run /pr-validate to diagnose failures and auto-fix" if CI failed
+- pr-validate result (AI review comments evaluated, issues fixed/dismissed)
