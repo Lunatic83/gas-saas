@@ -10,7 +10,6 @@ import {
   bauthAccounts,
   bauthVerificationTokens,
 } from '@/lib/db/schema/auth';
-import 'dotenv/config';
 
 const SESSION_MAX_AGE = parseInt(process.env.SESSION_MAX_AGE ?? '2592000', 10);
 
@@ -49,24 +48,35 @@ export const auth = betterAuth({
           auth: user ? { user, pass } : undefined,
         });
 
-        await transporter.sendMail({
-          to: email,
-          from,
-          subject: 'Verify your email — magic link',
-          html: `<p>Click to verify: <a href="${url}">${url}</a></p>`,
-        });
+        try {
+          await transporter.sendMail({
+            to: email,
+            from,
+            subject: 'Verify your email — magic link',
+            html: `<p>Click to verify: <a href="${url}">${url}</a></p>`,
+          });
+        } catch (error) {
+          console.error('[Auth] Failed to send magic link email:', error);
+          throw new Error('Failed to send verification email');
+        }
       },
     }),
   ],
   socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID ?? '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
-    },
-    github: {
-      clientId: process.env.GITHUB_CLIENT_ID ?? '',
-      clientSecret: process.env.GITHUB_CLIENT_SECRET ?? '',
-    },
+    ...(process.env.GOOGLE_CLIENT_ID &&
+      process.env.GOOGLE_CLIENT_SECRET && {
+        google: {
+          clientId: process.env.GOOGLE_CLIENT_ID,
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        },
+      }),
+    ...(process.env.GITHUB_CLIENT_ID &&
+      process.env.GITHUB_CLIENT_SECRET && {
+        github: {
+          clientId: process.env.GITHUB_CLIENT_ID,
+          clientSecret: process.env.GITHUB_CLIENT_SECRET,
+        },
+      }),
   },
   account: {
     accountLinking: {
