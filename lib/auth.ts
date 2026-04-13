@@ -11,7 +11,11 @@ import {
   bauthVerificationTokens,
 } from '@/lib/db/schema/auth';
 
-const SESSION_MAX_AGE = parseInt(process.env.SESSION_MAX_AGE ?? '2592000', 10);
+const _parsedMaxAge = parseInt(process.env.SESSION_MAX_AGE ?? '2592000', 10);
+if (isNaN(_parsedMaxAge) || _parsedMaxAge <= 0) {
+  throw new Error('SESSION_MAX_AGE must be a positive integer');
+}
+const SESSION_MAX_AGE = _parsedMaxAge;
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
