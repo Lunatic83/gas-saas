@@ -6,10 +6,10 @@ This file is the memory index for the gas-saas project. All project-specific mem
 
 ## Memories
 
-**⚠️ MASTER WORKFLOW — Read [workflow_ai_sdlc.md](memory/workflow_ai_sdlc.md) first before ANY task.** It references all other memories and is the source of truth for the development process.
+**⚠️ MASTER WORKFLOW — Read [.claude/memory/workflow_ai_sdlc.md](.claude/memory/workflow_ai_sdlc.md) first before ANY task.** It references all other memories and is the source of truth for the development process.
 
-- [AI SDLC Workflow](memory/workflow_ai_sdlc.md) — **MASTER** Matt Pocock workflow: classify nature → grill-me → write-a-prd → prd-to-issues → tdd
-- [Branch protection critical](memory/feedback_branch_protection.md) — always enable branch protection on main BEFORE merging
-- [No-lift quality checks](memory/feedback_no_lift_quality_checks.md) — never disable ESLint, TypeScript, or Prettier to make tests pass; fix the underlying issue
-- [Rate limiting design](memory/feedback_rate_limiting_design.md) — E5 uses IP-only; E6+ must add user ID for per-user limits
+- [AI SDLC Workflow](.claude/memory/workflow_ai_sdlc.md) — **MASTER** Matt Pocock workflow: classify nature → grill-me → write-a-prd → prd-to-issues → tdd
+- [Branch protection critical](.claude/memory/feedback_branch_protection.md) — always enable branch protection on main BEFORE merging
+- [No-lift quality checks](.claude/memory/feedback_no_lift_quality_checks.md) — never disable ESLint, TypeScript, or Prettier to make tests pass; fix the underlying issue
+- [Rate limiting design](.claude/memory/feedback_rate_limiting_design.md) — E5 uses IP-only; E6+ must add user ID for per-user limits
 - **Docs**: Use Context7 (`npx ctx7@latest docs /shadcn-ui/ui "..."`) for shadcn/ui and Tailwind v4 docs. Don't install skill marketplace skills for UI libraries — docs are always fresh via Context7.
