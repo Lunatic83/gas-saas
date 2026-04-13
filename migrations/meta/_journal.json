@@ -8,6 +8,13 @@
       "when": 1775061278528,
       "tag": "20260401_initial-schema",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1776104872207,
+      "tag": "0001_breezy_tyrannus",
+      "breakpoints": true
     }
   ]
 }

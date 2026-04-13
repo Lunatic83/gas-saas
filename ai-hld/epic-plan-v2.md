@@ -1,6 +1,6 @@
 # Implementation Strategy — Epic Plan v2
 
-> **Status**: 🚧 Epic 9 Design System (next)
+> **Status**: 🚧 Epic E6+E10 Combined Auth System (next)
 > **Source**: Derived from [saas-blueprint-high-level-design.md](./saas-blueprint-high-level-design.md)
 > **Changelog**: v2 reorders phases to gate E6+E10 behind E9 (Design System), and moves E7+E8 to after auth (they require an authenticated session context). See rationale in each phase.
 
@@ -76,23 +76,26 @@ This document is the epic breakdown with dependency ordering. SDLC flow is appli
 
 | # | Status | Epic | Nature | Workflow |
 |---|--------|------|--------|----------|
-| **E9** | 🚧 Next | **Design System & Layout Shell** | `code` | A |
+| **E9** | ✅ Done | **Design System & Layout Shell** | `code` | A |
 | | | shadcn/ui, Tailwind, design tokens, light/dark mode, app shell, responsive (375px+) | | |
 | **E20** | ⏳ Not Started | **Production Infrastructure** | `manual` | C |
 | | | Server provisioning, Dokploy install, domain config, R2 buckets, Uptime Kuma, `scripts/backup-db.sh`, `scripts/cleanup-backups.sh`, `scripts/archive-audit-logs.sh`, `scripts/cleanup-queue.sh` | | |
 
 > [!TIP]
-> E9 and E20 run in parallel with Phase B. E9 (Workflow A, nature:code) can start immediately — it only needs the Next.js scaffold from E2. E20 (Workflow C, nature:manual) is a human-executed checklist that runs independently of code progress.
+> E9 and E20 ran in parallel with Phase B. E9 is now complete. E20 (Workflow C, nature:manual) is a human-executed checklist that runs independently of code progress.
 
 ### Phase C — Auth System *(E6 + E10, parallel workstreams)*
 
-| # | Status | Epic | Nature | Workflow |
-|---|--------|------|--------|----------|
-| | | | | |
+> [!NOTE]
+> **PRD:** Issue [#108](https://github.com/Lunatic83/gas-saas/issues/108) — E6+E10 Combined Auth System. Grill-me completed, PRD authored, tasks created (#109-#120).
+
+| # | Status | Epic | Nature | Workflow | Tasks |
+|---|--------|------|--------|----------|-------|
+| | | | | | |
 | **E6** | ⏳ Not Started | **Auth Backend** | `code` | A |
-| | | Better-Auth setup, sessions table + Redis cache, auth API routes, middleware (`requireSession`, `requireRole`), email+password, magic link, OAuth (Google, GitHub), rate limiting | | |
+| | | Better-Auth setup, bauth_ schema (users, sessions, accounts, verification_tokens), auth API routes, middleware with callbackUrl, email+password + email verification, magic link, OAuth (Google, GitHub), dual email provider (Ethereal/Resend), generic error messages, account linking disabled | | |
 | **E10** | ⏳ Not Started | **Auth UI** | `code` | A |
-| | | Login, signup, magic link, OAuth buttons, password reset, session context, protected route wrappers — all built on shadcn/ui design system | | |
+| | | better-auth-ui, AuthUIProvider at root, sign-in/sign-up/forgot-password/reset-password pages, sign-out goodbye page, desktop split layout, mobile centered, protected route wrappers, layered auth pattern | | |
 
 > [!NOTE]
 > **Why E6 and E10 are combined and gated behind E9:**
@@ -142,7 +145,7 @@ This document is the epic breakdown with dependency ordering. SDLC flow is appli
 | **E14** | ⏳ Not Started | **Background Jobs (BullMQ)** | `config` | B |
 | | | BullMQ setup, worker container, queue definitions, dead letter queue, graceful shutdown | | |
 | **E15** | ⏳ Not Started | **Email System** | `config` | B |
-| | | React Email templates, BullMQ queue, Mailhog in dev/e2e, transactional flows | | |
+| | | React Email templates, BullMQ queue for background job email processing. Note: Ethereal (dev) and Resend (prod) email sending is implemented in E6+E10. E15 moves email sending to BullMQ background jobs for high-volume production use. | | |
 | **E16** | ⏳ Not Started | **Notification System** | `code` | B |
 | | | `notifications` table, BullMQ dispatch, bell icon UI, polling/SSE, mark-as-read | | |
 
@@ -225,9 +228,9 @@ See HLD Section 10.1 "Workflow Selection" for full definitions.
 ## Key Rules
 
 1. **Every PR from E4+ runs through CI** (E3 is the gate)
-2. **E9 (Design System) runs in parallel with Phase B** — it only needs the Next.js scaffold from E2, not the backend core
-3. **No UI epic starts before E9 is complete** (Design System is the gate)
-4. **E6+E10 ship together** — they are a single auth epic with parallel workstreams, not two sequential epics
-5. **E7+E8 come after E6+E10** — both require an authenticated session context that only exists after auth is implemented
-6. **E20 runs in parallel** with Phases B–E (manual infra, independent of code)
-7. **Classify by `nature:` before starting** — choose workflow based on task type, not epic number
+2. **E9 (Design System) ran in parallel with Phase B** — it only needed the Next.js scaffold from E2, not the backend core. Now complete.
+3. **E6+E10 ship together** — they are a single auth epic with parallel workstreams, not two sequential epics (PRD: #108)
+4. **E7+E8 come after E6+E10** — both require an authenticated session context that only exists after auth is implemented
+5. **E20 runs in parallel** with Phases B–E (manual infra, independent of code)
+6. **Classify by `nature:` before starting** — choose workflow based on task type, not epic number
+7. **Email system (E15) scope clarified** — E6+E10 implement email sending via Ethereal/Resend. E15 adds BullMQ background jobs for production email throughput.
