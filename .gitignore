@@ -45,6 +45,7 @@ next-env.d.ts
 .vscode
 
 .omc
+.claude/worktrees
 test-results
 
 smoke-test-results
