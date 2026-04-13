@@ -39,7 +39,8 @@ CREATE TABLE "bauth_verification_tokens" (
 	"identifier" varchar(255) NOT NULL,
 	"token" varchar(255) NOT NULL,
 	"expires_at" timestamp NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "bauth_verification_tokens_pk" PRIMARY KEY("identifier", "token")
 );
 --> statement-breakpoint
 ALTER TABLE "bauth_accounts" ADD CONSTRAINT "bauth_accounts_user_id_bauth_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."bauth_users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint

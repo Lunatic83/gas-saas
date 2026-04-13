@@ -57,7 +57,7 @@ export const auth = betterAuth({
             to: email,
             from,
             subject: 'Verify your email — magic link',
-            html: `<p>Click to verify: <a href="${url}">${url}</a></p>`,
+            html: `<p>Click to verify: <a href="${url.replace(/"/g, '&quot;')}">Verify your email</a></p>`,
           });
         } catch (error) {
           console.error('[Auth] Failed to send magic link email:', error);
