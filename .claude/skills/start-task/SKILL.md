@@ -84,7 +84,7 @@ gh issue view {task-id} --json body --jq '.body' | grep -i "blocked by"
 
 If blocked by an open task, report: "Task #{N} is blocked by #{blocker-id}. Resolve that first."
 
-### 4. Validate / Create Branch
+### 4. Create Worktree + Branch
 
 **IMPORTANT — Branch naming uses PRD task number, NOT GitHub issue number:**
 
@@ -93,23 +93,30 @@ Extract the **PRD task number** from the issue title. The title format is `E{epi
 - Issue title: "E9-3: Add shadcn Button" → Task number: **E9-3** (not 75)
 
 Branch format: `task/{E{epic#}-{task#}}-{short-desc}`
+Worktree path: `.claude/worktrees/task/E{epic#}-{task#}/{short-desc}`
 
 ```bash
-BRANCH=$(git symbolic-ref --short HEAD 2>/dev/null || git rev-parse --abbrev-ref HEAD 2>/dev/null)
 # Extract epic and task numbers from issue title (e.g., "E6-1" from "E6-1: Auth Schema...")
 # Extract short description from title (slugify, max 30 chars)
-EXPECTED="task/E{epic#}-{task#}-{short-desc}"
+TASK_NUM="E{epic#}-{task#}"
+SHORT_DESC="{slugified-desc}"
+BRANCH="task/${TASK_NUM}-${SHORT_DESC}"
+WORKTREE_DIR=".claude/worktrees/${TASK_NUM}"
+
+# Create worktree directory if needed
+mkdir -p "$WORKTREE_DIR"
+
+# Check if worktree already exists
+if [ -d ".git/worktrees/${TASK_NUM}" ] || git worktree list | grep -q "${WORKTREE_DIR}"; then
+  # Worktree already exists — just checkout the branch
+  git worktree list | grep "${WORKTREE_DIR}" | awk '{print $1}' | xargs git -C {} checkout "$BRANCH" 2>/dev/null || git -C "$WORKTREE_DIR" checkout "$BRANCH"
+else
+  # Create new worktree from main with new branch
+  git worktree add -b "$BRANCH" "$WORKTREE_DIR" main
+fi
 ```
 
-**If branch name matches task:** proceed to step 5.
-
-**If branch name doesn't match:**
-- If no commits on current branch: delete/recreate with correct name
-- If commits exist: create the correct branch and switch
-```
-git checkout -b "task/E{epic#}-{task#}-{short-desc}"
-```
-Always proceed automatically — never ask the user to confirm branch creation.
+Always proceed automatically — never ask the user to confirm worktree/branch creation.
 
 ### 5. Verify Previous Task PR Merged (Chain Integrity)
 
@@ -138,6 +145,7 @@ If previous task is not merged, warn but allow proceeding (some tasks are parall
 **Milestone:** {milestone-name}
 
 **Branch:** {current-branch}
+**Worktree:** .claude/worktrees/{epic#}/{short-desc}
 
 **Acceptance Criteria:**
 - [ ] criterion 1
@@ -175,7 +183,7 @@ If any test suite fails, do NOT push or create PR. Fix the failures locally firs
 | Task blocked | Report blocker, stop. |
 | Local tests fail | Block push, fix first. |
 
-> **Note:** Wrong branch is handled automatically — the skill creates the correct branch and switches.
+> **Note:** Wrong branch/worktree is handled automatically — the skill creates the correct worktree with branch and switches.
 
 ---
 
@@ -186,6 +194,7 @@ If any test suite fails, do NOT push or create PR. Fix the failures locally firs
 ✅ Task #{id} ready: {title}
 Nature: {nature} | Workflow: {A|B|C}
 Branch: {branch}
+Worktree: .claude/worktrees/{epic#}/{short-desc}
 ```
 
 **On error/validation failure:**
