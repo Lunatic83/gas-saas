@@ -66,10 +66,25 @@ Per task (one at a time):
 2. **Red:** Write failing test
 3. **Green:** Write minimal code to pass
 4. **Refactor:** Improve code quality
-5. **Local Test Gate (REQUIRED):** Run `pnpm test:unit && pnpm test:integration && pnpm test:e2e`. ALL three must pass before proceeding. If any fail, fix locally and re-run. Do NOT push until all three are green.
-6. Open PR: `closes #{task_number}`
-7. **Block on CI:** Terminal waits — poll CI every 30s until all checks pass or fail. If CI fails, proceed to validation loop.
-8. **Validation loop:**
+5. **Micro-Commit (REQUIRED):** After each discrete working state, commit before moving to the next step. Treat commits as rollback points, not delivery milestones.
+
+   **Commit points per TDD cycle:**
+   - After step 2 (Red → first failing test): `test(scope): add {description}`
+   - After step 3 (Green → code passes): `feat(scope): implement {description}`
+   - After step 4 (Refactor): `refactor(scope): extract {description}`
+   - After step 6 (all 3 test suites green): `chore(scope): full test gate passing`
+
+   **Commit message format:**
+   ```
+   type(scope): brief description
+
+   - Detail 1
+   - Detail 2
+   ```
+6. **Local Test Gate (REQUIRED):** Run `pnpm test:unit && pnpm test:integration && pnpm test:e2e`. ALL three must pass before proceeding. If any fail, fix locally and re-run. Do NOT push until all three are green.
+7. Open PR: `closes #{task_number}`
+8. **Block on CI:** Terminal waits — poll CI every 30s until all checks pass or fail. If CI fails, proceed to validation loop.
+9. **Validation loop:**
    ```
    WHILE issues remain:
      Run /pr-validate
@@ -80,18 +95,20 @@ Per task (one at a time):
         - Fix legitimate issues autonomously
         - Dismiss non-legitimate concerns with clear reasoning
         - Document EVERY decision in a PR comment: what was found, action taken (fixed/dismissed), reasoning
-     → If fixes made: push → CI re-runs → repeat
+     → If fixes made: commit with `fix(scope): resolve {issue}` → push → CI re-runs → repeat
      → If only dismissals: proceed
    ```
-9. **Final review:** User reviews the full decision log (all dismissals + fixes) before approving the PR. If user disagrees with any AI decision, AI must rollback and redo.
-10. Developer reviews and merges
-11. Issue closes automatically
+10. **Final review:** User reviews the full decision log (all dismissals + fixes) before approving the PR. If user disagrees with any AI decision, AI must rollback and redo.
+11. Developer reviews and merges
+12. Issue closes automatically
 
 **Rule:** TDD is strict — no implementation without failing test first.
 
 **Quality gates:** See [feedback_no_lift_quality_checks.md](feedback_no_lift_quality_checks.md) — never disable ESLint, TypeScript, or Prettier to make tests pass. Fix the underlying issue.
 
-**⚠️ Before merge:** Step 7 (validation loop) MUST complete. Loop until all CI and AI review issues are resolved (fixed or dismissed). Step 8 documents all decisions.
+**⚠️ Before merge:** Step 9 (validation loop) MUST complete. Loop until all CI and AI review issues are resolved (fixed or dismissed). Step 10 documents all decisions.
+
+**Micro-commit strategy:** Branch commits serve as rollback points during development. GitHub squash-merge at PR time produces one clean commit on `main`. No pre-merge rebase needed.
 
 ---
 
@@ -111,10 +128,14 @@ Per task (one at a time):
 
 1. Create branch: `task/{E(epic#)-(task#)-(short-desc)}`
 2. Implement the config/script/tooling
-3. If applicable, write basic sanity tests (e.g., Docker Compose syntax validation, script dry-run)
-4. Open PR: `closes #{task_number}`
-5. CI runs (lint, type-check, build if applicable)
-6. **Validation loop:**
+3. **Micro-Commit:** After each discrete config unit:
+   - After schema/config change: `chore(config): update {name} schema`
+   - After script change: `chore(script): add {name} validation`
+   - After CI change: `fix(ci): resolve {issue}`
+4. If applicable, write basic sanity tests (e.g., Docker Compose syntax validation, script dry-run)
+5. Open PR: `closes #{task_number}`
+6. CI runs (lint, type-check, build if applicable)
+7. **Validation loop:**
    ```
    WHILE issues remain:
      Run /pr-validate
@@ -125,15 +146,17 @@ Per task (one at a time):
         - Fix legitimate issues autonomously
         - Dismiss non-legitimate concerns with clear reasoning
         - Document EVERY decision in a PR comment: what was found, action taken (fixed/dismissed), reasoning
-     → If fixes made: push → CI re-runs → repeat
+     → If fixes made: commit with `fix(scope): resolve {issue}` → push → CI re-runs → repeat
      → If only dismissals: proceed
    ```
-7. **Final review:** User reviews the full decision log (all dismissals + fixes) before approving the PR. If user disagrees with any AI decision, AI must rollback and redo.
-8. Developer reviews and merges
+8. **Final review:** User reviews the full decision log (all dismissals + fixes) before approving the PR. If user disagrees with any AI decision, AI must rollback and redo.
+9. Developer reviews and merges
 
 **Rule:** Even though no TDD, always run CI quality gates (ESLint, Prettier, type-check).
 
-**⚠️ Before merge:** Step 6 MUST run after CI is green. Loop until all issues are resolved (fixed or dismissed).
+**⚠️ Before merge:** Step 7 MUST run after CI is green. Loop until all issues are resolved (fixed or dismissed).
+
+**Micro-commit strategy:** Branch commits serve as rollback points during development. GitHub squash-merge at PR time produces one clean commit on `main`. No pre-merge rebase needed.
 
 ---
 
