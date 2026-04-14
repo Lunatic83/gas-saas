@@ -258,6 +258,102 @@ When working on any library/framework integration:
 
 ---
 
+## Context Gates
+
+Each phase transition is guarded by an explicit checkpoint. Gates enforce contracts between phases — preventing bad context from polluting downstream work.
+
+### Gate Taxonomy
+
+| Gate | Type | Question | Enforced By |
+|------|------|----------|-------------|
+| **Classification** | Context Filtering | Is the task classified correctly by `nature:`? | Human + AI |
+| **Scope Gate** | Summary Gate | Does the PRD address the discovered problem? | grill-me output review |
+| **Spec Gate** | Summary Gate | Do the tasks deliver the full PRD scope? | PRD → Tasks review |
+| **Quality Gate** | Deterministic | Does it compile, lint, and pass all tests? | Toolchain (pnpm) |
+| **Review Gate** | Probabilistic | Does it satisfy the Spec and Constitution? | AI Review workflow + /pr-validate |
+| **Acceptance Gate** | Human | Is it the right solution for the user? | Final review (Step 10) |
+| **Denial Gate** | Prevention | Is this action allowed at this point? | .claude/hooks |
+
+### Gate Definitions
+
+#### G1 — Classification Gate
+- **Location:** "Classification First"
+- **Input:** Incoming task or issue
+- **Check:** Does it have a `nature:` label? (code/config/manual)
+- **Output:** Workflow entry point determined (A/B/C)
+- **Failure:** Propose `nature:` label, wait for confirmation
+
+#### G2 — Scope Gate
+- **Location:** Phase 1 → Phase 2 (grill-me → write-a-prd)
+- **Input:** grill-me scope definition
+- **Check:** Does the PRD actually address the discovered problem? Are all decision branches resolved?
+- **Output:** Approved PRD issue
+- **Failure:** Loop back to grill-me until shared understanding reached. No issue created until PASS.
+
+#### G3 — Spec Gate
+- **Location:** Phase 2 → Phase 3 (write-a-prd → prd-to-issues)
+- **Input:** PRD issue body
+- **Check:** Does each task deliver a vertical slice of the PRD scope? Are all user stories covered?
+- **Output:** Child task issues linked to PRD
+- **Failure:** Re-review PRD. Tasks must be atomic and traceable to PRD requirements.
+
+#### G4 — Quality Gate
+- **Location:** Step 6 (Local Test Gate) and CI
+- **Input:** Code changes on branch
+- **Check:** `pnpm test:unit && pnpm test:integration && pnpm test:e2e` — all must pass
+- **Output:** Green test suite
+- **Failure:** Block. Fix locally. Never disable quality tools to pass.
+
+#### G5 — Review Gate
+- **Location:** CI → /pr-validate loop
+- **Input:** PR diff + AI Review comment
+- **Check:** VERDICT: PASS or all violations resolved (fixed or dismissed with reasoning)
+- **Output:** Clean PR with documented decisions
+- **Failure:** Validation loop. Fix legitimate issues. Dismiss false positives with PR comment.
+
+#### G6 — Acceptance Gate
+- **Location:** Step 10 (Final review)
+- **Input:** Full decision log + PR
+- **Check:** Human approves all dismissals and fixes
+- **Output:** Merge approved
+- **Failure:** AI rolls back and redoes if human disagrees with any decision
+
+#### G7 — Denial Gate
+- **Location:** .claude/hooks (enforced at shell level)
+- **Check:** Blocks git push --force, git reset --hard, branch -D without verification
+- **Output:** Hard block with error message
+- **Failure:** Command rejected. Use safe alternative.
+
+### Gate Flow
+
+```
+Task arrives
+    ↓
+[G1: Classification] → nature:code / config / manual
+    ↓
+Workflow A: grill-me
+    ↓
+[G2: Scope Gate] → PRD issue created
+    ↓
+prd-to-issues
+    ↓
+[G3: Spec Gate] → Task issues linked to PRD
+    ↓
+Implementation (TDD cycle + micro-commits)
+    ↓
+[G4: Quality Gate] → All 3 test suites green + CI green
+    ↓
+[G5: Review Gate] → /pr-validate loop → VERDICT: PASS
+    ↓
+[G6: Acceptance Gate] → Human final review
+    ↓
+[G7: Denial Gate] → .claude/hooks block unsafe commands
+    ↓
+Merge (squash)
+```
+
+---
+
 ## Git Safety
 
 **See also:**

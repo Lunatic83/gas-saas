@@ -122,6 +122,11 @@ For EACH comment, use reasoning to determine:
 - The issue was already fixed in a previous commit
 - The suggestion contradicts project conventions not documented in Context7
 
+**Verdict-Aware Evaluation:**
+- If the comment contains "VERDICT: NOT READY TO MERGE", treat each listed violation as a legitimate issue requiring fixes. Do not dismiss without deep evaluation of the violated rule and its remediation.
+- If the comment contains "VERDICT: PASS", no action needed — skip to the next bot comment.
+- When evaluating constitutional violations (Quality Gates, TDD, Schema-First, Rate Limiting), validate against the project's `.claude/memory/feedback_*.md` rules before dismissing.
+
 #### 8.3 Act on Each Comment
 
 **If LEGITIMATE:**
