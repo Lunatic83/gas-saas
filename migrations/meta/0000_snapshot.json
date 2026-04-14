@@ -127,12 +127,8 @@
           "name": "bauth_accounts_user_id_bauth_users_id_fk",
           "tableFrom": "bauth_accounts",
           "tableTo": "bauth_users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -236,12 +232,8 @@
           "name": "bauth_sessions_user_id_bauth_users_id_fk",
           "tableFrom": "bauth_sessions",
           "tableTo": "bauth_users",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -251,9 +243,7 @@
         "bauth_sessions_token_unique": {
           "name": "bauth_sessions_token_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token"
-          ]
+          "columns": ["token"]
         }
       },
       "policies": {},
@@ -334,9 +324,7 @@
         "bauth_users_email_unique": {
           "name": "bauth_users_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
