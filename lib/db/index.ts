@@ -10,11 +10,7 @@ const globalForDrizzle = globalThis as unknown as {
 };
 
 function createDb() {
-  const DATABASE_URL = process.env.DATABASE_URL ?? '';
-  if (!DATABASE_URL) {
-    throw new Error('DATABASE_URL environment variable is not set');
-  }
-  return drizzle(postgres(DATABASE_URL, { max: 10 }));
+  return drizzle(postgres(process.env.DATABASE_URL ?? 'postgres://localhost:5432', { max: 10 }));
 }
 
 export const db = globalForDrizzle.drizzleDb ?? createDb();
