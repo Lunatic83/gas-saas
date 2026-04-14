@@ -7,7 +7,7 @@ export const bauth_users = pgTable(
     id: uuid('id')
       .default(sql`pg_catalog.gen_random_uuid()`)
       .primaryKey(),
-    name: text('name').notNull(),
+    name: text('name', { length: 255 }).notNull(),
     email: text('email').notNull().unique(),
     emailVerified: boolean('email_verified').default(false).notNull(),
     image: text('image'),

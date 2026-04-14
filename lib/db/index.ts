@@ -10,7 +10,13 @@ const globalForDrizzle = globalThis as unknown as {
 };
 
 function createDb() {
-  return drizzle(postgres(process.env.DATABASE_URL ?? 'postgres://localhost:5432', { max: 10 }));
+  const url = process.env.DATABASE_URL;
+  if (!url) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('[DEV] DATABASE_URL not set, using localhost');
+    }
+  }
+  return drizzle(postgres(url ?? 'postgres://localhost:5432', { max: 10 }));
 }
 
 export const db = globalForDrizzle.drizzleDb ?? createDb();

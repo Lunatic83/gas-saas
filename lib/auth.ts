@@ -21,11 +21,11 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: true,
+    requireEmailVerification: false, // TODO: Enable once email provider is configured (E6-5)
     minPasswordLength: 8,
   },
   advanced: {
-    useSecureCookies: true,
+    useSecureCookies: process.env.NODE_ENV === 'production',
     cookiePrefix: 'gas-saas',
   },
   session: {
