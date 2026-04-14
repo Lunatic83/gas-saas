@@ -1,3 +1,11 @@
+# Block .claude/CLAUDE.md — root CLAUDE.md is authoritative
+blocked_file=".claude/CLAUDE.md"
+if git diff --cached --name-only | grep -qx "$blocked_file"; then
+  echo "ERROR: Refusing to commit $blocked_file"
+  echo "This file is redundant with the root CLAUDE.md."
+  exit 1
+fi
+
 bash scripts/check-migrations.sh
 
 staged=$(git diff --cached --name-only)
