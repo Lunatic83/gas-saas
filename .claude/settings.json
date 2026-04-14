@@ -18,7 +18,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cat \"$CLAUDE_PROJECT_DIR\"/CLAUDE.md \"$CLAUDE_PROJECT_DIR\"/.claude/CLAUDE.md \"$CLAUDE_PROJECT_DIR\"/AGENT.md \"$CLAUDE_PROJECT_DIR\"/.claude/memory/*.md \"$CLAUDE_PROJECT_DIR\"/.claude/auto-memory/*.md 2>/dev/null",
+            "command": "cat \"$CLAUDE_PROJECT_DIR\"/CLAUDE.md \"$CLAUDE_PROJECT_DIR\"/AGENTS.md \"$CLAUDE_PROJECT_DIR\"/.claude/memory/*.md 2>/dev/null",
             "statusMessage": "Loading project memory"
           }
         ]
@@ -29,7 +29,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cat \"$CLAUDE_PROJECT_DIR\"/CLAUDE.md \"$CLAUDE_PROJECT_DIR\"/.claude/CLAUDE.md \"$CLAUDE_PROJECT_DIR\"/AGENT.md \"$CLAUDE_PROJECT_DIR\"/.claude/memory/*.md \"$CLAUDE_PROJECT_DIR\"/.claude/auto-memory/*.md 2>/dev/null",
+            "command": "cat \"$CLAUDE_PROJECT_DIR\"/CLAUDE.md \"$CLAUDE_PROJECT_DIR\"/AGENTS.md \"$CLAUDE_PROJECT_DIR\"/.claude/memory/*.md 2>/dev/null",
             "statusMessage": "Re-injecting project memory after compaction"
           }
         ]
