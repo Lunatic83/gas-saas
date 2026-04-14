@@ -29,7 +29,10 @@ export const auth = betterAuth({
     cookiePrefix: 'gas-saas',
   },
   session: {
-    expiresIn: parseInt(process.env.SESSION_MAX_AGE ?? '2592000'),
+    expiresIn: (() => {
+      const val = parseInt(process.env.SESSION_MAX_AGE ?? '2592000', 10);
+      return isNaN(val) ? 2592000 : val;
+    })(),
     updateAge: 3600,
   },
 });

@@ -1,5 +1,5 @@
 {
-  "id": "a1d6d387-46cc-4832-becb-7bb2c7bc203f",
+  "id": "7f0888d0-da52-42f1-9f70-f943b3705f3b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -127,8 +127,12 @@
           "name": "bauth_accounts_user_id_bauth_users_id_fk",
           "tableFrom": "bauth_accounts",
           "tableTo": "bauth_users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -173,7 +177,8 @@
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "now()"
         },
         "ip_address": {
           "name": "ip_address",
@@ -231,8 +236,12 @@
           "name": "bauth_sessions_user_id_bauth_users_id_fk",
           "tableFrom": "bauth_sessions",
           "tableTo": "bauth_users",
-          "columnsFrom": ["user_id"],
-          "columnsTo": ["id"],
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -242,7 +251,9 @@
         "bauth_sessions_token_unique": {
           "name": "bauth_sessions_token_unique",
           "nullsNotDistinct": false,
-          "columns": ["token"]
+          "columns": [
+            "token"
+          ]
         }
       },
       "policies": {},
@@ -323,7 +334,9 @@
         "bauth_users_email_unique": {
           "name": "bauth_users_email_unique",
           "nullsNotDistinct": false,
-          "columns": ["email"]
+          "columns": [
+            "email"
+          ]
         }
       },
       "policies": {},

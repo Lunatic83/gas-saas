@@ -9,15 +9,15 @@ const globalForDrizzle = globalThis as unknown as {
   drizzleDb: ReturnType<typeof drizzle> | undefined;
 };
 
+const DATABASE_URL = process.env.DATABASE_URL ?? '';
+
+if (!DATABASE_URL && process.env.NODE_ENV === 'production') {
+  throw new Error('DATABASE_URL environment variable is not set');
+}
+
 export const db =
   globalForDrizzle.drizzleDb ??
-  drizzle(
-    postgres(process.env.DATABASE_URL ?? '', {
-      max: 10,
-      onnotice: () => null,
-      transform: undefined,
-    }),
-  );
+  drizzle(postgres(DATABASE_URL || 'postgres://localhost:5432', { max: 10 }));
 
 if (process.env.NODE_ENV !== 'production') {
   globalForDrizzle.drizzleDb = db;
