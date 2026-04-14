@@ -1,6 +1,7 @@
+import { drizzleAdapter } from '@better-auth/drizzle-adapter';
 import { betterAuth } from 'better-auth';
 import { createAuthClient } from 'better-auth/client';
-import { drizzleAdapter } from '@better-auth/drizzle-adapter';
+
 import { db } from './db';
 import { bauthUsers, bauthSessions, bauthAccounts, bauthVerificationTokens } from './db/schema/auth';
 
