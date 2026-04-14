@@ -1,0 +1,21 @@
+#!/bin/sh
+# Prevent committing a new .claude/CLAUDE.md (root CLAUDE.md is authoritative)
+
+blocked_file=".claude/CLAUDE.md"
+
+# Check if the file is being added (staged) for the first time
+if git diff --cached --name-only | grep -qx "$blocked_file"; then
+  echo "ERROR: Refusing to commit $blocked_file"
+  echo "This file is redundant with the root CLAUDE.md."
+  echo "Remove it with: git rm --cached $blocked_file"
+  exit 1
+fi
+
+# Also block if it exists in the commit (catches direct commits without staging)
+if [ -f "$blocked_file" ] && git ls-files --error-unmatch "$blocked_file" >/dev/null 2>&1; then
+  echo "ERROR: $blocked_file is already tracked and should not be re-committed."
+  echo "Use git rm --cached $blocked_file to untrack it."
+  exit 1
+fi
+
+exit 0
