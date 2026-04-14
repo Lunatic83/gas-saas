@@ -1,17 +1,17 @@
-import { drizzleAdapter } from "@better-auth/drizzle-adapter";
-import { betterAuth } from "better-auth";
+import { drizzleAdapter } from '@better-auth/drizzle-adapter';
+import { betterAuth } from 'better-auth';
 
-import { db } from "./db";
+import { db } from './db';
 import {
   bauth_users,
   bauth_sessions,
   bauth_accounts,
   bauth_verification_tokens,
-} from "./db/schema/auth";
+} from './db/schema/auth';
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
-    provider: "pg",
+    provider: 'pg',
     schema: {
       user: bauth_users,
       session: bauth_sessions,
@@ -26,10 +26,10 @@ export const auth = betterAuth({
   },
   advanced: {
     useSecureCookies: true,
-    cookiePrefix: "gas-saas",
+    cookiePrefix: 'gas-saas',
   },
   session: {
-    expiresIn: parseInt(process.env.SESSION_MAX_AGE ?? "2592000"),
+    expiresIn: parseInt(process.env.SESSION_MAX_AGE ?? '2592000'),
     updateAge: 3600,
   },
 });
