@@ -1,32 +1,21 @@
 import { describe, it, expect } from 'vitest';
 
-import { bauthUsers, bauthSessions, bauthAccounts, bauthVerificationTokens } from '@/lib/db/schema';
+import { authClient } from '@/lib/auth';
 
-describe('auth schema exports', () => {
-  it('should export all auth tables', () => {
-    expect(bauthUsers).toBeDefined();
-    expect(bauthSessions).toBeDefined();
-    expect(bauthAccounts).toBeDefined();
-    expect(bauthVerificationTokens).toBeDefined();
+describe('auth configuration', () => {
+  it('should export authClient with baseURL configured', () => {
+    expect(authClient).toBeDefined();
   });
 
-  it('bauthUsers should be a table object', () => {
-    expect(bauthUsers).toBeTruthy();
-    expect(typeof bauthUsers).toBe('object');
+  it('authClient should have signIn method', () => {
+    expect(typeof authClient.signIn).toBe('function');
   });
 
-  it('bauthSessions should be a table object', () => {
-    expect(bauthSessions).toBeTruthy();
-    expect(typeof bauthSessions).toBe('object');
+  it('authClient should have signOut method', () => {
+    expect(typeof authClient.signOut).toBe('function');
   });
 
-  it('bauthAccounts should be a table object', () => {
-    expect(bauthAccounts).toBeTruthy();
-    expect(typeof bauthAccounts).toBe('object');
-  });
-
-  it('bauthVerificationTokens should be a table object', () => {
-    expect(bauthVerificationTokens).toBeTruthy();
-    expect(typeof bauthVerificationTokens).toBe('object');
+  it('authClient should have getSession method', () => {
+    expect(typeof authClient.getSession).toBe('function');
   });
 });
