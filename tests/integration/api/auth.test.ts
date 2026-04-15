@@ -27,6 +27,7 @@ const mockAuthClient = {
   signUp: vi.fn(),
   useSession: vi.fn(),
   getAccessToken: vi.fn(),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } as any;
 
 // Mock the auth module
@@ -110,18 +111,21 @@ describe('auth API route handlers', () => {
 
     it('signIn should be callable', async () => {
       const { authClient } = await import('@/lib/auth');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (authClient.signIn as any)({ email: 'test@example.com', password: 'password123' });
       expect(authClient.signIn).toHaveBeenCalled();
     });
 
     it('signOut should be callable', async () => {
       const { authClient } = await import('@/lib/auth');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (authClient.signOut as any)();
       expect(authClient.signOut).toHaveBeenCalled();
     });
 
     it('getSession should be callable', async () => {
       const { authClient } = await import('@/lib/auth');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (authClient.getSession as any)();
       expect(authClient.getSession).toHaveBeenCalled();
     });
