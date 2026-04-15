@@ -356,6 +356,16 @@ Merge (squash)
 
 ## Git Safety
 
+**ALWAYS create worktrees from `main` — never from a feature branch.**
+
+Before starting any task (via `/start-task`), you MUST be on `main` in the main repo (not a worktree). If you are in a worktree or on any other branch, switch to `main` first:
+
+```bash
+git checkout main && git pull origin main
+```
+
+Then `/start-task` creates a fresh worktree from the current `main`. This prevents cross-contamination between worktrees (e.g., accidentally basing E6-4 work off `pi_migration` branch).
+
 **See also:**
 - [feedback_branch_protection.md](feedback_branch_protection.md) — enable branch protection on `main` BEFORE first merge
 - [feedback_no_lift_quality_checks.md](feedback_no_lift_quality_checks.md) — never disable quality gates
