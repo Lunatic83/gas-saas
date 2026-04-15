@@ -18,8 +18,20 @@ Begin implementation on a task with workflow enforcement — validates chain int
 
 ## Step 0 — Load Project Memory
 
-Before starting, load memory files to ensure feedback rules and conventions are available:
+Before starting, confirm you are on `main` and it is up to date. All worktrees are created from `main` — never from feature branches.
+
 ```bash
+# Step 0a: Check current directory — must be the main repo, not a worktree
+# The main repo is the one with .git/worktrees/ directory
+git status --short | head -1
+
+# Step 0b: Confirm on main
+git branch --show-current
+# If not main: git checkout main && git pull origin main
+```
+
+```bash
+# Then load memory files to ensure feedback rules and conventions are available:
 cat .pi/memory/workflow_ai_sdlc.md
 cat .pi/memory/feedback_*.md
 ```
@@ -84,7 +96,24 @@ gh issue view {task-id} --json body --jq '.body' | grep -i "blocked by"
 
 If blocked by an open task, report: "Task #{N} is blocked by #{blocker-id}. Resolve that first."
 
-### 4. Create Worktree + Branch
+### 4. Verify Current Branch is `main` (CRITICAL)
+
+```bash
+# Check current branch — MUST be main to create a new worktree
+CURRENT_BRANCH=$(git branch --show-current)
+if [ "$CURRENT_BRANCH" != "main" ]; then
+  echo "ERROR: Cannot start task from branch '$CURRENT_BRANCH'. Switch to main first."
+  echo "Run: git checkout main && git pull origin main"
+  exit 1
+fi
+
+# Pull latest main to ensure worktree is based on up-to-date code
+git pull origin main
+```
+
+**This is a hard gate.** A worktree must always be created from `main`. If you're on any other branch (e.g., `pi_migration`), you must switch to `main` and pull before starting a new task. This prevents cross-contamination between worktrees.
+
+### 5. Create Worktree + Branch
 
 **IMPORTANT — Branch naming uses PRD task number, NOT GitHub issue number:**
 
@@ -118,7 +147,7 @@ fi
 
 Always proceed automatically — never ask the user to confirm worktree/branch creation.
 
-### 5. Verify Previous Task PR Merged (Chain Integrity)
+### 6. Verify Previous Task PR Merged (Chain Integrity)
 
 For Workflow A tasks, verify the previous task in the chain was merged:
 
@@ -133,7 +162,7 @@ gh issue list --state open --label type:task --search "parent:PRD-{number}" --js
 
 If previous task is not merged, warn but allow proceeding (some tasks are parallelizable).
 
-### 6. Report Task Context
+### 7. Report Task Context
 
 ```
 ## Starting Task #{number}
@@ -152,7 +181,7 @@ If previous task is not merged, warn but allow proceeding (some tasks are parall
 - [ ] criterion 2
 ```
 
-### 7. Auto-Invoke Next Step (REQUIRED)
+### 8. Auto-Invoke Next Step (REQUIRED)
 
 For **nature:code (Workflow A)**:
 - **Automatically invoke `/tdd`** — do not prompt the user, proceed directly to TDD execution
@@ -161,7 +190,7 @@ For **nature:code (Workflow A)**:
 For **nature:config (Workflow B)** and **nature:manual (Workflow C)**:
 - Report the task context and wait for user confirmation to proceed with implementation
 
-### 8. Verify Local Tests Pass (Post-Implementation Gate)
+### 9. Verify Local Tests Pass (Post-Implementation Gate)
 
 After implementation is complete, before invoking `create-pr`:
 
