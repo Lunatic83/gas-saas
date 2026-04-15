@@ -11,27 +11,15 @@ export interface SendEmailResult {
   id: string;
 }
 
-const provider = process.env.EMAIL_PROVIDER ?? '';
-
-function createEtherealTransport() {
-  return nodemailer.createTransport({
-    host: 'smtp.ethereal.email',
-    port: 587,
-    secure: false,
-    auth: {
-      user: '',
-      pass: '',
-    },
-  });
-}
-
-function createResendTransport() {
-  return new Resend(process.env.RESEND_API_KEY ?? '');
-}
-
 export async function sendEmail(opts: SendEmailOptions): Promise<SendEmailResult | null> {
+  const provider = process.env.EMAIL_PROVIDER ?? '';
+
   if (provider === 'ethereal') {
-    const transport = createEtherealTransport();
+    const transport = nodemailer.createTransport({
+      host: 'smtp.ethereal.email',
+      port: 587,
+      secure: false,
+    });
     const info = await transport.sendMail({
       from: process.env.EMAIL_FROM ?? 'noreply@localhost',
       to: opts.to,
@@ -46,13 +34,17 @@ export async function sendEmail(opts: SendEmailOptions): Promise<SendEmailResult
       console.warn('[email] RESEND_API_KEY not set, skipping email send');
       return null;
     }
-    const resend = createResendTransport();
+    const resend = new Resend(process.env.RESEND_API_KEY ?? '');
     const result = await resend.emails.send({
       from: process.env.EMAIL_FROM ?? 'noreply@localhost',
       to: opts.to,
       subject: opts.subject,
       html: opts.html,
     });
+    if (result.error) {
+      console.error('[email] Resend API error:', result.error);
+      throw new Error(`Email send failed: ${result.error.message}`);
+    }
     return { id: result.data?.id ?? 'unknown' };
   }
 
