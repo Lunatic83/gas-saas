@@ -1,1 +1,1 @@
-export { bauthUsers, bauthSessions, bauthAccounts, bauthVerificationTokens } from './auth';
+export * from './auth';
