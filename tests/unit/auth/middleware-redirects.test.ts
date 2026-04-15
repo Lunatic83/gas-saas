@@ -1,11 +1,20 @@
-import { NextRequest } from 'next/server';
-import { describe, it, expect } from 'vitest';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { betterFetch } from '@better-fetch/fetch';
+import { NextRequest, NextResponse } from 'next/server';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
-  isProtectedRoute,
   isAuthPage,
+  isProtectedRoute,
   createRedirectUrl,
 } from '@/lib/middleware/middlewares/withAuth';
+import { withBetterAuth } from '@/proxy';
+
+const betterFetchMock = vi.hoisted(() => vi.fn());
+
+vi.mock('@better-fetch/fetch', () => ({
+  betterFetch: betterFetchMock,
+}));
 
 describe('Auth middleware helpers', () => {
   describe('isProtectedRoute', () => {
@@ -62,6 +71,94 @@ describe('Auth middleware helpers', () => {
       const url = createRedirectUrl(request, '/dashboard');
 
       expect(url.toString()).toBe('http://localhost:3000/dashboard');
+    });
+  });
+});
+
+describe('Auth middleware behavior', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    betterFetchMock.mockReset();
+    vi.stubEnv('NODE_ENV', 'production');
+    vi.stubEnv('E2E_TEST_MODE', 'false');
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllEnvs();
+  });
+
+  const next = () => Promise.resolve(NextResponse.next());
+
+  describe('E2E test bypass', () => {
+    it('should skip auth when E2E_TEST_MODE=true', async () => {
+      vi.stubEnv('E2E_TEST_MODE', 'true');
+
+      const request = new NextRequest('http://localhost:3000/dashboard');
+      const response = await withBetterAuth(request, next);
+
+      expect(response).toBeInstanceOf(Response);
+      expect((response as NextResponse).status).toBe(200);
+    });
+
+    it('should skip auth in NODE_ENV=test', async () => {
+      vi.stubEnv('NODE_ENV', 'test');
+
+      const request = new NextRequest('http://localhost:3000/dashboard');
+      const response = await withBetterAuth(request, next);
+
+      expect(response).toBeInstanceOf(Response);
+      expect((response as NextResponse).status).toBe(200);
+    });
+  });
+
+  describe('redirect behavior', () => {
+    it('should redirect unauthenticated user from protected route to sign-in', async () => {
+      betterFetchMock.mockResolvedValueOnce({
+        data: { session: null },
+      });
+
+      const request = new NextRequest('http://localhost:3000/dashboard/settings');
+      const response = await withBetterAuth(request, next);
+
+      expect((response as NextResponse).status).toBe(307);
+      const location = (response as NextResponse).headers.get('location');
+      expect(location).toContain('/sign-in');
+      expect(location).toContain('callbackUrl=%2Fdashboard%2Fsettings');
+    });
+
+    it('should redirect authenticated user from auth page to dashboard', async () => {
+      betterFetchMock.mockResolvedValueOnce({
+        data: { session: { userId: 'user-123' } },
+      });
+
+      const request = new NextRequest('http://localhost:3000/sign-in');
+      const response = await withBetterAuth(request, next);
+
+      expect((response as NextResponse).status).toBe(307);
+      expect((response as NextResponse).headers.get('location')).toContain('/dashboard');
+    });
+
+    it('should allow authenticated user to access protected route', async () => {
+      betterFetchMock.mockResolvedValueOnce({
+        data: { session: { userId: 'user-123' } },
+      });
+
+      const request = new NextRequest('http://localhost:3000/dashboard');
+      const response = await withBetterAuth(request, next);
+
+      expect((response as NextResponse).status).toBe(200);
+    });
+
+    it('should allow unauthenticated user to access public route', async () => {
+      betterFetchMock.mockResolvedValueOnce({
+        data: { session: null },
+      });
+
+      const request = new NextRequest('http://localhost:3000/marketing');
+      const response = await withBetterAuth(request, next);
+
+      expect((response as NextResponse).status).toBe(200);
     });
   });
 });
