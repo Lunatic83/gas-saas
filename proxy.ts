@@ -12,6 +12,11 @@ import {
 
 // Auth check middleware factory using Better-Auth session
 const withBetterAuth: MiddlewareFactory = async (request, next) => {
+  // Skip auth checks in E2E test mode — allows Playwright to navigate without session
+  if (process.env.NODE_ENV === 'test' || process.env.E2E_TEST_MODE === 'true') {
+    return next();
+  }
+
   const { pathname } = request.nextUrl;
 
   // Fetch session using betterFetch (Edge Runtime compatible)
