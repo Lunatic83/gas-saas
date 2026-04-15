@@ -24,7 +24,15 @@ const eslintConfig = defineConfig([
       ],
     },
   },
-  globalIgnores(['.claude/**', 'data/**', 'node_modules/**', '.next/**', 'out/**', 'build/**']),
+  globalIgnores([
+    '.claude/**',
+    '.pi/**',
+    'data/**',
+    'node_modules/**',
+    '.next/**',
+    'out/**',
+    'build/**',
+  ]),
 ]);
 
 export default eslintConfig;
