@@ -55,6 +55,7 @@ services:
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/saas_e2e
       REDIS_URL: redis://redis:6379
       NODE_ENV: production
+      E2E_TEST_MODE: 'true'
     depends_on:
       postgres:
         condition: service_healthy
