@@ -1,7 +1,6 @@
-import type { NextRequest } from 'next/server';
-
 import { betterFetch } from '@better-fetch/fetch';
 import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 import { reduceRight, type MiddlewareFactory } from '@/lib/middleware/chain';
 import { withCors, withRateLimit } from '@/lib/middleware/middlewares';
