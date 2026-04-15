@@ -1,6 +1,9 @@
 # Claude Code skills — third-party managed
 .claude/
 
+# Pi coding agent config — managed by pi
+.pi/
+
 # Architecture and documentation — owned and formatted separately
 ai-hld/
 docs/
