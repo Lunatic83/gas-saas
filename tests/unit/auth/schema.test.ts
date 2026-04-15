@@ -1,18 +1,32 @@
 import { describe, it, expect } from 'vitest';
 
-describe('auth configuration', () => {
-  it('SESSION_MAX_AGE should default to 30 days in seconds', () => {
-    const defaultSessionMaxAge = 2592000; // 30 days
-    expect(defaultSessionMaxAge).toBe(30 * 24 * 60 * 60);
+import { bauthUsers, bauthSessions, bauthAccounts, bauthVerificationTokens } from '@/lib/db/schema';
+
+describe('auth schema exports', () => {
+  it('should export all auth tables', () => {
+    expect(bauthUsers).toBeDefined();
+    expect(bauthSessions).toBeDefined();
+    expect(bauthAccounts).toBeDefined();
+    expect(bauthVerificationTokens).toBeDefined();
   });
 
-  it('session update age should be 1 hour', () => {
-    const sessionUpdateAge = 3600;
-    expect(sessionUpdateAge).toBe(60 * 60);
+  it('bauthUsers should be a table object', () => {
+    expect(bauthUsers).toBeTruthy();
+    expect(typeof bauthUsers).toBe('object');
   });
 
-  it('minPasswordLength for email auth should be 8', () => {
-    const minPasswordLength = 8;
-    expect(minPasswordLength).toBe(8);
+  it('bauthSessions should be a table object', () => {
+    expect(bauthSessions).toBeTruthy();
+    expect(typeof bauthSessions).toBe('object');
+  });
+
+  it('bauthAccounts should be a table object', () => {
+    expect(bauthAccounts).toBeTruthy();
+    expect(typeof bauthAccounts).toBe('object');
+  });
+
+  it('bauthVerificationTokens should be a table object', () => {
+    expect(bauthVerificationTokens).toBeTruthy();
+    expect(typeof bauthVerificationTokens).toBe('object');
   });
 });
