@@ -49,4 +49,5 @@ CREATE INDEX "bauth_sessions_expires_at_idx" ON "bauth_sessions" USING btree ("e
 CREATE INDEX "bauth_users_email_idx" ON "bauth_users" USING btree ("email");--> statement-breakpoint
 CREATE UNIQUE INDEX "bauth_users_email_unique_idx" ON "bauth_users" USING btree ("email");--> statement-breakpoint
 CREATE UNIQUE INDEX "bauth_verification_tokens_token_unique_idx" ON "bauth_verification_tokens" USING btree ("token");--> statement-breakpoint
+CREATE UNIQUE INDEX "bauth_verification_tokens_identifier_token_unique_idx" ON "bauth_verification_tokens" USING btree ("identifier", "token");--> statement-breakpoint
 CREATE INDEX "bauth_verification_tokens_identifier_idx" ON "bauth_verification_tokens" USING btree ("identifier");

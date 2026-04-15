@@ -78,6 +78,10 @@ export const bauthVerificationTokens = pgTable(
   },
   (table) => [
     uniqueIndex('bauth_verification_tokens_token_unique_idx').on(table.token),
+    uniqueIndex('bauth_verification_tokens_identifier_token_unique_idx').on(
+      table.identifier,
+      table.token,
+    ),
     index('bauth_verification_tokens_identifier_idx').on(table.identifier),
   ],
 );
