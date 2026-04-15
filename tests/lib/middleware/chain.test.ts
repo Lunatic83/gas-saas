@@ -233,11 +233,11 @@ describe('reduceRight middleware chain', () => {
     it('should handle async middleware', async () => {
       const chain: MiddlewareFactory[] = [
         async (_request, next) => {
-          await new Promise((resolve) => setTimeout(resolve, 10));
+          await new Promise((resolve) => setTimeout(resolve, 15));
           return next();
         },
         async (_request, next) => {
-          await new Promise((resolve) => setTimeout(resolve, 10));
+          await new Promise((resolve) => setTimeout(resolve, 15));
           return next();
         },
         async () => {
