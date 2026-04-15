@@ -1,7 +1,11 @@
 import { NextRequest } from 'next/server';
 import { describe, it, expect } from 'vitest';
 
-import { isProtectedRoute, isAuthPage, createRedirectUrl } from '@/lib/middleware/middlewares/withAuth';
+import {
+  isProtectedRoute,
+  isAuthPage,
+  createRedirectUrl,
+} from '@/lib/middleware/middlewares/withAuth';
 
 describe('Auth middleware helpers', () => {
   describe('isProtectedRoute', () => {

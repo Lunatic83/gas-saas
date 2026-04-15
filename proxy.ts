@@ -4,7 +4,11 @@ import type { NextRequest } from 'next/server';
 
 import { reduceRight, type MiddlewareFactory } from '@/lib/middleware/chain';
 import { withCors, withRateLimit } from '@/lib/middleware/middlewares';
-import { isAuthPage, isProtectedRoute, createRedirectUrl } from '@/lib/middleware/middlewares/withAuth';
+import {
+  isAuthPage,
+  isProtectedRoute,
+  createRedirectUrl,
+} from '@/lib/middleware/middlewares/withAuth';
 
 // Auth check middleware factory using Better-Auth session
 const withBetterAuth: MiddlewareFactory = async (request, next) => {
