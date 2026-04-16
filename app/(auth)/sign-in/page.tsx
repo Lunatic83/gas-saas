@@ -17,9 +17,7 @@ export default function SignInPage() {
             <CardTitle>Sign in</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
-            <p className="text-sm text-muted-foreground">
-              Email form coming soon
-            </p>
+            <p className="text-sm text-muted-foreground">Email form coming soon</p>
           </CardContent>
         </Card>
       </div>
