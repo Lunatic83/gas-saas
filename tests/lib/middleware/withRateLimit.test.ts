@@ -216,7 +216,7 @@ describe('withRateLimit middleware', () => {
     });
 
     it('should block request with 429 when rate limit exceeded', async () => {
-      mockMulti.exec.mockResolvedValue([0, 0, 101, 1]); // 101 requests (over 100)
+      mockMulti.exec.mockResolvedValue([0, 0, 501, 1]); // 501 requests (over 500)
 
       const request = createMockRequest({});
       const next = createMockNext();
@@ -228,7 +228,7 @@ describe('withRateLimit middleware', () => {
     });
 
     it('should allow request when exactly at rate limit', async () => {
-      mockMulti.exec.mockResolvedValue([0, 0, 100, 1]); // exactly 100
+      mockMulti.exec.mockResolvedValue([0, 0, 100, 1]); // exactly 100 (at limit)
 
       const request = createMockRequest({});
       const next = createMockNext();
@@ -240,7 +240,7 @@ describe('withRateLimit middleware', () => {
     });
 
     it('should return error JSON body when rate limited', async () => {
-      mockMulti.exec.mockResolvedValue([0, 0, 101, 1]);
+      mockMulti.exec.mockResolvedValue([0, 0, 501, 1]);
 
       const request = createMockRequest({});
       const next = createMockNext();
@@ -255,7 +255,7 @@ describe('withRateLimit middleware', () => {
     });
 
     it('should set Content-Type header on 429 response', async () => {
-      mockMulti.exec.mockResolvedValue([0, 0, 101, 1]);
+      mockMulti.exec.mockResolvedValue([0, 0, 501, 1]);
 
       const request = createMockRequest({});
       const next = createMockNext();
@@ -292,7 +292,7 @@ describe('withRateLimit middleware', () => {
     });
 
     it('should set X-RateLimit-Remaining to 0 when limit exceeded', async () => {
-      mockMulti.exec.mockResolvedValue([0, 0, 101, 1]);
+      mockMulti.exec.mockResolvedValue([0, 0, 501, 1]);
 
       const request = createMockRequest({});
       const next = createMockNext();
@@ -303,13 +303,14 @@ describe('withRateLimit middleware', () => {
     });
 
     it('should never show negative X-RateLimit-Remaining', async () => {
-      mockMulti.exec.mockResolvedValue([0, 0, 150, 1]);
+      mockMulti.exec.mockResolvedValue([0, 0, 600, 1]); // way over limit
 
       const request = createMockRequest({});
       const next = createMockNext();
 
       const response = await withRateLimit(request as never, next);
 
+      // Should never show negative, even when way over
       expect(response.headers.get('X-RateLimit-Remaining')).toBe('0');
     });
 
@@ -328,7 +329,7 @@ describe('withRateLimit middleware', () => {
     });
 
     it('should include Retry-After header when rate limited', async () => {
-      mockMulti.exec.mockResolvedValue([0, 0, 101, 1]);
+      mockMulti.exec.mockResolvedValue([0, 0, 501, 1]);
 
       const request = createMockRequest({});
       const next = createMockNext();

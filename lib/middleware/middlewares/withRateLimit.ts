@@ -5,7 +5,7 @@ import { clientPromise, keys } from '@/lib/redis';
 import type { MiddlewareFactory } from '../chain';
 
 const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 100;
+const RATE_LIMIT_MAX_REQUESTS = 100; // Default limit
 
 function getClientIp(request: NextRequest): string {
   const forwardedFor = request.headers.get('x-forwarded-for');
