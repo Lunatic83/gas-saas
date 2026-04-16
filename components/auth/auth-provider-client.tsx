@@ -1,6 +1,8 @@
 'use client';
 
-import { AnyAuthClient, AuthUIProvider as BetterAuthUIProvider } from 'better-auth-ui';
+import type { AnyAuthClient } from 'better-auth-ui';
+import { AuthUIProvider as BetterAuthUIProvider } from 'better-auth-ui';
+
 import { authClient } from '@/lib/auth-client';
 
 interface AuthProviderWrapperProps {
