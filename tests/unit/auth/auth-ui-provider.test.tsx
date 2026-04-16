@@ -33,7 +33,7 @@ const createMockAuthClient = () => ({
   signIn: vi.fn(),
   signOut: vi.fn(),
   listSessions: vi.fn(),
-  useSession: vi.fn(() => mockSessionAtom),
+  useSession: mockSessionAtom,
 });
 
 // Mock better-auth/client before importing auth modules
@@ -75,53 +75,25 @@ describe('AuthUIProvider', () => {
       expect(useAuthUI).toBeDefined();
       expect(typeof useAuthUI).toBe('function');
     });
-
-    it('should export authClient from lib/auth', async () => {
-      const modulePtr = await import('@/components/auth/auth-ui-provider');
-      // authClient should be re-exported
-      expect(modulePtr.authClient).toBeDefined();
-    });
   });
 
   describe('configuration', () => {
     it('should accept authClient prop', () => {
-      // AuthUIProvider expects authClient of type AuthClient
-      // The component should be callable with this prop
       const authClientProps = {
         authClient: {
           getSession: vi.fn(),
           signIn: vi.fn(),
           signOut: vi.fn(),
         },
-        navigate: vi.fn(),
-        replace: vi.fn(),
+        onSessionChange: vi.fn(),
       };
 
-      // Just verify the component accepts the expected props
       expect(authClientProps.authClient).toBeDefined();
-    });
-
-    it('should accept navigate function prop', () => {
-      const navigate = vi.fn();
-      expect(typeof navigate).toBe('function');
-    });
-
-    it('should accept replace function prop', () => {
-      const replace = vi.fn();
-      expect(typeof replace).toBe('function');
     });
 
     it('should accept onSessionChange callback prop', () => {
       const onSessionChange = vi.fn();
       expect(typeof onSessionChange).toBe('function');
-    });
-
-    it('should accept LinkComponent prop', () => {
-      // LinkComponent is a function type used by AuthUIProvider
-      // This test verifies the type is a function
-      const LinkComponent: (props: { href: string; children?: React.ReactNode }) => null = () =>
-        null;
-      expect(typeof LinkComponent).toBe('function');
     });
   });
 
@@ -130,7 +102,9 @@ describe('AuthUIProvider', () => {
       const { authClient } = await import('@/lib/auth');
       expect(authClient).toBeDefined();
       expect(typeof authClient.getSession).toBe('function');
-      expect(typeof authClient.useSession).toBe('function');
+      // useSession is an atom property, not a function
+      expect(authClient.useSession).toBeDefined();
+      expect(authClient.useSession).toHaveProperty('value');
     });
 
     it('should work with createAuthClient', async () => {
@@ -138,12 +112,14 @@ describe('AuthUIProvider', () => {
       const client = createAuthClient({ baseURL: 'http://localhost:3000' });
       expect(client).toBeDefined();
       expect(typeof client.getSession).toBe('function');
-      expect(typeof client.useSession).toBe('function');
+      // useSession is an atom property, not a function
+      expect(client.useSession).toBeDefined();
+      expect(client.useSession).toHaveProperty('value');
     });
 
     it('useSession should return an atom with session data', () => {
       const client = createMockAuthClient();
-      const atom = client.useSession();
+      const atom = client.useSession;
       expect(atom).toBeDefined();
       expect(atom.value).toBeDefined();
       expect(atom.value.data).toBeDefined();

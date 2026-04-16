@@ -23,10 +23,10 @@ vi.mock('better-auth/client', () => ({
     }),
     signIn: vi.fn(),
     signOut: vi.fn(),
-    useSession: vi.fn(() => ({
+    useSession: {
       value: { data: { user: { id: '123' } }, error: null },
       subscribe: vi.fn(),
-    })),
+    },
   })),
 }));
 
@@ -37,15 +37,16 @@ describe('layout integration', () => {
     layoutContent = fs.readFileSync(path.join(process.cwd(), 'app/layout.tsx'), 'utf-8');
   });
 
-  it('layout.tsx should import AuthUIProvider and authClient', () => {
+  it('layout.tsx should import AuthUIProvider from components/auth', () => {
     expect(layoutContent).toContain('AuthUIProvider');
-    expect(layoutContent).toContain('authClient');
-    expect(layoutContent).toContain('@/components/auth/auth-ui-provider');
+    expect(layoutContent).toMatch(
+      /import.*\{[^}]*AuthUIProvider[^}]*\}.*from.*@\/components\/auth\/auth-ui-provider/,
+    );
   });
 
   it('layout should use AuthUIProvider with authClient prop', () => {
     // Verify AuthUIProvider wraps the app content
-    expect(layoutContent).toContain('<AuthUIProvider authClient={authClient}>');
+    expect(layoutContent).toContain('<AuthUIProvider authClient={');
     expect(layoutContent).toContain('</AuthUIProvider>');
   });
 
@@ -56,10 +57,9 @@ describe('layout integration', () => {
     expect(layoutContent).toContain('ThemeProvider');
   });
 
-  it('AuthUIProvider should be imported from correct location', () => {
-    expect(layoutContent).toMatch(
-      /import.*\{[^}]*AuthUIProvider[^}]*\}.*from.*@\/components\/auth\/auth-ui-provider/,
-    );
+  it('layout should import authClient from lib/auth', () => {
+    expect(layoutContent).toContain('authClient');
+    expect(layoutContent).toContain('@/lib/auth');
   });
 });
 
@@ -90,8 +90,10 @@ describe('auth module exports', () => {
         signOut: vi.fn(),
         listSessions: vi.fn(),
         useSession: { value: { data: null, error: null }, subscribe: vi.fn() },
-      } as unknown as Parameters<typeof AuthUIProvider>[0]['authClient'],
+      },
     };
     expect(props.authClient).toBeDefined();
+    // The component should accept authClient without errors
+    expect(typeof AuthUIProvider).toBe('function');
   });
 });

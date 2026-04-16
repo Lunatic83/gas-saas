@@ -3,19 +3,13 @@
 
 import type { AuthClient } from 'better-auth/client';
 import { useRouter } from 'next/navigation';
-import type { ComponentProps, ReactNode } from 'react';
 import { createContext, useContext, useEffect } from 'react';
 
 import type { AuthUIProviderProps } from './auth-ui-provider-types';
 
-// Type for Link component - allows custom Link implementations
-type LinkComponentProps = ComponentProps<'a'> & { href: string; children?: ReactNode };
-type LinkComponent = (props: LinkComponentProps) => React.ReactElement | null;
-
 // Context for AuthUIProvider
 const AuthUIContext = createContext<{
   authClient: AuthClient<object>;
-  LinkComponent?: LinkComponent;
 } | null>(null);
 
 /**
@@ -34,8 +28,8 @@ export function useAuthUI() {
  * It:
  * - Manages session state via Better-Auth's useSession atom
  * - Calls router.refresh() on session changes to update server components
- * - Provides authClient and LinkComponent to children via context
- * - Supports custom navigation and Link implementations
+ * - Provides authClient to children via context
+ * - Supports custom onSessionChange callback
  */
 export function AuthUIProvider({ authClient, onSessionChange, children }: AuthUIProviderProps) {
   const router = useRouter();
@@ -57,13 +51,8 @@ export function AuthUIProvider({ authClient, onSessionChange, children }: AuthUI
     router.refresh();
   }, [sessionAtom.value, onSessionChange, router]);
 
-  return (
-    <AuthUIContext.Provider value={{ authClient, LinkComponent: undefined }}>
-      {children}
-    </AuthUIContext.Provider>
-  );
+  return <AuthUIContext.Provider value={{ authClient }}>{children}</AuthUIContext.Provider>;
 }
 
-// Re-export types and authClient
-export { authClient } from '@/lib/auth';
+// Re-export types for convenience
 export type { AuthUIProviderProps } from './auth-ui-provider-types';
