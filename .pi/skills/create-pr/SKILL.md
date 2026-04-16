@@ -208,3 +208,30 @@ After successful creation, milestone assignment, linking, CI completion, and pr-
 - Milestone assigned (if any)
 - CI Status (pass/fail)
 - pr-validate result (AI review comments evaluated, issues fixed/dismissed)
+
+---
+
+## Post-Merge Worktree Cleanup
+
+When the user signals the PR has merged (e.g., "PR merged", "merged", "done"):
+
+1. **Do NOT ask to close the issue** — GitHub auto-closes via `Closes #{task-id}` in PR body
+2. **Prompt for worktree cleanup:**
+
+```
+PR merged! 🎉
+
+Clean up worktree? (y/n)
+Path: .claude/worktrees/{epic#}-{task#}/{short-desc}
+Branch will be kept for commit history.
+```
+
+3. **On user confirmation:**
+```bash
+git worktree remove .claude/worktrees/{worktree-path} --force
+git checkout main && git pull origin main
+```
+
+4. **On user decline:** Do nothing. Branch remains.
+
+**Rule:** Always keep the branch (`git branch -d` is NOT run). The branch is squash-merged into `main` with clean history — keeping it locally is unnecessary. The GitHub remote branch is deleted by GitHub's squash-merge behavior.
