@@ -21,7 +21,7 @@ function getClientIp(request: NextRequest): string {
 export const withRateLimit: MiddlewareFactory = async (request, next) => {
   // Skip rate limiting in E2E test mode
   if (SKIP_RATE_LIMIT) {
-    return next(request);
+    return next();
   }
 
   const ip = getClientIp(request);
