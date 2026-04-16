@@ -143,7 +143,7 @@ describeIntegration('withRateLimit middleware (integration)', () => {
       const res1 = await withRateLimit(request as never, next);
       expect(res1.headers.get('X-RateLimit-Limit')).toBe('100');
       const remaining1 = Number(res1.headers.get('X-RateLimit-Remaining'));
-      expect(remaining1).toBeLessThan(500);
+      expect(remaining1).toBeLessThan(100);
       expect(remaining1).toBeGreaterThanOrEqual(98); // Allow for Redis state
 
       // Make 10 more requests and verify remaining decrements
