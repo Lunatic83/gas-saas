@@ -56,7 +56,10 @@ export default function SignInPage() {
                 <input type="checkbox" name="rememberMe" className="size-4 rounded border-input" />
                 Remember me
               </label>
-              <Link href="/forgot-password" className="text-sm text-primary underline underline-offset-4">
+              <Link
+                href="/forgot-password"
+                className="text-sm text-primary underline underline-offset-4"
+              >
                 Forgot password?
               </Link>
             </div>
