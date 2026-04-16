@@ -75,7 +75,9 @@ export default function SignInPage() {
               {/* Footer links */}
               <p className="text-center text-sm text-muted-foreground">
                 Don&apos;t have an account?{' '}
-                <Link href="/sign-up" className="underline underline-offset-4">Sign up</Link>
+                <Link href="/sign-up" className="underline underline-offset-4">
+                  Sign up
+                </Link>
               </p>
             </CardContent>
           </Card>

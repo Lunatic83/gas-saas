@@ -47,7 +47,9 @@ test.describe('smoke — sign-in', () => {
     await expect(images).toHaveCount(0);
 
     // Email input is visible
-    const emailInput = page.locator('input[name="email"], input[type="email"], input[placeholder*="email" i]').first();
+    const emailInput = page
+      .locator('input[name="email"], input[type="email"], input[placeholder*="email" i]')
+      .first();
     await expect(emailInput).toBeVisible();
   });
 
@@ -65,7 +67,9 @@ test.describe('smoke — sign-in', () => {
     await expect(form).toBeVisible();
 
     // Email input visible
-    const emailInput = page.locator('input[name="email"], input[type="email"], input[placeholder*="email" i]').first();
+    const emailInput = page
+      .locator('input[name="email"], input[type="email"], input[placeholder*="email" i]')
+      .first();
     await expect(emailInput).toBeVisible();
   });
 
@@ -73,7 +77,9 @@ test.describe('smoke — sign-in', () => {
     await page.goto('/sign-in');
     await page.waitForLoadState('domcontentloaded');
 
-    const forgotLink = page.locator('a[href="/forgot-password"], a:has-text("Forgot password")').first();
+    const forgotLink = page
+      .locator('a[href="/forgot-password"], a:has-text("Forgot password")')
+      .first();
     await expect(forgotLink).toBeVisible();
     await forgotLink.click();
     await expect(page).toHaveURL(/.*forgot-password.*/);
@@ -107,9 +113,11 @@ test.describe('smoke — sign-in', () => {
     await page.waitForLoadState('domcontentloaded');
 
     // At least one OAuth button (Google or GitHub)
-    const oauthButton = page.locator(
-      'button:has-text("Google"), button:has-text("GitHub"), a:has-text("Google"), a:has-text("GitHub")',
-    ).first();
+    const oauthButton = page
+      .locator(
+        'button:has-text("Google"), button:has-text("GitHub"), a:has-text("Google"), a:has-text("GitHub")',
+      )
+      .first();
     await expect(oauthButton).toBeVisible();
   });
 
@@ -117,7 +125,9 @@ test.describe('smoke — sign-in', () => {
     await page.goto('/sign-in');
     await page.waitForLoadState('domcontentloaded');
 
-    const rememberMe = page.locator('input[type="checkbox"], :checkbox, text="Remember me"').first();
+    const rememberMe = page
+      .locator('input[type="checkbox"], :checkbox, text="Remember me"')
+      .first();
     await expect(rememberMe).toBeVisible();
   });
 });
