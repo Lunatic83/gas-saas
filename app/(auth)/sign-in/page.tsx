@@ -1,6 +1,6 @@
 /* eslint-disable-next-line @next/next/no-html-link-for-pages */
-import Link from 'next/link';
 import type { Metadata } from 'next';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Sign in',
