@@ -156,38 +156,33 @@ This creates a bidirectional link visible in both the PR and the issue sidebar.
 
 ### 11. Block on CI (REQUIRED)
 
-After PR creation, wait for CI to complete:
+After PR creation, wait for CI to complete using a while-loop polling mechanism (15-second interval):
 
 ```bash
 # Get the PR number and commit SHA
 PR_NUMBER=$(gh pr view --json number --jq '.number')
 COMMIT_SHA=$(gh pr view --json headRefOid --jq '.headRefOid')
+START_TIME=$(date +%s)
+TIMEOUT=600  # 10 minute max wait
 
-# Poll CI status every 20 seconds
 while true; do
-  STATUS=$(gh api repos/$REPO_OWNER/$REPO_NAME/commits/$COMMIT_SHA/status --jq '.state')
-  CHECK_RUNS=$(gh api repos/$REPO_OWNER/$REPO_NAME/commits/$COMMIT_SHA/check-runs --jq '.check_runs | length')
-
-  # Count completed vs total
-  COMPLETED=$(gh api repos/$REPO_OWNER/$REPO_NAME/commits/$COMMIT_SHA/check-runs --jq '[.check_runs[] | select(.conclusion != null)] | length')
-
-  echo "CI Status: $STATUS ($COMPLETED/$CHECK_RUNS checks completed)"
-
-  if [ "$STATUS" = "completed" ] || [ "$STATUS" = "success" ] || [ "$STATUS" = "failure" ] || [ "$STATUS" = "error" ]; then
+  ELAPSED=$(($(date +%s) - START_TIME))
+  if [ $ELAPSED -ge $TIMEOUT ]; then
+    echo "Timeout waiting for CI (${ELAPSED}s)"
     break
   fi
 
-  sleep 20
+  STATUS=$(gh api repos/$REPO_OWNER/$REPO_NAME/commits/$COMMIT_SHA/status --jq '.state')
+
+  if [ "$STATUS" = "success" ] || [ "$STATUS" = "failure" ] || [ "$STATUS" = "error" ]; then
+    gh api repos/$REPO_OWNER/$REPO_NAME/commits/$COMMIT_SHA/check-runs --jq '.check_runs[] | "\(.name): \(.conclusion // .status)"'
+    break
+  fi
+
+  echo "[$((ELAPSED/15+1))] Status: $STATUS — polling..."
+  sleep 15
 done
-
-# Report final status
-if [ "$STATUS" = "success" ]; then
-  echo "✅ All CI checks passed"
-else
-  echo "❌ CI failed with status: $STATUS"
-fi
 ```
-
 Report final CI status before returning.
 
 ### 12. Auto-Invoke /pr-validate (REQUIRED)
