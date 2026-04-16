@@ -72,6 +72,7 @@ test.describe('404 not-found page', () => {
     // Clear any such expected errors before the afterEach check.
     const beforeCount = consoleErrors.length;
     await page.goto('/does-not-exist', { waitUntil: 'load' });
+    await page.waitForLoadState('networkidle');
     await expect(page.locator('text=Page not found')).toBeVisible();
     await expect(page.locator('text=Back to home')).toBeVisible();
     // Remove the expected 404 console error so afterEach doesn't fail
