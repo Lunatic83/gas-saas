@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 
+import { AuthUIProvider, authClient } from '@/components/auth/auth-ui-provider';
 import { NavBar } from '@/components/nav-bar';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
@@ -34,13 +35,15 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable}`}
     >
       <body className="h-full antialiased">
-        <TooltipProvider>
-          <ThemeProvider>
-            <NavBar />
-            <Toaster />
-            {children}
-          </ThemeProvider>
-        </TooltipProvider>
+        <AuthUIProvider authClient={authClient}>
+          <TooltipProvider>
+            <ThemeProvider>
+              <NavBar />
+              <Toaster />
+              {children}
+            </ThemeProvider>
+          </TooltipProvider>
+        </AuthUIProvider>
       </body>
     </html>
   );
