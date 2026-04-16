@@ -82,8 +82,16 @@ describe('auth module exports', () => {
     const { AuthUIProvider } = await import('@/components/auth/auth-ui-provider');
     // The component exists and can accept props
     expect(AuthUIProvider).toBeDefined();
-    // Props type includes authClient
-    const props = { authClient: { getSession: vi.fn() } } as Parameters<typeof AuthUIProvider>[0];
+    // Props type includes authClient - use proper mock shape
+    const props = {
+      authClient: {
+        getSession: vi.fn(),
+        signIn: vi.fn(),
+        signOut: vi.fn(),
+        listSessions: vi.fn(),
+        useSession: { value: { data: null, error: null }, subscribe: vi.fn() },
+      } as unknown as Parameters<typeof AuthUIProvider>[0]['authClient'],
+    };
     expect(props.authClient).toBeDefined();
   });
 });

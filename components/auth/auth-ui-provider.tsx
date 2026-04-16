@@ -40,16 +40,17 @@ export function useAuthUI() {
 export function AuthUIProvider({ authClient, onSessionChange, children }: AuthUIProviderProps) {
   const router = useRouter();
 
-  // Use Better-Auth's useSession atom for reactive session state
-  // useSession is a method on the auth client that returns an atom
-  const sessionAtom = authClient.useSession();
+  // Better-Auth's useSession is an atom property on the auth client
+  // The atom has a .value property with the session data
+  const sessionAtom = authClient.useSession;
 
   // Effect: call onSessionChange and refresh on session changes
   useEffect(() => {
     const session = sessionAtom.value;
+    const sessionData = session?.data ?? null;
 
     if (onSessionChange) {
-      onSessionChange(session.data);
+      onSessionChange(sessionData);
     }
 
     // Refresh server components on session change to update auth state
