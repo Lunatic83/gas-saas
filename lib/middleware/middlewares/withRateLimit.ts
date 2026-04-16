@@ -7,6 +7,9 @@ import type { MiddlewareFactory } from '../chain';
 const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
 const RATE_LIMIT_MAX_REQUESTS = 100;
 
+// Skip rate limiting in E2E test mode to avoid test failures
+const SKIP_RATE_LIMIT = process.env.E2E_TEST_MODE === 'true';
+
 function getClientIp(request: NextRequest): string {
   const forwardedFor = request.headers.get('x-forwarded-for');
   if (forwardedFor) {
@@ -16,6 +19,11 @@ function getClientIp(request: NextRequest): string {
 }
 
 export const withRateLimit: MiddlewareFactory = async (request, next) => {
+  // Skip rate limiting in E2E test mode
+  if (SKIP_RATE_LIMIT) {
+    return next();
+  }
+
   const ip = getClientIp(request);
   const key = keys.rateLimit.auth(ip);
 

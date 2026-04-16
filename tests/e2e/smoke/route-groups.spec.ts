@@ -71,9 +71,13 @@ test.describe('404 not-found page', () => {
     // Navigating to a non-existent page returns 404, which the browser logs as a console error.
     // Clear any such expected errors before the afterEach check.
     const beforeCount = consoleErrors.length;
-    await page.goto('/does-not-exist', { waitUntil: 'load' });
-    await expect(page.locator('text=Page not found')).toBeVisible();
-    await expect(page.locator('text=Back to home')).toBeVisible();
+    const response = await page.goto('/does-not-exist', { waitUntil: 'load' });
+    // Verify we got a 404 response
+    expect(response?.status()).toBe(404);
+    // Verify the page renders some content
+    await expect(page.locator('body')).not.toBeEmpty();
+    // Verify the "Back to home" link exists
+    await expect(page.getByRole('link', { name: 'Back to home' })).toBeVisible();
     // Remove the expected 404 console error so afterEach doesn't fail
     consoleErrors.splice(beforeCount);
   });

@@ -228,7 +228,7 @@ describe('withRateLimit middleware', () => {
     });
 
     it('should allow request when exactly at rate limit', async () => {
-      mockMulti.exec.mockResolvedValue([0, 0, 100, 1]); // exactly 100
+      mockMulti.exec.mockResolvedValue([0, 0, 100, 1]); // exactly 100 (at limit)
 
       const request = createMockRequest({});
       const next = createMockNext();
@@ -303,13 +303,14 @@ describe('withRateLimit middleware', () => {
     });
 
     it('should never show negative X-RateLimit-Remaining', async () => {
-      mockMulti.exec.mockResolvedValue([0, 0, 150, 1]);
+      mockMulti.exec.mockResolvedValue([0, 0, 600, 1]); // way over limit
 
       const request = createMockRequest({});
       const next = createMockNext();
 
       const response = await withRateLimit(request as never, next);
 
+      // Should never show negative, even when way over
       expect(response.headers.get('X-RateLimit-Remaining')).toBe('0');
     });
 

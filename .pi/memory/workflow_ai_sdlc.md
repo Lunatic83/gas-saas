@@ -83,7 +83,33 @@ Per task (one at a time):
    ```
 6. **Local Test Gate (REQUIRED):** Run `pnpm test:unit && pnpm test:integration && pnpm test:e2e`. ALL three must pass before proceeding. If any fail, fix locally and re-run. Do NOT push until all three are green.
 7. Open PR: `closes #{task_number}`
-8. **Block on CI:** Terminal waits — poll CI every 30s until all checks pass or fail. If CI fails, proceed to validation loop.
+8. **Block on CI:** Terminal uses a while-loop polling mechanism (15-second interval) until all checks pass or fail. If CI fails, proceed to validation loop.
+   - **NEVER declare CI "green" without verifying all check-runs have conclusions**
+   - **Retry until green** — do not stop checking until every check has a conclusion (success/failure/error)
+   - **Polling mechanism:**
+     ```bash
+     START_TIME=$(date +%s)
+     TIMEOUT=600  # 10 minute max wait
+
+     while true; do
+       ELAPSED=$(($(date +%s) - START_TIME))
+       if [ $ELAPSED -ge $TIMEOUT ]; then
+         echo "Timeout waiting for CI (${ELAPSED}s)"
+         break
+       fi
+
+       STATUS=$(gh api repos/{owner}/{repo}/commits/{sha}/status --jq '.state')
+
+       if [ "$STATUS" = "success" ] || [ "$STATUS" = "failure" ] || [ "$STATUS" = "error" ]; then
+         gh api repos/{owner}/{repo}/commits/{sha}/check-runs --jq '.check_runs[] | "\(.name): \(.conclusion // .status)"'
+         break
+       fi
+
+       echo "[$((ELAPSED/15+1))] Status: $STATUS — polling..."
+       sleep 15
+     done
+     ```
+   - If E2E tests fail, investigate: if it's a rate limiting or environment issue, fix the code AND update docker-compose.e2e.yml or app environment accordingly
 9. **Validation loop:**
    ```
    WHILE issues remain:
