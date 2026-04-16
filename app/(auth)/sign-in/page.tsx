@@ -2,8 +2,8 @@
 
 import { GitHubIcon, GoogleIcon, SignInForm, authLocalization } from 'better-auth-ui';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useState } from 'react';
-
 
 import { Card, CardContent } from '@/components/ui/card';
 
@@ -15,7 +15,7 @@ export default function SignInPage() {
       {/* Desktop: left panel with hero image */}
       <div className="hidden flex-1 md:block">
         <Image
-          src="https://images.unsplash.com/photo-1557683316-973673baf926?w=900&auto=format&fit=crop&q=80"
+          src="/images/sign-in-hero.jpg"
           alt="Abstract geometric background"
           fill
           className="object-cover"
@@ -75,7 +75,7 @@ export default function SignInPage() {
               {/* Footer links */}
               <p className="text-center text-sm text-muted-foreground">
                 Don&apos;t have an account?{' '}
-                <a href="/sign-up" className="underline underline-offset-4">Sign up</a>
+                <Link href="/sign-up" className="underline underline-offset-4">Sign up</Link>
               </p>
             </CardContent>
           </Card>
