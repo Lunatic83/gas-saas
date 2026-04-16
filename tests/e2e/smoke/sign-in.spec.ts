@@ -126,7 +126,7 @@ test.describe('smoke — sign-in', () => {
     await page.waitForLoadState('domcontentloaded');
 
     const rememberMe = page
-      .locator('input[type="checkbox"], :checkbox, text="Remember me"')
+      .locator('input[type="checkbox"]')
       .first();
     await expect(rememberMe).toBeVisible();
   });
