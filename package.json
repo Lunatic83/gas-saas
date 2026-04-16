@@ -50,6 +50,7 @@
     "@better-auth/drizzle-adapter": "^1.6.3",
     "@better-fetch/fetch": "^1.1.21",
     "better-auth": "^1.6.3",
+    "better-auth-ui": "^3.2.27",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.2",
