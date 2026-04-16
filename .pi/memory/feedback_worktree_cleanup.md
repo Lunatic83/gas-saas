@@ -15,7 +15,7 @@ type: feedback
 
 **Full cleanup sequence:**
 ```bash
-git worktree remove .claude/worktrees/{path} --force
+git worktree remove .pi/worktrees/{path} --force
 git checkout main && git pull origin main
 ```
 

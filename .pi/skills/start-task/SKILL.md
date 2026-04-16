@@ -122,7 +122,7 @@ Extract the **PRD task number** from the issue title. The title format is `E{epi
 - Issue title: "E9-3: Add shadcn Button" → Task number: **E9-3** (not 75)
 
 Branch format: `task/{E{epic#}-{task#}}-{short-desc}`
-Worktree path: `.claude/worktrees/task/E{epic#}-{task#}/{short-desc}`
+Worktree path: `.pi/worktrees/task/E{epic#}-{task#}/{short-desc}`
 
 ```bash
 # Extract epic and task numbers from issue title (e.g., "E6-1" from "E6-1: Auth Schema...")
@@ -130,7 +130,7 @@ Worktree path: `.claude/worktrees/task/E{epic#}-{task#}/{short-desc}`
 TASK_NUM="E{epic#}-{task#}"
 SHORT_DESC="{slugified-desc}"
 BRANCH="task/${TASK_NUM}-${SHORT_DESC}"
-WORKTREE_DIR=".claude/worktrees/${TASK_NUM}"
+WORKTREE_DIR=".pi/worktrees/${TASK_NUM}"
 
 # Create worktree directory if needed
 mkdir -p "$WORKTREE_DIR"
@@ -174,7 +174,7 @@ If previous task is not merged, warn but allow proceeding (some tasks are parall
 **Milestone:** {milestone-name}
 
 **Branch:** {current-branch}
-**Worktree:** .claude/worktrees/{epic#}/{short-desc}
+**Worktree:** .pi/worktrees/{epic#}/{short-desc}
 
 **Acceptance Criteria:**
 - [ ] criterion 1
@@ -223,7 +223,7 @@ If any test suite fails, do NOT push or create PR. Fix the failures locally firs
 ✅ Task #{id} ready: {title}
 Nature: {nature} | Workflow: {A|B|C}
 Branch: {branch}
-Worktree: .claude/worktrees/{epic#}/{short-desc}
+Worktree: .pi/worktrees/{epic#}/{short-desc}
 ```
 
 **On error/validation failure:**

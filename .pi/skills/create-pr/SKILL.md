@@ -222,13 +222,13 @@ When the user signals the PR has merged (e.g., "PR merged", "merged", "done"):
 PR merged! 🎉
 
 Clean up worktree? (y/n)
-Path: .claude/worktrees/{epic#}-{task#}/{short-desc}
+Path: .pi/worktrees/{epic#}-{task#}/{short-desc}
 Branch will be kept for commit history.
 ```
 
 3. **On user confirmation:**
 ```bash
-git worktree remove .claude/worktrees/{worktree-path} --force
+git worktree remove .pi/worktrees/{worktree-path} --force
 git checkout main && git pull origin main
 ```
 
