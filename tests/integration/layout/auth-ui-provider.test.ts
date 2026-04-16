@@ -37,35 +37,27 @@ describe('layout integration', () => {
     layoutContent = fs.readFileSync(path.join(process.cwd(), 'app/layout.tsx'), 'utf-8');
   });
 
-  it('layout.tsx should import AuthUIProvider from components/auth', () => {
-    expect(layoutContent).toContain('AuthUIProvider');
-    expect(layoutContent).toMatch(
-      /import.*\{[^}]*AuthUIProvider[^}]*\}.*from.*@\/components\/auth\/auth-ui-provider/,
-    );
+  it('layout.tsx should use AuthProvider component', () => {
+    expect(layoutContent).toContain('AuthProvider');
+    expect(layoutContent).toContain('auth-provider-dynamic');
   });
 
-  it('layout should use AuthUIProvider with authClient prop', () => {
-    // Verify AuthUIProvider wraps the app content
-    expect(layoutContent).toContain('<AuthUIProvider authClient={');
-    expect(layoutContent).toContain('</AuthUIProvider>');
-  });
-
-  it('layout should wrap children with AuthUIProvider', () => {
-    // Verify the structure wraps children
+  it('layout should wrap children with AuthProvider', () => {
     expect(layoutContent).toContain('children');
     expect(layoutContent).toContain('TooltipProvider');
     expect(layoutContent).toContain('ThemeProvider');
   });
 
-  it('layout should import authClient from lib/auth', () => {
-    expect(layoutContent).toContain('authClient');
-    expect(layoutContent).toContain('@/lib/auth');
+  it('layout should have server component metadata', () => {
+    expect(layoutContent).toContain('export const metadata');
+    expect(layoutContent).toContain('title');
+    expect(layoutContent).toContain('Create Next App');
   });
 });
 
 describe('auth module exports', () => {
-  it('should export authClient from lib/auth', async () => {
-    const { authClient } = await import('@/lib/auth');
+  it('should export authClient from lib/auth-client', async () => {
+    const { authClient } = await import('@/lib/auth-client');
     expect(authClient).toBeDefined();
     expect(typeof authClient.getSession).toBe('function');
     expect(typeof authClient.signIn).toBe('function');
@@ -80,20 +72,14 @@ describe('auth module exports', () => {
 
   it('AuthUIProvider should accept authClient prop', async () => {
     const { AuthUIProvider } = await import('@/components/auth/auth-ui-provider');
-    // The component exists and can accept props
     expect(AuthUIProvider).toBeDefined();
-    // Props type includes authClient - use proper mock shape
-    const props = {
-      authClient: {
-        getSession: vi.fn(),
-        signIn: vi.fn(),
-        signOut: vi.fn(),
-        listSessions: vi.fn(),
-        useSession: { value: { data: null, error: null }, subscribe: vi.fn() },
-      },
-    };
-    expect(props.authClient).toBeDefined();
     // The component should accept authClient without errors
     expect(typeof AuthUIProvider).toBe('function');
+  });
+
+  it('should export AuthProviderWrapper from auth-provider-client', async () => {
+    const { AuthProviderWrapper } = await import('@/components/auth/auth-provider-client');
+    expect(AuthProviderWrapper).toBeDefined();
+    expect(typeof AuthProviderWrapper).toBe('function');
   });
 });

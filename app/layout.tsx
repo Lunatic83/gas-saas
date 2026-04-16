@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 
-import { AuthUIProvider } from '@/components/auth/auth-ui-provider';
 import { NavBar } from '@/components/nav-bar';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { authClient } from '@/lib/auth';
+
+import { AuthProvider } from './auth-provider-dynamic';
 import './globals.css';
 
 const geistSans = Geist({
@@ -36,7 +36,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable}`}
     >
       <body className="h-full antialiased">
-        <AuthUIProvider authClient={authClient}>
+        <AuthProvider>
           <TooltipProvider>
             <ThemeProvider>
               <NavBar />
@@ -44,7 +44,7 @@ export default function RootLayout({
               {children}
             </ThemeProvider>
           </TooltipProvider>
-        </AuthUIProvider>
+        </AuthProvider>
       </body>
     </html>
   );

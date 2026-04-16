@@ -1,3 +1,5 @@
+'use client';
+
 // AuthUIProvider wraps the app with Better-Auth client context
 // and provides session-aware navigation via onSessionChange
 

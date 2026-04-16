@@ -41,8 +41,8 @@ vi.mock('better-auth/client', () => ({
   createAuthClient: vi.fn(() => createMockAuthClient()),
 }));
 
-// Mock lib/auth to return our mock auth client
-vi.mock('@/lib/auth', () => ({
+// Mock lib/auth-client to return our mock auth client
+vi.mock('@/lib/auth-client', () => ({
   authClient: createMockAuthClient(),
 }));
 
@@ -98,8 +98,8 @@ describe('AuthUIProvider', () => {
   });
 
   describe('integration with auth', () => {
-    it('should work with authClient from lib/auth', async () => {
-      const { authClient } = await import('@/lib/auth');
+    it('should work with authClient from lib/auth-client', async () => {
+      const { authClient } = await import('@/lib/auth-client');
       expect(authClient).toBeDefined();
       expect(typeof authClient.getSession).toBe('function');
       // useSession is an atom property, not a function
