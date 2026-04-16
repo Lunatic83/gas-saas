@@ -1,3 +1,5 @@
+/* eslint-disable-next-line @next/next/no-html-link-for-pages */
+import Link from 'next/link';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -54,9 +56,9 @@ export default function SignInPage() {
                 <input type="checkbox" name="rememberMe" className="size-4 rounded border-input" />
                 Remember me
               </label>
-              <a href="/forgot-password" className="text-sm text-primary underline underline-offset-4">
+              <Link href="/forgot-password" className="text-sm text-primary underline underline-offset-4">
                 Forgot password?
-              </a>
+              </Link>
             </div>
 
             <button
@@ -79,6 +81,7 @@ export default function SignInPage() {
 
           {/* OAuth buttons */}
           <div className="flex flex-col gap-2">
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a
               href="/api/auth/sign-in/social?provider=google"
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-muted"
@@ -103,6 +106,7 @@ export default function SignInPage() {
               </svg>
               Google
             </a>
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a
               href="/api/auth/sign-in/social?provider=github"
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-muted"
@@ -120,9 +124,9 @@ export default function SignInPage() {
           {/* Footer links */}
           <p className="mt-4 text-center text-sm text-muted-foreground">
             Don&apos;t have an account?{' '}
-            <a href="/sign-up" className="underline underline-offset-4">
+            <Link href="/sign-up" className="underline underline-offset-4">
               Sign up
-            </a>
+            </Link>
           </p>
         </div>
       </div>
