@@ -12,22 +12,16 @@ test.describe('smoke — sign-in', () => {
 
     // Check page has loaded - either by title or content
     const pageContent = await page.content();
-    const hasSignInContent =
-      pageContent.includes('sign-in') || pageContent.includes('Sign in');
+    const hasSignInContent = pageContent.includes('sign-in') || pageContent.includes('Sign in');
 
     // No critical console errors (filter out warnings and non-critical errors)
     const criticalErrors = errors.filter(
-      (e) =>
-        !e.includes('favicon') &&
-        !e.includes('hydration') &&
-        !e.includes('Warning'),
+      (e) => !e.includes('favicon') && !e.includes('hydration') && !e.includes('Warning'),
     );
 
     // The page should either have sign-in content OR the auth layout should be present
     expect(
-      hasSignInContent ||
-        pageContent.includes('gas') ||
-        pageContent.includes('Gas'),
+      hasSignInContent || pageContent.includes('gas') || pageContent.includes('Gas'),
     ).toBeTruthy();
     expect(criticalErrors).toHaveLength(0);
   });
